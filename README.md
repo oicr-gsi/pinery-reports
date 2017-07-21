@@ -1,5 +1,7 @@
 # Pinery Reports
 
+[![Build Status](https://travis-ci.org/oicr-gsi/pinery-reports.svg)](https://travis-ci.org/oicr-gsi/pinery-reports)
+
 A Java app for generating regular reports based on Pinery data
 
 ## Build
