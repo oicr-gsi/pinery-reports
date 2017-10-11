@@ -115,6 +115,16 @@ public class SampleUtils {
     return parent;
   }
   
+  public static SampleDto getParent(SampleDto sample, String sampleCategory, Map<String, SampleDto> potentialParents) {
+    for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
+      if (sampleCategory.equals(getAttribute("Sample Category", current))) {
+        return current;
+      }
+    }
+    throw new IllegalStateException("Parent " + sampleCategory + " of sample " + sample.getId()
+        + " not found. Possibly in a different project");
+  }
+  
   private static String getParentId(SampleDto sample) {
     Set<SampleReferenceDto> parents = sample.getParents();
     if (parents == null) {
