@@ -128,9 +128,6 @@ public class SampleUtils {
    * @return the sample's parent, or null if it has no parent
    */
   public static SampleDto getParent(SampleDto sample, Map<String, SampleDto> potentialParents) {
-    if (sample == null) {
-      throw new IllegalArgumentException("Sample cannot be null");
-    }
     String parentId = getParentId(sample);
     if (parentId == null) {
       return null;
@@ -151,6 +148,9 @@ public class SampleUtils {
    * @return the closest ancestor of sample of the provided sample category
    */
   public static SampleDto getParent(SampleDto sample, String sampleCategory, Map<String, SampleDto> potentialParents) {
+    if (sample == null) {
+      throw new IllegalArgumentException("Sample cannot be null");
+    }
     for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
       if (sampleCategory.equals(getAttribute("Sample Category", current))) {
         return current;
