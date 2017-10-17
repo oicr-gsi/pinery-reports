@@ -238,27 +238,27 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers.add(new Count("Tumor Tissue H&E Slides", countSlidesRemaining(heInventory)));
     inventoryNumbers.add(new Count("Tumor Tissue H&E Slides (Cases)", countUniqueIdentities(heInventory, allOctaneSamplesById)));
     
-    List<SampleDto> buffyInventory = filterNonEmpty(buffyCoats, allOctaneSamplesById);
+    List<SampleDto> buffyInventory = filterNonEmpty(buffyCoats);
     inventoryNumbers.add(new Count("Buffy Coat", buffyInventory.size()));
     inventoryNumbers.add(new Count("Buffy Coat (Cases)", countUniqueIdentities(buffyInventory, allOctaneSamplesById)));
     
-    List<SampleDto> plasmaInventory = filterNonEmpty(plasma, allOctaneSamplesById);
+    List<SampleDto> plasmaInventory = filterNonEmpty(plasma);
     inventoryNumbers.add(new Count("Plasma", plasmaInventory.size()));
     inventoryNumbers.add(new Count("Plasma (Cases)", countUniqueIdentities(plasmaInventory, allOctaneSamplesById)));
     
-    List<SampleDto> ctInventory = filterNonEmpty(ctDnaPlasma, allOctaneSamplesById);
+    List<SampleDto> ctInventory = filterNonEmpty(ctDnaPlasma);
     inventoryNumbers.add(new Count("ctDNA Plasma", ctInventory.size()));
     inventoryNumbers.add(new Count("ctDNA Plasma (Cases)", countUniqueIdentities(ctInventory, allOctaneSamplesById)));
     
-    List<SampleDto> buffyStockInventory = filterNonEmpty(stocksFromBuffy, allOctaneSamplesById);
+    List<SampleDto> buffyStockInventory = filterNonEmpty(stocksFromBuffy);
     inventoryNumbers.add(new Count("Extracted Buffy Coat", buffyStockInventory.size()));
     inventoryNumbers.add(new Count("Extracted Buffy Coat (Cases)", countUniqueIdentities(buffyStockInventory, allOctaneSamplesById)));
     
-    List<SampleDto> stockDnaFromSlideInventory = filterNonEmpty(stockDnaFromSlides, allOctaneSamplesById);
+    List<SampleDto> stockDnaFromSlideInventory = filterNonEmpty(stockDnaFromSlides);
     inventoryNumbers.add(new Count("Tumor Tissue DNA", stockDnaFromSlideInventory.size()));
     inventoryNumbers.add(new Count("Tumor Tissue DNA (Cases)", countUniqueIdentities(stockDnaFromSlideInventory, allOctaneSamplesById)));
     
-    List<SampleDto> stockRnaFromSlideInventory = filterNonEmpty(stockRnaFromSlides, allOctaneSamplesById);
+    List<SampleDto> stockRnaFromSlideInventory = filterNonEmpty(stockRnaFromSlides);
     inventoryNumbers.add(new Count("Tumor Tissue DNA", stockRnaFromSlideInventory.size()));
     inventoryNumbers.add(new Count("Tumor Tissue DNA (Cases)", countUniqueIdentities(stockRnaFromSlideInventory, allOctaneSamplesById)));
     
@@ -354,12 +354,10 @@ public class OctaneCountsReport extends TableReport {
   }
   
   private static Predicate<SampleDto> byStain(String stain) {
-    return slide -> {
-      return stain == null ? getAttribute(ATTR_STAIN, slide) == null : stain.equals(getAttribute(ATTR_STAIN, slide));
-    };
+    return slide -> stain == null ? getAttribute(ATTR_STAIN, slide) == null : stain.equals(getAttribute(ATTR_STAIN, slide));
   }
   
-  private static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples, Map<String, SampleDto> potentialParents) {
+  private static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples) {
     return samples.stream()
         .filter(sample -> !"EMPTY".equals(sample.getStorageLocation()))
         .collect(Collectors.toList());

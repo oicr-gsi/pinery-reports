@@ -128,6 +128,9 @@ public class SampleUtils {
    * @return the sample's parent, or null if it has no parent
    */
   public static SampleDto getParent(SampleDto sample, Map<String, SampleDto> potentialParents) {
+    if (sample == null) {
+      throw new IllegalArgumentException("Sample cannot be null");
+    }
     String parentId = getParentId(sample);
     if (parentId == null) {
       return null;
