@@ -18,6 +18,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ReportFormat;
 import ca.on.oicr.pineryreports.reports.Report;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
+import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.StockReport;
 
@@ -97,7 +98,7 @@ public class Main {
         .required()
         .hasArg()
         .argName("name")
-        .desc("Report to generate {stock, gecco, sequencing}")
+        .desc("Report to generate {stock, gecco, sequencing, octane}")
         .build());
     opts.addOption(Option.builder("f")
         .longOpt(OPT_FORMAT)
@@ -123,6 +124,8 @@ public class Main {
       return new GeccoReport();
     case ProjectSequencingReport.REPORT_NAME:
       return new ProjectSequencingReport();
+    case OctaneCountsReport.REPORT_NAME:
+      return new OctaneCountsReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }

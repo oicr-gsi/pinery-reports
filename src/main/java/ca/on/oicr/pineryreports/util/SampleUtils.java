@@ -61,7 +61,7 @@ public class SampleUtils {
   }
   
   /**
-   * Return attribute value that exist for the given attribute name on the given sample.
+   * Return attribute value that exists for the given attribute name on the given sample.
    * 
    * @param sample
    *          Sample to look for attribute
@@ -78,6 +78,30 @@ public class SampleUtils {
       }
     }
     return null;
+  }
+  
+  /**
+   * Return attribute value that exists for the given attribute name on the given sample.
+   * 
+   * @param sample Sample to look for attribute
+   * @param attributeName Name of the attribute we are retrieving values for
+   * @return Attribute the attribute value, or an empty String if the attribute is not found
+   */
+  public static Integer getIntAttribute(String attributeName, SampleDto sample) {
+    return getIntAttribute(attributeName, sample, null);
+  }
+  
+  /**
+   * Return attribute value that exists for the given attribute name on the given sample.
+   * 
+   * @param sample Sample to look for attribute
+   * @param attributeName Name of the attribute we are retrieving values for
+   * @param defaultValue value to return if the attribute is not found
+   * @return Attribute the attribute value, or defaultValue if the attribute is not found
+   */
+  public static Integer getIntAttribute(String attributeName, SampleDto sample, Integer defaultValue) {
+    String attr = getAttribute(attributeName, sample);
+    return attr == null ? defaultValue : Integer.valueOf(attr);
   }
   
   /**
@@ -115,6 +139,14 @@ public class SampleUtils {
     return parent;
   }
   
+  /**
+   * Get an ancestor of the sample
+   * 
+   * @param sample sample to find the parent of
+   * @param sampleCategory category of parent to find
+   * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
+   * @return the closest ancestor of sample of the provided sample category
+   */
   public static SampleDto getParent(SampleDto sample, String sampleCategory, Map<String, SampleDto> potentialParents) {
     for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
       if (sampleCategory.equals(getAttribute("Sample Category", current))) {
@@ -123,6 +155,23 @@ public class SampleUtils {
     }
     throw new IllegalStateException("Parent " + sampleCategory + " of sample " + sample.getId()
         + " not found. Possibly in a different project");
+  }
+  
+  /**
+   * Get an ancestor of the sample if it exists
+   * 
+   * @param sample sample to find the parent of
+   * @param sampleClass class of parent to find
+   * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
+   * @return the closest ancestor of sample of the provided sample class, or null if one is not found
+   */
+  public static SampleDto getOptionalParent(SampleDto sample, String sampleClass, Map<String, SampleDto> potentialParents) {
+    for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
+      if (sampleClass.equals(current.getSampleType())) {
+        return current;
+      }
+    }
+    return null;
   }
   
   private static String getParentId(SampleDto sample) {
