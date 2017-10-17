@@ -32,3 +32,4 @@ See report pages for additional options and examples:
 * [GECCO Report](docs/GeccoReport.md)
 * [Stock Report](docs/StockReport.md)
 * [Project Sequencing Report](docs/ProjectSequencingReport.md)
+* [OCTANE Counts Report](docs/OctaneCountsReport.md)
