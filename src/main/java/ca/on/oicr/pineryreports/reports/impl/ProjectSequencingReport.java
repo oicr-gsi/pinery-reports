@@ -178,34 +178,44 @@ public class ProjectSequencingReport extends TableReport {
     
     String i1 = getUpstreamAttribute("Barcode", obj.getDilution(), allSamplesById);
     String i2 = getUpstreamAttribute("Barcode Two", obj.getDilution(), allSamplesById);
-    String indices = i1 == null ? "" : i2 == null ? i1 : i1 + ", " + i2;
+    String indices = makeIndicesString(i1, i2);
     
-    int i = 0;
+    int i = -1;
     // Stock
-    row[i++] = stock.getName();
+    row[++i] = stock.getName();
     // Pool
-    row[i++] = obj.getLane().getPoolName();
+    row[++i] = obj.getLane().getPoolName();
     // Pool Creator
-    row[i++] = getUserName(obj.getPoolCreator());
+    row[++i] = getUserName(obj.getPoolCreator());
     // Pool Created
-    row[i++] = obj.getLane().getPoolCreated() == null ? null : removeTime(obj.getLane().getPoolCreated());
+    row[++i] = obj.getLane().getPoolCreated() == null ? null : removeTime(obj.getLane().getPoolCreated());
     // Dilutions
-    row[i++] = Integer.toString(obj.getLane().getSamples().size());
+    row[++i] = Integer.toString(obj.getLane().getSamples().size());
     // Library
-    row[i++] = obj.getDilution().getName();
+    row[++i] = obj.getDilution().getName();
     // Run
-    row[i++] = obj.getRun().getName();
+    row[++i] = obj.getRun().getName();
     // Lane
-    row[i++] = obj.getLane().getPosition().toString();
+    row[++i] = obj.getLane().getPosition().toString();
     // Index
-    row[i++] = indices;
+    row[++i] = indices;
     
     return row;
   }
   
+  private static String makeIndicesString(String index1, String index2) {
+    if (index1 == null) {
+      return "";
+    } else if (index2 == null) {
+      return index1;
+    } else {
+      return index1 + ", " + index2;
+    }
+  }
+  
   private String getUserName(UserDto user) {
     if (user == null) return null;
-    if (GSLE_USER.equals(user.getFirstname()) && GSLE_USER.equals(user.getFirstname())) return GSLE_USER;
+    if (GSLE_USER.equals(user.getFirstname()) && GSLE_USER.equals(user.getLastname())) return GSLE_USER;
     return user.getFirstname() + " " + user.getLastname();
   }
 
