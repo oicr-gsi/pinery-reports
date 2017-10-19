@@ -121,6 +121,9 @@ public class SampleUtils {
         return current;
       }
     }
+    if (sample == null) {
+      throw new IllegalArgumentException("sample cannot be null");
+    }
     throw new IllegalStateException("Parent " + sampleCategory + " of sample " + sample.getId()
         + " not found. Possibly in a different project");
   }
