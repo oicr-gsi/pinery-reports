@@ -33,3 +33,4 @@ See report pages for additional options and examples:
 * [Stock Report](docs/StockReport.md)
 * [Project Sequencing Report](docs/ProjectSequencingReport.md)
 * [OCTANE Counts Report](docs/OctaneCountsReport.md)
+* [Receipt Missing Report](docs/ReceiptMissingReport.md)

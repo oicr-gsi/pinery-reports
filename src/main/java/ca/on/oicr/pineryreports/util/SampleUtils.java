@@ -67,7 +67,7 @@ public class SampleUtils {
    *          Sample to look for attribute
    * @param attributeName
    *          Name of the attribute we are retrieving values for
-   * @return Attribute the attribute value, or an empty String if the attribute is not found
+   * @return Attribute the attribute value, or null if the attribute is not found
    */
   public static String getAttribute(String attributeName, SampleDto sample) {
     if (sample.getAttributes() != null) {
@@ -85,7 +85,7 @@ public class SampleUtils {
    * 
    * @param sample Sample to look for attribute
    * @param attributeName Name of the attribute we are retrieving values for
-   * @return Attribute the attribute value, or an empty String if the attribute is not found
+   * @return Attribute the attribute value, or null if the attribute is not found
    */
   public static Integer getIntAttribute(String attributeName, SampleDto sample) {
     return getIntAttribute(attributeName, sample, null);
