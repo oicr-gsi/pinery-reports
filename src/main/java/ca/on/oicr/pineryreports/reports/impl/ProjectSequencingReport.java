@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -20,6 +19,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
@@ -62,7 +62,7 @@ public class ProjectSequencingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "sequencing";
-  private static final String OPT_PROJECT = "project";
+  private static final Option OPT_PROJECT = CommonOptions.project(true);
   
   public static final String GSLE_USER = "Geospiza";
 
@@ -89,22 +89,12 @@ public class ProjectSequencingReport extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    Set<Option> opts = Sets.newHashSet();
-    
-    opts.add(Option.builder()
-        .longOpt(OPT_PROJECT)
-        .hasArg()
-        .argName("code")
-        .required()
-        .desc("Project to report on (required)")
-        .build());
-    
-    return opts;
+    return Sets.newHashSet(OPT_PROJECT);
   }
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    this.project = cmd.getOptionValue(OPT_PROJECT);
+    this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
   }
 
   @Override

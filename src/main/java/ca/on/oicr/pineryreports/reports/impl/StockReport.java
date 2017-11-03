@@ -19,6 +19,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
 
 import com.google.common.collect.Sets;
@@ -31,9 +32,9 @@ public class StockReport extends TableReport {
   
   public static final String REPORT_NAME = "stock";
   
-  private static final String OPT_PROJECT = "project";
-  private static final String OPT_AFTER = "after";
-  private static final String OPT_BEFORE = "before";
+  private static final Option OPT_PROJECT = CommonOptions.project(true);
+  private static final Option OPT_AFTER = CommonOptions.after(false);
+  private static final Option OPT_BEFORE = CommonOptions.before(false);
   
   private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
   
@@ -62,45 +63,23 @@ public class StockReport extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    Set<Option> opts = Sets.newHashSet();
-    
-    opts.add(Option.builder()
-        .longOpt(OPT_PROJECT)
-        .hasArg()
-        .argName("code")
-        .required()
-        .desc("Project to report on (required)")
-        .build());
-    opts.add(Option.builder()
-        .longOpt(OPT_AFTER)
-        .hasArg()
-        .argName("date")
-        .desc("Report stocks created after this date, inclusive (yyyy-mm-dd)")
-        .build());
-    opts.add(Option.builder()
-        .longOpt(OPT_BEFORE)
-        .hasArg()
-        .argName("date")
-        .desc("Report stocks created before this date, exclusive (yyyy-mm-dd)")
-        .build());
-    
-    return opts;
+    return Sets.newHashSet(OPT_PROJECT, OPT_AFTER, OPT_BEFORE);
   }
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    this.project = cmd.getOptionValue(OPT_PROJECT);
+    this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
     
-    if (cmd.hasOption(OPT_AFTER)) {
-      String after = cmd.getOptionValue(OPT_AFTER);
+    if (cmd.hasOption(OPT_AFTER.getLongOpt())) {
+      String after = cmd.getOptionValue(OPT_AFTER.getLongOpt());
       if (!after.matches(DATE_REGEX)) {
         throw new ParseException("After date must be in format yyyy-mm-dd");
       }
       this.start = after;
     }
     
-    if (cmd.hasOption(OPT_BEFORE)) {
-      String before = cmd.getOptionValue(OPT_BEFORE);
+    if (cmd.hasOption(OPT_BEFORE.getLongOpt())) {
+      String before = cmd.getOptionValue(OPT_BEFORE.getLongOpt());
       if (!before.matches(DATE_REGEX)) {
         throw new ParseException("Before date must be in format yyyy-mm-dd");
       }
