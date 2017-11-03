@@ -34,3 +34,4 @@ See report pages for additional options and examples:
 * [Project Sequencing Report](docs/ProjectSequencingReport.md)
 * [OCTANE Counts Report](docs/OctaneCountsReport.md)
 * [Receipt Missing Report](docs/ReceiptMissingReport.md)
+* [Slide Report](docs/SlideReport.md)
