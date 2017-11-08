@@ -4,6 +4,10 @@ import org.apache.commons.cli.Option;
 
 public class CommonOptions {
 
+  private CommonOptions() {
+    throw new IllegalStateException("Static util class not intended for instantiation");
+  }
+  
   public static Option project(boolean required) {
     return Option.builder()
         .longOpt("project")

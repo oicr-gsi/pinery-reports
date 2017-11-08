@@ -54,7 +54,39 @@ public class OctaneCountsReport extends TableReport {
 
     @Override
     public int compareTo(Count o) {
-      return key.toUpperCase().compareTo(o.key.toUpperCase());
+      int compare = key.toUpperCase().compareTo(o.key.toUpperCase());
+      if (compare == 0) {
+        return Long.compare(value, o.value);
+      } else {
+        return compare;
+      }
+    }
+
+    @Override
+    public int hashCode() {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((key == null) ? 0 : key.hashCode());
+      result = prime * result + (int) (value ^ (value >>> 32));
+      return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
+      Count other = (Count) obj;
+      if (key == null) {
+        if (other.key != null)
+          return false;
+      }
+      else if (!key.equals(other.key))
+        return false;
+      return value == other.value;
     }
   }
   
@@ -332,15 +364,13 @@ public class OctaneCountsReport extends TableReport {
   
   private void calculateConsumedSlides(Collection<SampleDto> samples, Map<String, SampleDto> potentialParents) {
     samples.stream()
-        .filter(sam -> getAttribute(ATTR_CONSUMED, sam) != null).forEach(sam -> {
-          sam.getParents().forEach(ref -> {
+        .filter(sam -> getAttribute(ATTR_CONSUMED, sam) != null).forEach(sam -> sam.getParents().forEach(ref -> {
             SampleDto parent = potentialParents.get(ref.getId());
             AttributeDto remainingAttr = parent.getAttributes().stream().filter(attr -> ATTR_REMAINING.equals(attr.getName())).findFirst().get();
             Integer remaining = Integer.parseInt(remainingAttr.getValue());
             Integer consumed = Integer.parseInt(getAttribute(ATTR_CONSUMED, sam));
             remainingAttr.setValue(Integer.toString(remaining - consumed));
-          });
-        });
+        }));
   }
   
   private int countSlidesRemaining(Collection<SampleDto> samples) {
@@ -392,10 +422,9 @@ public class OctaneCountsReport extends TableReport {
   private long countNewCases(Collection<SampleDto> newSamples, Collection<SampleDto> potentialOldSamples,
       Map<String, SampleDto> potentialParents) {
     return getUniqueIdentities(newSamples, potentialParents).stream()
-        .filter(identity -> potentialOldSamples.stream().noneMatch(sam -> {
-          return identity.getId().equals(getParent(sam, "Identity", potentialParents).getId())
-              && sam.getCreatedDate().compareTo(start) < 0;
-        }))
+        .filter(identity -> potentialOldSamples.stream()
+        .noneMatch(sam -> identity.getId().equals(getParent(sam, "Identity", potentialParents).getId())
+            && sam.getCreatedDate().compareTo(start) < 0))
         .count();
   }
   
