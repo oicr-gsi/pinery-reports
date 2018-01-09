@@ -17,6 +17,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ReportFormat;
 import ca.on.oicr.pineryreports.reports.Report;
+import ca.on.oicr.pineryreports.reports.impl.DysReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
@@ -104,7 +105,7 @@ public class Main {
         .hasArg()
         .argName("name")
         .desc(
-            "Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide, libraries-billing, lanes-billing}")
+            "Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide, libraries-billing, lanes-billing, dys, tgl-libraries-run}")
         .build());
     opts.addOption(Option.builder("f")
         .longOpt(OPT_FORMAT)
@@ -142,6 +143,8 @@ public class Main {
       return new LanesBillingReport();
     case TglLibrariesRunReport.REPORT_NAME:
       return new TglLibrariesRunReport();
+    case DysReport.REPORT_NAME:
+      return new DysReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }

@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -120,6 +121,14 @@ public class SampleUtils {
       if (value != null) return value;
     }
     return null;
+  }
+  
+  public static String getUpstreamField(Function<SampleDto, String> getField, SampleDto sample, Map<String, SampleDto> allSamples) {
+	for (SampleDto parent = getParent(sample, allSamples); parent != null; parent = getParent(parent, allSamples)) {
+	  String value = getField.apply(parent);
+	  if (value != null) return value;
+	}
+	return null;
   }
   
   /**
