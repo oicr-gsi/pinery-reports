@@ -100,7 +100,7 @@ public class Main {
         .required()
         .hasArg()
         .argName("name")
-        .desc("Report to generate {stock, gecco, sequencing, octane}")
+        .desc("Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide}")
         .build());
     opts.addOption(Option.builder("f")
         .longOpt(OPT_FORMAT)
