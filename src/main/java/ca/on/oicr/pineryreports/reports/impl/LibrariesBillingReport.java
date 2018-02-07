@@ -104,13 +104,12 @@ public class LibrariesBillingReport extends TableReport {
 
 	@Override
 	public String getTitle() {
-		return "Billing Librarires "
+		return "Libraries Creation (Billing) "
 				+ (start == null ? "Any Time" : start)
 				+ " - "
 				+ (end == null ? "Now" : end);
 	}
   
-  //{ shortName: { kitName: [libs] } }
 	private List<ReportObject> reportData = new ArrayList<ReportObject>();
   
 	@Override
