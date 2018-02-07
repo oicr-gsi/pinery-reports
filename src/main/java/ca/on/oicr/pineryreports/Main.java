@@ -17,6 +17,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ReportFormat;
 import ca.on.oicr.pineryreports.reports.Report;
+import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
@@ -132,6 +133,8 @@ public class Main {
       return new ReceiptMissingReport();
     case SlideReport.REPORT_NAME:
       return new SlideReport();
+    case LibrariesBillingReport.REPORT_NAME:
+      return new LibrariesBillingReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }
