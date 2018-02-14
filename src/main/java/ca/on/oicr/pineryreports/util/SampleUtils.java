@@ -224,5 +224,25 @@ public class SampleUtils {
     }
     return m.group(1);
   }
+  
+  public static boolean isRnaLibrary(SampleDto library, Map<String, SampleDto> mapById) {
+    if (library == null) {
+      throw new IllegalArgumentException("Library cannot be null");
+    }
+    if (library.getSampleType().equals("Unknown")) {
+      // probably a PacBio library; assume DNA until we're told otherwise
+      return false;
+    }
+    if (!library.getSampleType().contains("Library")) {
+      throw new IllegalArgumentException("Provided sample " + library.getName() + " is not a library");
+    }
+    for (SampleDto current = library; current != null; current = getParent(current, mapById)) {
+      if (current.getSampleType().contains("Library")) {
+        continue;
+      }
+      return current.getSampleType().contains("RNA");
+    }
+    return false;
+  }
 
 }
