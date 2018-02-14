@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.timeStringToYyyyMmDd;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
@@ -25,12 +26,12 @@ import ca.on.oicr.ws.dto.SampleDto;
 
 public class LibrariesBillingReport extends TableReport {
 
-	private static class ReportObject {
+	private static class SummaryObject {
 		private final String project;
 		private final String kit;
 		private Integer libsCount = 0;
 		
-		public ReportObject(String project, String kit) {
+		public SummaryObject(String project, String kit) {
 		  this.project = project;
 		  this.kit = kit;
 		  this.libsCount = 1;
@@ -52,9 +53,9 @@ public class LibrariesBillingReport extends TableReport {
 		  libsCount += 1;
 		}
 		
-		private static final Comparator<ReportObject> reportObjectComparator = new Comparator<ReportObject>() {
+		private static final Comparator<SummaryObject> summaryComparator = new Comparator<SummaryObject>() {
       @Override
-      public int compare(ReportObject o1, ReportObject o2) {
+      public int compare(SummaryObject o1, SummaryObject o2) {
         if (o1.getProject().equals(o2.getProject())) {
           return o2.getKit().compareTo(o2.getKit());
         } else {
@@ -64,6 +65,54 @@ public class LibrariesBillingReport extends TableReport {
       }
     };
 	}
+	
+	private static class DetailedObject {
+    private final String creationDate;
+    private final String kit;
+    private final String libraryAlias;
+    private final String libraryDesignCode;
+    private final String project;
+    
+    public DetailedObject(String project, String kit, String creationDate, String libraryAlias, String libraryDesignCode) {
+      this.project = project;
+      this.kit = kit;
+      this.creationDate = timeStringToYyyyMmDd(creationDate);
+      this.libraryAlias = libraryAlias;
+      this.libraryDesignCode = libraryDesignCode;
+    }
+    
+    public String getCreationDate() {
+      return creationDate;
+    }
+    
+    public String getKit() {
+      return kit;
+    }
+    
+    public String getLibrary() {
+      return libraryAlias;
+    }
+    
+    public String getLibraryDesignCode() {
+      return libraryDesignCode;
+    }
+    
+    public String getProject() {
+      return project;
+    }
+    
+    private static final Comparator<DetailedObject> detailedComparator = new Comparator<DetailedObject>() {
+      @Override
+      public int compare(DetailedObject o1, DetailedObject o2) {
+        if (o1.getProject().equals(o2.getProject())) {
+          return o2.getCreationDate().compareTo(o2.getCreationDate());
+        } else {
+          // sort on this primarily
+          return o1.getProject().compareTo(o2.getProject());
+        }
+      }
+    };
+  }
 	
 	public static final String REPORT_NAME = "libraries-billing";
 	private static final Option OPT_AFTER = CommonOptions.after(false);
@@ -109,8 +158,10 @@ public class LibrariesBillingReport extends TableReport {
 				+ " - "
 				+ (end == null ? "Now" : end);
 	}
-  
-	private List<ReportObject> reportData = new ArrayList<ReportObject>();
+
+  private static final String LIBRARY_DESIGN_CODE = "Source Template Type";
+	private List<SummaryObject> summaryData = new ArrayList<>();
+	private List<DetailedObject> detailedData = new ArrayList<>();
   
 	@Override
 	protected void collectData(PineryClient pinery) throws HttpResponseException {
@@ -125,20 +176,30 @@ public class LibrariesBillingReport extends TableReport {
 		  String kitName = lib.getPreparationKit().getName();
 		  String project = lib.getProjectName();
 		  
- 		  ReportObject matchingKitAndProject = reportData.stream()
+		  // update summary
+ 		  SummaryObject matchingKitAndProject = summaryData.stream()
  		      .filter(row -> row.getKit().equals(kitName) && row.getProject().equals(project))
  		      .findAny().orElse(null);
 		  if (matchingKitAndProject == null) {
 		    // new project & kit combo
-		    matchingKitAndProject = new ReportObject(project, kitName);
-		    reportData.add(matchingKitAndProject);
+		    matchingKitAndProject = new SummaryObject(project, kitName);
+		    summaryData.add(matchingKitAndProject);
 		  } else {
 		    // existing project & kit combo
 		    matchingKitAndProject.addOneLibrary();
 		  }
+		  
+		  // add detailed row
+		  detailedData.add(makeDetailedRow(lib));
 		}
 		
-		reportData.sort(ReportObject.reportObjectComparator);
+		summaryData.sort(SummaryObject.summaryComparator);
+		detailedData.sort(DetailedObject.detailedComparator);
+	}
+	
+	private DetailedObject makeDetailedRow(SampleDto lib) {
+	  return new DetailedObject(lib.getProjectName(), lib.getPreparationKit().getName(),
+        lib.getCreatedDate(), lib.getName(), getAttribute(LIBRARY_DESIGN_CODE, lib));
 	}
 
 	@Override
@@ -146,29 +207,94 @@ public class LibrariesBillingReport extends TableReport {
 	  return Arrays.asList(
       new ColumnDefinition("Study Title"),
       new ColumnDefinition("Library Kit"),
-      new ColumnDefinition(String.format("Count (%s - %s)", start, end))
+      new ColumnDefinition(String.format("Count (%s - %s)", start, end)),
+      new ColumnDefinition(""),
+      new ColumnDefinition("")
     );
+	}
+	
+	private List<String> getDetailedHeadings() {
+	  return Arrays.asList(
+	      "Project",
+	      "Creation Date",
+	      "Library",
+	      "Library Kit",
+	      "Seq. Strategy"
+	    );
 	}
 
 	@Override
 	protected int getRowCount() {
-		return reportData.size();
+		return summaryData.size()
+		    + 2
+		    + detailedData.size();
 	}
 
 	@Override
 	protected String[] getRow(int rowNum) {
-		ReportObject obj = reportData.get(rowNum);
-		String[] row = new String[getColumns().size()];
-		
-		int i = -1;
-		// Project
-		row[++i] = obj.getProject();
-		// Kit
-		row[++i] = obj.getKit();
-		// Count of libraries using this kit in this project
-		row[++i] = obj.getLibrariesCount().toString();
-		
-		return row;
+	  if (rowNum < summaryData.size()) {
+		  SummaryObject obj = summaryData.get(rowNum);
+		  return makeSummaryRow(obj);
+	  }
+	  rowNum -= summaryData.size();
+	  
+	  if (rowNum == 0) {
+      return makeBlankRow();
+    } else if (rowNum == 1) {
+      return makeHeadingRow(getDetailedHeadings());
+    }
+    rowNum -= 2;
+    
+    return makeDetailedRow(detailedData.get(rowNum));
 	}
-	
+	  
+	  private String[] makeSummaryRow(SummaryObject obj) {
+	    String[] row = new String[getColumns().size()];
+	    
+	    int i = -1;
+	    // Project
+	    row[++i] = obj.getProject();
+	    // Kit
+	    row[++i] = obj.getKit();
+	    // Count of libraries using this kit in this project
+	    row[++i] = obj.getLibrariesCount().toString();
+	    
+	    // extra columns to account for detailed row size
+	    for (int j = i+1; j < row.length; j++) {
+	      row[j] = "";
+	    }
+	    
+	    return row;
+	  }
+	  
+	  private String[] makeBlankRow() {
+	    String[] row = new String[getColumns().size()];
+	    for (int i = 0; i < row.length; i++) {
+	      row[i] = "";
+	    }
+	    return row;
+	  }
+	  
+	  private String[] makeHeadingRow(List<String> headings) {
+	    String[] row = new String[headings.size()];
+	    return headings.toArray(row);
+	  }
+	  
+	  private String[] makeDetailedRow(DetailedObject obj) {
+	    String[] row = new String[getColumns().size()];
+	    
+	    int i = -1;
+	    // Project
+	    row[++i] = obj.getProject();
+	    // Creation Date
+	    row[++i] = obj.getCreationDate();
+	    // Library
+	    row[++i] = obj.getLibrary();
+	    // Library Kit
+	    row[++i] = obj.getKit();
+	    // Seq. Strategy
+	    row[++i] = obj.getLibraryDesignCode();
+	    
+	    return row;
+	  }
 }

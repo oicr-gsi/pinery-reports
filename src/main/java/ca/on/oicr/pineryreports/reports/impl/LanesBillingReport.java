@@ -5,8 +5,6 @@ import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -158,7 +156,7 @@ public class LanesBillingReport extends TableReport {
 
   @Override
   public String getTitle() {
-    return "Lanes Completion "
+    return "Lanes Completion (Billing) "
         + (start == null ? "Any Time" : start)
         + " - "
         + (end == null ? "Now" : end);
