@@ -1,7 +1,8 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
 import static ca.on.oicr.pineryreports.util.GeneralUtils.timeStringToYyyyMmDd;
-import static ca.on.oicr.pineryreports.util.SampleUtils.*;
+import static ca.on.oicr.pineryreports.util.SampleUtils.byCreatedBetween;
+import static ca.on.oicr.pineryreports.util.SampleUtils.getAttribute;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,9 +65,9 @@ public class LibrariesBillingReport extends TableReport {
         }
       }
     };
-	}
-	
-	private static class DetailedObject {
+  }
+
+  private static class DetailedObject {
     private final String creationDate;
     private final String kit;
     private final String libraryAlias;
@@ -114,9 +115,9 @@ public class LibrariesBillingReport extends TableReport {
     };
   }
 	
-	public static final String REPORT_NAME = "libraries-billing";
-	private static final Option OPT_AFTER = CommonOptions.after(false);
-    private static final Option OPT_BEFORE = CommonOptions.before(false);
+  public static final String REPORT_NAME = "libraries-billing";
+  private static final Option OPT_AFTER = CommonOptions.after(false);
+  private static final Option OPT_BEFORE = CommonOptions.before(false);
 	
 	private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
   private String start;
@@ -160,8 +161,8 @@ public class LibrariesBillingReport extends TableReport {
 	}
 
   private static final String LIBRARY_DESIGN_CODE = "Source Template Type";
-	private List<SummaryObject> summaryData = new ArrayList<>();
-	private List<DetailedObject> detailedData = new ArrayList<>();
+  private List<SummaryObject> summaryData = new ArrayList<>();
+  private List<DetailedObject> detailedData = new ArrayList<>();
   
 	@Override
 	protected void collectData(PineryClient pinery) throws HttpResponseException {

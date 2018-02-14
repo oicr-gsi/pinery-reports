@@ -1,7 +1,9 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
-import static ca.on.oicr.pineryreports.util.SampleUtils.*;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.byEndedBetween;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.timeStringToYyyyMmDd;
+import static ca.on.oicr.pineryreports.util.SampleUtils.isRnaLibrary;
+import static ca.on.oicr.pineryreports.util.SampleUtils.mapSamplesById;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
