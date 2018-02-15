@@ -49,16 +49,16 @@ public class LanesBillingReport extends TableReport {
     private final String runName;
     private final String runStatus;
     
-    public DetailedObject (String runEndDate, String instrumentName, String instrumentModel, String runName, 
-        String laneNumber, String project, BigDecimal libsPercent, String status, String laneContents) {
-      this.runEndDate = timeStringToYyyyMmDd(runEndDate);
+    public DetailedObject(RunDto run, String instrumentName, String instrumentModel, String laneNumber, String project,
+        BigDecimal libsPercent, String laneContents) {
+      this.runEndDate = removeTime(run.getCompletionDate());
       this.instrumentName = instrumentName;
       this.instrumentModel = instrumentModel;
-      this.runName = runName;
+      this.runName = run.getName();
       this.laneNumber = laneNumber;
       this.project = project;
       this.projLibsPercent = libsPercent;
-      this.runStatus = status;
+      this.runStatus = run.getState();
       this.laneContents = laneContents;
     }
 
@@ -102,16 +102,13 @@ public class LanesBillingReport extends TableReport {
       return runStatus;
     }
     
-    private static final Comparator<DetailedObject> detailedComparator = new Comparator<DetailedObject>() {
-      @Override
-      public int compare(DetailedObject o1, DetailedObject o2) {
+    private static final Comparator<DetailedObject> detailedComparator = (DetailedObject o1, DetailedObject o2) -> {
         if (o1.getProject().equals(o2.getProject())) {
           return o2.getRunEndDate().compareTo(o2.getRunEndDate());
         } else {
           // sort on this primarily
           return o1.getProject().compareTo(o2.getProject());
         }
-      }
     };
   }
   
@@ -208,10 +205,7 @@ public class LanesBillingReport extends TableReport {
     List<DetailedObject> detailedData = new ArrayList<>();
     Map<String, Map<String, BigDecimal>> summaryData = new TreeMap<>();
     for (RunDto run : runs) {
-      String runName = run.getName();
-      String runStatus = run.getState();
       String instrumentName = getInstrumentName(run.getInstrumentId(), instrumentsById);
-      String completionDate = run.getCompletionDate();
       String instrumentModel = getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById);
       if (run.getPositions() == null) continue;; 
       for (RunDtoPosition lane : run.getPositions()) {
@@ -243,8 +237,8 @@ public class LanesBillingReport extends TableReport {
         
         for (Map.Entry<String, Integer> entry : projectsInLane.entrySet()) {
           BigDecimal projectPercent = getPercentProjectInLane(entry.getValue(), samplesInLane);
-          DetailedObject newReport = new DetailedObject(completionDate, instrumentName, instrumentModel, runName, 
-              Integer.toString(laneNumber), entry.getKey(), projectPercent, runStatus, laneContents);
+          DetailedObject newReport = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), entry.getKey(),
+              projectPercent, laneContents);
           detailedData.add(newReport);
           addSummaryData(summaryData, newReport);
         }
@@ -285,7 +279,7 @@ public class LanesBillingReport extends TableReport {
   }
   
   private Map<String, BigDecimal> makeNewSummaryLanes(String laneType, BigDecimal laneCount) {
-    Map<String, BigDecimal> lanes = new HashMap<String, BigDecimal>();
+    Map<String, BigDecimal> lanes = new HashMap<>();
     lanes.put(DNA_LANE, BigDecimal.ZERO);
     lanes.put(RNA_LANE, BigDecimal.ZERO);
     lanes.put(MIXED_LANE, BigDecimal.ZERO);
@@ -299,7 +293,7 @@ public class LanesBillingReport extends TableReport {
   
   static final List<Map<String, Map<String, BigDecimal>>> listifySummary(Map<String, Map<String, BigDecimal>> summary) {
     // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet have one of those
-    List<Map<String, Map<String, BigDecimal>>> regrettable = new ArrayList<Map<String, Map<String, BigDecimal>>>();
+    List<Map<String, Map<String, BigDecimal>>> regrettable = new ArrayList<>();
     
     for (Map.Entry<String, Map<String, BigDecimal>> entry : summary.entrySet()) {
       Map<String, Map<String, BigDecimal>> oneProjModel = new HashMap<>();
@@ -343,11 +337,11 @@ public class LanesBillingReport extends TableReport {
   @Override
   protected int getRowCount() {
     return completed.getDetailedData().size()
-        + (completed.getDetailedData().size() > 0 ? 2 : 0)
+        + (completed.getSummaryAsList().isEmpty() ? 0 : 2)
         + completed.getSummaryAsList().size()
-        + (failed.getDetailedData().size() > 0 ? 2 : 0)
+        + (failed.getDetailedData().isEmpty() ? 0 : 2)
         + failed.getDetailedData().size()
-        + (failed.getDetailedData().size() > 0 ? 2 : 0)
+        + (failed.getSummaryAsList().isEmpty() ? 0 : 2)
         + failed.getSummaryAsList().size();
   }
 
@@ -374,7 +368,7 @@ public class LanesBillingReport extends TableReport {
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      return makeHeadingRow(getColumns().stream().map(th -> th.getHeading()).collect(Collectors.toList()));
+      return makeHeadingRow(getColumns().stream().map(ColumnDefinition::getHeading).collect(Collectors.toList()));
     }
     rowNum -= 2;
     

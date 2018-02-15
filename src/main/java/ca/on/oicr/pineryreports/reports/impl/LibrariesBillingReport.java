@@ -54,15 +54,12 @@ public class LibrariesBillingReport extends TableReport {
       libsCount += 1;
     }
 
-    private static final Comparator<SummaryObject> summaryComparator = new Comparator<SummaryObject>() {
-      @Override
-      public int compare(SummaryObject o1, SummaryObject o2) {
-        if (o1.getProject().equals(o2.getProject())) {
-          return o2.getKit().compareTo(o2.getKit());
-        } else {
-          // sort on this primarily
-          return o1.getProject().compareTo(o2.getProject());
-        }
+    private static final Comparator<SummaryObject> summaryComparator = (SummaryObject o1, SummaryObject o2) -> {
+      if (o1.getProject().equals(o2.getProject())) {
+        return o2.getKit().compareTo(o2.getKit());
+      } else {
+        // sort on this primarily
+        return o1.getProject().compareTo(o2.getProject());
       }
     };
   }
@@ -102,15 +99,12 @@ public class LibrariesBillingReport extends TableReport {
       return project;
     }
 
-    private static final Comparator<DetailedObject> detailedComparator = new Comparator<DetailedObject>() {
-      @Override
-      public int compare(DetailedObject o1, DetailedObject o2) {
-        if (o1.getProject().equals(o2.getProject())) {
-          return o2.getCreationDate().compareTo(o2.getCreationDate());
-        } else {
-          // sort on this primarily
-          return o1.getProject().compareTo(o2.getProject());
-        }
+    private static final Comparator<DetailedObject> detailedComparator = (DetailedObject o1, DetailedObject o2) -> {
+      if (o1.getProject().equals(o2.getProject())) {
+        return o2.getCreationDate().compareTo(o2.getCreationDate());
+      } else {
+        // sort on this primarily
+        return o1.getProject().compareTo(o2.getProject());
       }
     };
   }
