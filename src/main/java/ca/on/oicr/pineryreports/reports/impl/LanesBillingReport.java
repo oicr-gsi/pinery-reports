@@ -1,9 +1,7 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.byEndedBetween;
-import static ca.on.oicr.pineryreports.util.GeneralUtils.timeStringToYyyyMmDd;
-import static ca.on.oicr.pineryreports.util.SampleUtils.isRnaLibrary;
-import static ca.on.oicr.pineryreports.util.SampleUtils.mapSamplesById;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
+import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -163,7 +161,7 @@ public class LanesBillingReport extends TableReport {
   
   private static class ReportObject {
     private final List<DetailedObject> detailedData;
-    private final List<Map<String, Map<String, BigDecimal>>> summaryAsList;
+    private final List<Map.Entry<String, Map<String, BigDecimal>>> summaryAsList;
     
     public ReportObject(List<DetailedObject> detailed, Map<String, Map<String, BigDecimal>> summary) {
       detailed.sort(DetailedObject.detailedComparator);
@@ -175,7 +173,7 @@ public class LanesBillingReport extends TableReport {
       return detailedData;
     }
     
-    public List<Map<String, Map<String, BigDecimal>>> getSummaryAsList() {
+    public List<Map.Entry<String, Map<String, BigDecimal>>> getSummaryAsList() {
       return summaryAsList;
     }
   }
@@ -291,16 +289,9 @@ public class LanesBillingReport extends TableReport {
     lanes.merge(laneType, laneCount, BigDecimal::add);
   }
   
-  static final List<Map<String, Map<String, BigDecimal>>> listifySummary(Map<String, Map<String, BigDecimal>> summary) {
+  static final List<Map.Entry<String, Map<String, BigDecimal>>> listifySummary(Map<String, Map<String, BigDecimal>> summary) {
     // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet have one of those
-    List<Map<String, Map<String, BigDecimal>>> regrettable = new ArrayList<>();
-    
-    for (Map.Entry<String, Map<String, BigDecimal>> entry : summary.entrySet()) {
-      Map<String, Map<String, BigDecimal>> oneProjModel = new HashMap<>();
-      oneProjModel.put(entry.getKey(), entry.getValue());
-      regrettable.add(oneProjModel);
-    }
-    return regrettable;
+    return new ArrayList(summary.entrySet());
   }
 
   @Override
@@ -348,7 +339,7 @@ public class LanesBillingReport extends TableReport {
   @Override
   protected String[] getRow(int rowNum) {
     if (rowNum < completed.getSummaryAsList().size()) {
-      Map<String, Map<String, BigDecimal>> completedSummary = completed.getSummaryAsList().get(rowNum);
+      Map.Entry<String, Map<String, BigDecimal>> completedSummary = completed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(completedSummary);
     }
     rowNum -= completed.getSummaryAsList().size();
@@ -373,7 +364,7 @@ public class LanesBillingReport extends TableReport {
     rowNum -= 2;
     
     if (rowNum < failed.getSummaryAsList().size()) {
-      Map<String, Map<String, BigDecimal>> failedSummary = failed.getSummaryAsList().get(rowNum);
+      Map.Entry<String, Map<String, BigDecimal>> failedSummary = failed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(failedSummary);
     }
     rowNum -= failed.getSummaryAsList().size();
@@ -388,13 +379,10 @@ public class LanesBillingReport extends TableReport {
     return makeDetailedRow(failed.getDetailedData().get(rowNum));
   }
 
-  private String[] makeSummaryRow(Map<String, Map<String, BigDecimal>> obj) {
+  private String[] makeSummaryRow(Map.Entry<String, Map<String, BigDecimal>> obj) {
     String[] row = new String[getColumns().size()];
     int i = -1;
-    String summaryKey = "";
-    for (String key : obj.keySet()) {
-      summaryKey = key;
-    }
+    String summaryKey = obj.getKey();
 
     String[] key = summaryKey.split(":");
     // Project
@@ -402,11 +390,11 @@ public class LanesBillingReport extends TableReport {
     // Instrument Model
     row[++i] = key[1];
     // DNA Lanes
-    row[++i] = obj.get(summaryKey).get(DNA_LANE).toPlainString();
+    row[++i] = obj.getValue().get(DNA_LANE).toPlainString();
     // RNA Lanes
-    row[++i] = obj.get(summaryKey).get(RNA_LANE).toPlainString();
+    row[++i] = obj.getValue().get(RNA_LANE).toPlainString();
     // Mixed Lanes
-    row[++i] = obj.get(summaryKey).get(MIXED_LANE).toPlainString();
+    row[++i] = obj.getValue().get(MIXED_LANE).toPlainString();
     
     
     for (int j = i+1; j < row.length; j++) {

@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.removeTime;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
@@ -15,6 +16,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Sets;
+
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
@@ -25,9 +29,6 @@ import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
 import ca.on.oicr.ws.dto.UserDto;
-
-import com.google.common.base.Functions;
-import com.google.common.collect.Sets;
 
 public class ProjectSequencingReport extends TableReport {
   

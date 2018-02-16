@@ -1,8 +1,7 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.timeStringToYyyyMmDd;
-import static ca.on.oicr.pineryreports.util.SampleUtils.byCreatedBetween;
-import static ca.on.oicr.pineryreports.util.SampleUtils.getAttribute;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.removeTime;
+import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;

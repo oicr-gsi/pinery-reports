@@ -53,7 +53,7 @@ public class Main {
           throw new ParseException("Invalid format for this report: " + formatOpt);
         }
         
-        String outputOpt = mainCommand.getOptionValue(OPT_OUTFILE, "report" + format.getExtension());
+        String outputOpt = mainCommand.getOptionValue(OPT_OUTFILE, OPT_REPORT + format.getExtension());
         File outFile = new File(outputOpt);
         if (outFile.exists()) {
           throw new ParseException("Output file already exists: " + outputOpt);
@@ -102,7 +102,8 @@ public class Main {
         .required()
         .hasArg()
         .argName("name")
-        .desc("Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide}")
+        .desc(
+            "Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide, libraries-billing, lanes-billing}")
         .build());
     opts.addOption(Option.builder("f")
         .longOpt(OPT_FORMAT)
