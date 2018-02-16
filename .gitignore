@@ -2,7 +2,6 @@ target
 bin
 .project
 .classpath
-.settings
 *.swp
 nb-configuration.xml
 report.csv

@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.removeTime;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.Arrays;
@@ -15,15 +16,15 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.collect.Sets;
+import com.itextpdf.layout.property.TextAlignment;
+
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
-
-import com.google.common.collect.Sets;
-import com.itextpdf.layout.property.TextAlignment;
 
 /**
  * PCSI Report Request https://jira.oicr.on.ca/browse/GLT-1892

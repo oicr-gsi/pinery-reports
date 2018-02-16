@@ -18,6 +18,8 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ReportFormat;
 import ca.on.oicr.pineryreports.reports.Report;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
+import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
+import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
@@ -51,7 +53,7 @@ public class Main {
           throw new ParseException("Invalid format for this report: " + formatOpt);
         }
         
-        String outputOpt = mainCommand.getOptionValue(OPT_OUTFILE, "report" + format.getExtension());
+        String outputOpt = mainCommand.getOptionValue(OPT_OUTFILE, OPT_REPORT + format.getExtension());
         File outFile = new File(outputOpt);
         if (outFile.exists()) {
           throw new ParseException("Output file already exists: " + outputOpt);
@@ -100,7 +102,8 @@ public class Main {
         .required()
         .hasArg()
         .argName("name")
-        .desc("Report to generate {stock, gecco, sequencing, octane}")
+        .desc(
+            "Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide, libraries-billing, lanes-billing}")
         .build());
     opts.addOption(Option.builder("f")
         .longOpt(OPT_FORMAT)
@@ -132,6 +135,10 @@ public class Main {
       return new ReceiptMissingReport();
     case SlideReport.REPORT_NAME:
       return new SlideReport();
+    case LibrariesBillingReport.REPORT_NAME:
+      return new LibrariesBillingReport();
+    case LanesBillingReport.REPORT_NAME:
+      return new LanesBillingReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }
