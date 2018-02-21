@@ -36,4 +36,13 @@ public class CommonOptions {
         .build();
   }
   
+  public static Option users(boolean required) {
+    return Option.builder().longOpt("users")
+        .hasArg()
+        .argName("userIds")
+        .required(required)
+        .desc("Comma-separated list of user IDs to filter on")
+        .build();
+  }
+
 }

@@ -1,10 +1,14 @@
 package ca.on.oicr.pineryreports.util;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.UserDto;
 
 public class GeneralUtils {
 
@@ -35,5 +39,10 @@ public class GeneralUtils {
         (dto.getCompletionDate() != null && dto.getCompletionDate().compareTo(start) > 0))
       && (end == null || 
         (dto.getCompletionDate() != null && dto.getCompletionDate().compareTo(end) < 0));
+  }
+
+  public static Map<Integer, UserDto> mapUsersById(Collection<UserDto> users) {
+    return users.stream()
+        .collect(Collectors.toMap(UserDto::getId, dto -> dto));
   }
 }
