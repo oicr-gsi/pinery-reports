@@ -13,6 +13,11 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.itextpdf.layout.property.TextAlignment;
+
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
@@ -22,11 +27,6 @@ import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
 import ca.on.oicr.ws.dto.SampleReferenceDto;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.itextpdf.layout.property.TextAlignment;
 
 /**
  * 
@@ -117,7 +117,7 @@ public class GeccoReport extends TableReport {
   }
   
   private static void addSamplesFromPosition(RunDtoPosition position, Set<String> collection) {
-    if (position == null) {
+    if (position == null || position.getSamples() == null) {
       return;
     }
     for (RunDtoSample sample : position.getSamples()) {
