@@ -58,6 +58,10 @@ public class SampleUtils {
         && (end == null || dto.getCreatedDate().compareTo(end) < 0);
   }
   
+  public static Predicate<SampleDto> byCreator(List<Integer> userIds) {
+    return dto -> userIds.contains(dto.getCreatedById());
+  }
+
   /**
    * Return attribute value that exists for the given attribute name on the given sample.
    * 

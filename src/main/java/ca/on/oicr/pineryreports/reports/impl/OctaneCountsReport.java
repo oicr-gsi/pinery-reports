@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.mapUsersById;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.text.DateFormat;
@@ -21,6 +22,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
@@ -29,9 +33,7 @@ import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.AttributeDto;
 import ca.on.oicr.ws.dto.SampleDto;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import ca.on.oicr.ws.dto.UserDto;
 
 public class OctaneCountsReport extends TableReport {
   
@@ -94,6 +96,7 @@ public class OctaneCountsReport extends TableReport {
   
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
+  private static final Option OPT_USER_IDS = CommonOptions.users(false);
   
   private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
   private static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -106,6 +109,8 @@ public class OctaneCountsReport extends TableReport {
   
   private String start;
   private String end;
+  private final List<Integer> userIds = new ArrayList<>();
+  private Map<Integer, UserDto> allUsersById;
   
   private final List<Count> caseNumbers = new ArrayList<>();
   private final List<Count> sampleNumbers = new ArrayList<>();
@@ -120,7 +125,7 @@ public class OctaneCountsReport extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    return Sets.newHashSet(OPT_AFTER, OPT_BEFORE);
+    return Sets.newHashSet(OPT_AFTER, OPT_BEFORE, OPT_USER_IDS);
   }
 
   @Override
@@ -140,6 +145,16 @@ public class OctaneCountsReport extends TableReport {
       }
       this.end = before;
     }
+
+    if (cmd.hasOption(OPT_USER_IDS.getLongOpt())) {
+      String[] users = cmd.getOptionValue(OPT_USER_IDS.getLongOpt()).split(",");
+      for (String user : users) {
+
+        if (user != null && !"".equals(user)) {
+          userIds.add(Integer.valueOf(user));
+        }
+      }
+    }
   }
 
   @Override
@@ -149,7 +164,8 @@ public class OctaneCountsReport extends TableReport {
         + " - "
         + (end == null ? "Now" : end)
         + ", and Inventory "
-        + new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        + new SimpleDateFormat(DATE_FORMAT).format(new Date())
+        + (userIds.isEmpty() ? " for all users" : " for selected users");
   }
   
   private static final String ATTR_CATEGORY = "Sample Category";
@@ -173,6 +189,9 @@ public class OctaneCountsReport extends TableReport {
   
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {
+    List<UserDto> allUsers = pinery.getUser().all();
+    allUsersById = mapUsersById(allUsers);
+
     List<SampleDto> allOctaneSamples = pinery.getSample().allFiltered(new SamplesFilter().withProjects(Lists.newArrayList("OCT")));
     Map<String, SampleDto> allOctaneSamplesById = mapSamplesById(allOctaneSamples);
     
@@ -280,9 +299,11 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers.add(new Count("Extracted Buffy Coat", buffyStockInventory.size()));
     inventoryNumbers.add(new Count("Extracted Buffy Coat (Cases)", countUniqueIdentities(buffyStockInventory, allOctaneSamplesById)));
     
+    // These next four need to be filtered to include only Transformative Pathology users
     List<SampleDto> stockDnaFromSlideInventory = filterNonEmpty(stockDnaFromSlides);
-    inventoryNumbers.add(new Count("Tumor Tissue DNA", stockDnaFromSlideInventory.size()));
-    inventoryNumbers.add(new Count("Tumor Tissue DNA (Cases)", countUniqueIdentities(stockDnaFromSlideInventory, allOctaneSamplesById)));
+    inventoryNumbers.add(new Count("Tumor Tissue DNA", filterByCreator(stockDnaFromSlideInventory).size()));
+    inventoryNumbers.add(
+        new Count("Tumor Tissue DNA (Cases)", countUniqueIdentities(filterByCreator(stockDnaFromSlideInventory), allOctaneSamplesById)));
     
     List<SampleDto> stockRnaFromSlideInventory = filterNonEmpty(stockRnaFromSlides);
     inventoryNumbers.add(new Count("Tumor Tissue RNA", stockRnaFromSlideInventory.size()));
@@ -329,11 +350,14 @@ public class OctaneCountsReport extends TableReport {
     
     // Case Numbers
     caseNumbers.add(new Count("Tumor Tissue Rec'd", countNewCases(newSlides, slides, allOctaneSamplesById)));
-    
-    
     caseNumbers.add(new Count("Tumor Tissue Extracted", countUniqueIdentities(stockDnaFromSlides, allOctaneSamplesById)));
-    caseNumbers.add(new Count("Tumor Tissue DNA Transferred", countUniqueIdentities(dnaAliquotsFromSlides, allOctaneSamplesById)));
-    caseNumbers.add(new Count("Tumor Tissue RNA Transferred", countUniqueIdentities(rnaAliquotsFromSlides, allOctaneSamplesById)));
+
+    // These next two need to be filtered to include only Transformative Pathology users
+    caseNumbers.add(
+        new Count("Tumor Tissue DNA Transferred", countUniqueIdentities(filterByCreator(dnaAliquotsFromSlides), allOctaneSamplesById)));
+    caseNumbers.add(
+        new Count("Tumor Tissue RNA Transferred", countUniqueIdentities(filterByCreator(rnaAliquotsFromSlides), allOctaneSamplesById)));
+
     caseNumbers.add(new Count("Buffy Coat Rec'd", countNewCases(newBuffyCoats, buffyCoats, allOctaneSamplesById)));
     caseNumbers.add(new Count("Buffy Coat Extracted", countUniqueIdentities(stocksFromBuffy, allOctaneSamplesById)));
     caseNumbers.add(new Count("Buffy Coat Transferred", countUniqueIdentities(dnaAliquotsFromBuffy, allOctaneSamplesById)));
@@ -344,13 +368,25 @@ public class OctaneCountsReport extends TableReport {
     // Sample numbers
     sampleNumbers.add(new Count("Tumor Tissue Rec'd", countSlidesReceived(newSlides)));
     sampleNumbers.add(new Count("Tumor Tissue Extracted", stockDnaFromSlides.size()));
-    sampleNumbers.add(new Count("Tumor Tissue DNA Transferred", dnaAliquots.size()));
-    sampleNumbers.add(new Count("Tumor Tissue RNA Transferred", rnaAliquots.size()));
+
+    // These next two need to be filtered to include only Transformative Pathology users
+    sampleNumbers.add(new Count("Tumor Tissue DNA Transferred", filterByCreator(dnaAliquots).size()));
+    sampleNumbers.add(new Count("Tumor Tissue RNA Transferred", filterByCreator(rnaAliquots).size()));
+
     sampleNumbers.add(new Count("Buffy Coat Rec'd", newBuffyCoats.size()));
     sampleNumbers.add(new Count("Buffy Coat Extracted", stocksFromBuffy.size()));
     sampleNumbers.add(new Count("Buffy Coat Transferred", dnaAliquotsFromBuffy.size()));
     sampleNumbers.add(new Count("Plasma Rec'd", newPlasma.size()));
     sampleNumbers.add(new Count("ctDNA Plasma Rec'd", newCtDnaPlasma.size()));
+  }
+
+
+  private List<SampleDto> filterByCreator(List<SampleDto> unfiltered) {
+    Set<Predicate<SampleDto>> filters = Sets.newHashSet();
+    if (!userIds.isEmpty()) {
+      filters.add(byCreator(userIds));
+    }
+    return filter(unfiltered, filters);
   }
   
   private void addSlidesRemainingCount(SampleDto slide) {
@@ -448,10 +484,18 @@ public class OctaneCountsReport extends TableReport {
     return tissueOrigin.equals(origin) && tissueType.equals(type);
   }
 
+  private String getUserNames(List<Integer> userIds) {
+    return allUsersById.entrySet().stream()
+        .filter(userById -> userIds.contains(userById.getKey()))
+        .map(userById -> String.format("%s %s", userById.getValue().getFirstname(), userById.getValue().getLastname()))
+        .collect(Collectors.joining(", "));
+  }
+
   @Override
   protected List<ColumnDefinition> getColumns() {
     return Arrays.asList(
-        new ColumnDefinition(String.format("CASE NUMBERS (%s - %s)", start, end)),
+        new ColumnDefinition(String.format("CASE NUMBERS (%s - %s) for %s", start, end,
+            (userIds.isEmpty() ? "all users" : " users " + getUserNames(userIds)))),
         new ColumnDefinition("")
     );
   }
