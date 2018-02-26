@@ -22,10 +22,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
+import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
@@ -190,8 +192,7 @@ public class OctaneCountsReport extends TableReport {
     List<UserDto> allUsers = pinery.getUser().all();
     allUsersById = mapUsersById(allUsers);
 
-    List<SampleDto> allSamples = pinery.getSample().all();
-    List<SampleDto> allOctaneSamples = filterReportableOctaneSamples(allSamples);
+    List<SampleDto> allOctaneSamples = pinery.getSample().allFiltered(new SamplesFilter().withProjects(Lists.newArrayList("OCT")));
     Map<String, SampleDto> allOctaneSamplesById = mapSamplesById(allOctaneSamples);
     
     List<SampleDto> buffyCoats = new ArrayList<>(); // Ly_R tissues
@@ -379,11 +380,6 @@ public class OctaneCountsReport extends TableReport {
     sampleNumbers.add(new Count("ctDNA Plasma Rec'd", newCtDnaPlasma.size()));
   }
 
-  private List<SampleDto> filterReportableOctaneSamples(List<SampleDto> unfiltered) {
-    Set<Predicate<SampleDto>> filters = Sets.newHashSet();
-    filters.add(byProject("OCT"));
-    return filter(unfiltered, filters);
-  }
 
   private List<SampleDto> filterByCreator(List<SampleDto> unfiltered) {
     Set<Predicate<SampleDto>> filters = Sets.newHashSet();
