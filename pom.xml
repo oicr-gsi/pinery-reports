@@ -21,6 +21,18 @@
     <url>https://github.com/${github.user}/${github.repo}</url>
     <tag>v0.0.2</tag>
   </scm>
+  <distributionManagement>
+     <repository>
+      <id>release.gsi</id>
+      <name>OICR GSI Release</name>
+      <url>https://artifacts.oicr.on.ca/artifactory/gsi-release</url>
+    </repository>
+    <snapshotRepository>
+      <id>temp.gsi</id>
+      <name>OICR GSI Temporary Snapshot</name>
+      <url>https://artifacts.oicr.on.ca/artifactory/gsi-temp</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencies>
     <dependency>
