@@ -205,7 +205,7 @@ public class LanesBillingReport extends TableReport {
     for (RunDto run : runs) {
       String instrumentName = getInstrumentName(run.getInstrumentId(), instrumentsById);
       String instrumentModel = getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById);
-      if (run.getPositions() == null) continue;; 
+      if (run.getPositions() == null) continue;
       for (RunDtoPosition lane : run.getPositions()) {
         int laneNumber = lane.getPosition();
         int samplesInLane = lane.getSamples() == null ? 0 : lane.getSamples().size();
