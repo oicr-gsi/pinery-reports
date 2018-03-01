@@ -205,7 +205,7 @@ public class LanesBillingReport extends TableReport {
     for (RunDto run : runs) {
       String instrumentName = getInstrumentName(run.getInstrumentId(), instrumentsById);
       String instrumentModel = getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById);
-      if (run.getPositions() == null) continue;; 
+      if (run.getPositions() == null) continue;
       for (RunDtoPosition lane : run.getPositions()) {
         int laneNumber = lane.getPosition();
         int samplesInLane = lane.getSamples() == null ? 0 : lane.getSamples().size();
@@ -213,7 +213,19 @@ public class LanesBillingReport extends TableReport {
         boolean rnaInLane = false;
         // projectName : numLibsFromProjInLane
         Map<String, Integer> projectsInLane = new HashMap<>();
-        if (lane.getSamples() == null) continue;
+        if (lane.getSamples() == null) {
+          // some NextSeq lanes will be listed as empty because the flowcell outputs 4 lanes
+          // but it's only possible to add one pool, so the lab only enters the first lane into LIMS.
+          if ("NextSeq 550".equals(instrumentModel) && laneNumber != 1) continue;
+
+          // legitimately empty lanes should still be reported for billing purposes (may be run as Sequencing as a service)
+          // reported as DNA by default, though Pinery has no knowledge of the actual contents
+          DetailedObject noProject = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "NoProject",
+              BigDecimal.ONE, DNA_LANE);
+          detailedData.add(noProject);
+          addSummaryData(summaryData, noProject);
+          continue;
+        }
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = samplesById.get(sam.getId());
           if (isRnaLibrary(dilution, samplesById)) {
