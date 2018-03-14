@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import ca.on.oicr.ws.dto.InstrumentDto;
+import ca.on.oicr.ws.dto.InstrumentModelDto;
 import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.UserDto;
 
@@ -44,5 +46,17 @@ public class GeneralUtils {
   public static Map<Integer, UserDto> mapUsersById(Collection<UserDto> users) {
     return users.stream()
         .collect(Collectors.toMap(UserDto::getId, dto -> dto));
+  }
+
+  public static String getInstrumentName(Integer instrumentId, Map<Integer, InstrumentDto> instrumentsById) {
+    InstrumentDto instrument = instrumentsById.get(instrumentId);
+    return instrument == null ? "Unknown" : instrument.getName();
+  }
+
+  public static String getInstrumentModel(Integer instrumentId, Map<Integer, InstrumentDto> instruments,
+      Map<Integer, InstrumentModelDto> models) {
+    return models.get(
+        instruments.get(instrumentId).getModelId())
+        .getName();
   }
 }

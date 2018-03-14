@@ -261,17 +261,6 @@ public class LanesBillingReport extends TableReport {
     return new BigDecimal(numProjectLibraries).divide(new BigDecimal(numLaneLibraries), 1,  RoundingMode.HALF_UP);
   }
   
-  private String getInstrumentModel(Integer instrumentId, Map<Integer, InstrumentDto> instruments, Map<Integer, InstrumentModelDto> models) {
-    return models.get(
-        instruments.get(instrumentId).getModelId())
-      .getName();
-  }
-  
-  private String getInstrumentName(Integer instrumentId, Map<Integer, InstrumentDto> instrumentsById) {
-    InstrumentDto instrument = instrumentsById.get(instrumentId);
-    return instrument == null ? "Unknown" : instrument.getName();
-  }
-  
   private String getSummaryKey(DetailedObject row) {
     return row.getProject() + ":" + row.getInstrumentModel();
   }
