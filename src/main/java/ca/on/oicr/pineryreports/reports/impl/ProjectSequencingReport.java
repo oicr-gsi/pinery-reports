@@ -1,6 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.removeTime;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
@@ -23,7 +23,6 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
-import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
@@ -63,7 +62,6 @@ public class ProjectSequencingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "sequencing";
-  private static final Option OPT_PROJECT = CommonOptions.project(true);
   
   public static final String GSLE_USER = "Geospiza";
 
@@ -165,7 +163,7 @@ public class ProjectSequencingReport extends TableReport {
   protected String[] getRow(int rowNum) {
     ReportObject obj = reportData.get(rowNum);
     String[] row = new String[COLUMNS.size()];
-    SampleDto stock = getParent(obj.getDilution(), "Stock", allSamplesById);
+    SampleDto stock = getParent(obj.getDilution(), SAMPLE_CATEGORY_STOCK, allSamplesById);
     
     String i1 = getUpstreamAttribute("Barcode", obj.getDilution(), allSamplesById);
     String i2 = getUpstreamAttribute("Barcode Two", obj.getDilution(), allSamplesById);

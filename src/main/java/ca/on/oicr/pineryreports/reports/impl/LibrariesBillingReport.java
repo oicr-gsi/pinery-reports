@@ -1,6 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.removeTime;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
@@ -21,7 +21,6 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
-import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
 
 public class LibrariesBillingReport extends TableReport {
@@ -109,10 +108,7 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   public static final String REPORT_NAME = "libraries-billing";
-  private static final Option OPT_AFTER = CommonOptions.after(false);
-  private static final Option OPT_BEFORE = CommonOptions.before(false);
 
-  private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
   private String start;
   private String end;
 

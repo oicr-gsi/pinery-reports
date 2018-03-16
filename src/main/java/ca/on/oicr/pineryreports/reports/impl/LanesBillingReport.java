@@ -26,7 +26,6 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
-import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.InstrumentDto;
 import ca.on.oicr.ws.dto.InstrumentModelDto;
 import ca.on.oicr.ws.dto.RunDto;
@@ -111,13 +110,10 @@ public class LanesBillingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "lanes-billing";
-  private static final Option OPT_AFTER = CommonOptions.after(false);
-  private static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final String DNA_LANE = "DNA";
   private static final String RNA_LANE = "RNA";
   private static final String MIXED_LANE = "MIXED";
-  
-  private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
+
   private String start;
   private String end;
 
@@ -303,7 +299,7 @@ public class LanesBillingReport extends TableReport {
   
   static final List<Map.Entry<String, Map<String, BigDecimal>>> listifySummary(Map<String, Map<String, BigDecimal>> summary) {
     // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet have one of those
-    return new ArrayList(summary.entrySet());
+    return new ArrayList<>(summary.entrySet());
   }
 
   @Override

@@ -17,10 +17,36 @@ import ca.on.oicr.ws.dto.SampleReferenceDto;
 
 public class SampleUtils {
 
+
   private SampleUtils() {
     throw new IllegalStateException("Util class not intended for instantiation");
   }
   
+  public static final String ATTR_CATEGORY = "Sample Category";
+  public static final String ATTR_EXTERNAL_NAME = "External Name";
+  public static final String ATTR_TISSUE_TYPE = "Tissue Type";
+  public static final String ATTR_TISSUE_ORIGIN = "Tissue Origin";
+  public static final String ATTR_INSTITUTE = "Institute";
+  public static final String ATTR_TUBE_ID = "Tube ID";
+  public static final String ATTR_SEX = "Sex";
+  public static final String ATTR_SLIDES = "Slides";
+  public static final String ATTR_DISCARDS = "Discards";
+  public static final String ATTR_CONSUMED = "Slides Consumed";
+  public static final String ATTR_REMAINING = "Remaining";
+  public static final String ATTR_STAIN = "Stain";
+  public static final String ATTR_RECEIVE_DATE = "Receive Date";
+
+  public static final String SAMPLE_CLASS_SLIDE = "Slide";
+  public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
+
+  public static final String SAMPLE_CATEGORY_IDENTITY = "Identity";
+  public static final String SAMPLE_CATEGORY_TISSUE = "Tissue";
+  public static final String SAMPLE_CATEGORY_TISSUE_PROCESSING = "Tissue Processing";
+  public static final String SAMPLE_CATEGORY_STOCK = "Stock";
+  public static final String SAMPLE_CATEGORY_ALIQUOT = "Aliquot";
+
+  public static final String STAIN_HE = "Hematoxylin+Eosin";
+
   public static Map<String, SampleDto> mapSamplesById(Collection<SampleDto> samples) {
     return samples.stream()
     .collect(Collectors.toMap(SampleDto::getId, dto->dto));
@@ -50,7 +76,7 @@ public class SampleUtils {
   }
   
   public static Predicate<SampleDto> bySampleCategory(String sampleCategory) {
-    return dto -> sampleCategory.equals(getAttribute("Sample Category", dto));
+    return dto -> sampleCategory.equals(getAttribute(ATTR_CATEGORY, dto));
   }
   
   public static Predicate<SampleDto> byCreatedBetween(String start, String end) {
@@ -154,7 +180,7 @@ public class SampleUtils {
       throw new IllegalArgumentException("Sample cannot be null");
     }
     for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
-      if (sampleCategory.equals(getAttribute("Sample Category", current))) {
+      if (sampleCategory.equals(getAttribute(ATTR_CATEGORY, current))) {
         return current;
       }
     }

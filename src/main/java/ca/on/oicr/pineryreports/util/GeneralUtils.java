@@ -7,6 +7,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.cli.Option;
+
 import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.UserDto;
 
@@ -15,6 +17,15 @@ public class GeneralUtils {
   private GeneralUtils() {
     throw new IllegalStateException("Util class not intended for instantiation");
   }
+
+  public static final Option OPT_AFTER = CommonOptions.after(false);
+  public static final Option OPT_BEFORE = CommonOptions.before(false);
+  public static final Option OPT_USER_IDS = CommonOptions.users(false);
+  public static final Option OPT_PROJECT = CommonOptions.project(true);
+
+  public static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
+  public static final String DATE_FORMAT = "yyyy-MM-dd";
+  public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
 
   /**
    * Removes the time portion of a date/time String

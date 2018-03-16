@@ -1,6 +1,7 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.SampleUtils.getAttribute;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.OPT_PROJECT;
+import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -14,16 +15,15 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
-import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class SlideReport extends TableReport {
   
@@ -36,8 +36,6 @@ public class SlideReport extends TableReport {
       new ColumnDefinition("Slides"),
       new ColumnDefinition("Discards")
   ));
-  
-  private static final Option OPT_PROJECT = CommonOptions.project(true);
 
   private String project;
   
@@ -67,7 +65,7 @@ public class SlideReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     List<SampleDto> samples = pinery.getSample().allFiltered(new SamplesFilter().withProjects(Lists.newArrayList(project)));
     slides = samples.stream()
-        .filter(s -> "Slide".equals(s.getSampleType()))
+        .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
         .sorted((s1, s2) -> s1.getName().compareTo(s2.getName()))
         .collect(Collectors.toList());
   }
@@ -86,14 +84,14 @@ public class SlideReport extends TableReport {
   protected String[] getRow(int rowNum) {
     String[] row = new String[COLUMNS.size()];
     SampleDto slide = slides.get(rowNum);
-    String stain = getAttribute("Stain", slide);
+    String stain = getAttribute(ATTR_STAIN, slide);
     
     int i = -1;
     row[++i] = slide.getId();
     row[++i] = slide.getName();
     row[++i] = stain == null ? "unstained" : stain;
-    row[++i] = getAttribute("Slides", slide);
-    row[++i] = getAttribute("Discards", slide);
+    row[++i] = getAttribute(ATTR_SLIDES, slide);
+    row[++i] = getAttribute(ATTR_DISCARDS, slide);
     
     return row;
   }
