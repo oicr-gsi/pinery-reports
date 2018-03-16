@@ -1,6 +1,6 @@
-# Stock Report
+# TGL Libraries Run Report
 
-Originally written for TGL as a weekly report on which libraries have been run in the past week.
+Originally written for TGL as a weekly report on which libraries have been run in the past week for the OCT project and projects named TGL##.
 
 ## Options
 
