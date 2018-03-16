@@ -21,6 +21,7 @@ import ca.on.oicr.pineryreports.reports.impl.DysReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
+import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
@@ -145,6 +146,8 @@ public class Main {
       return new TglLibrariesRunReport();
     case DysReport.REPORT_NAME:
       return new DysReport();
+    case LocationMissingReport.REPORT_NAME:
+      return new LocationMissingReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }
