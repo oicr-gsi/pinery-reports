@@ -25,6 +25,7 @@ import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.SlideReport;
 import ca.on.oicr.pineryreports.reports.impl.StockReport;
+import ca.on.oicr.pineryreports.reports.impl.TglLibrariesRunReport;
 
 
 public class Main {
@@ -139,6 +140,8 @@ public class Main {
       return new LibrariesBillingReport();
     case LanesBillingReport.REPORT_NAME:
       return new LanesBillingReport();
+    case TglLibrariesRunReport.REPORT_NAME:
+      return new TglLibrariesRunReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }

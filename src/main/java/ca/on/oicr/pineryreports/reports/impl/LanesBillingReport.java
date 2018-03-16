@@ -211,7 +211,6 @@ public class LanesBillingReport extends TableReport {
         int samplesInLane = lane.getSamples() == null ? 0 : lane.getSamples().size();
         boolean dnaInLane = false;
         boolean rnaInLane = false;
-        // projectName : numLibsFromProjInLane
         Map<String, Integer> projectsInLane = new HashMap<>();
         if (lane.getSamples() == null) {
           // some NextSeq lanes will be listed as empty because the flowcell outputs 4 lanes
@@ -271,17 +270,6 @@ public class LanesBillingReport extends TableReport {
   
   private BigDecimal getPercentProjectInLane(Integer numProjectLibraries, Integer numLaneLibraries) {
     return new BigDecimal(numProjectLibraries).divide(new BigDecimal(numLaneLibraries), 1,  RoundingMode.HALF_UP);
-  }
-  
-  private String getInstrumentModel(Integer instrumentId, Map<Integer, InstrumentDto> instruments, Map<Integer, InstrumentModelDto> models) {
-    return models.get(
-        instruments.get(instrumentId).getModelId())
-      .getName();
-  }
-  
-  private String getInstrumentName(Integer instrumentId, Map<Integer, InstrumentDto> instrumentsById) {
-    InstrumentDto instrument = instrumentsById.get(instrumentId);
-    return instrument == null ? "Unknown" : instrument.getName();
   }
   
   private String getSummaryKey(DetailedObject row) {
