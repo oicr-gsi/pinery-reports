@@ -63,7 +63,7 @@ public class ProjectSequencingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "sequencing";
-  public static final Option OPT_PROJECT = CommonOptions.project(true);
+  private static final Option OPT_PROJECT = CommonOptions.project(true);
   
   public static final String GSLE_USER = "Geospiza";
 

@@ -37,7 +37,7 @@ public class SlideReport extends TableReport {
       new ColumnDefinition("Discards")
   ));
 
-  public static final Option OPT_PROJECT = CommonOptions.project(true);
+  private static final Option OPT_PROJECT = CommonOptions.project(true);
 
   private String project;
   

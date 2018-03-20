@@ -109,8 +109,8 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   public static final String REPORT_NAME = "libraries-billing";
-  public static final Option OPT_AFTER = CommonOptions.after(false);
-  public static final Option OPT_BEFORE = CommonOptions.before(false);
+  private static final Option OPT_AFTER = CommonOptions.after(false);
+  private static final Option OPT_BEFORE = CommonOptions.before(false);
 
   private String start;
   private String end;

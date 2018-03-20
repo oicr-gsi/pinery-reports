@@ -33,9 +33,9 @@ public class StockReport extends TableReport {
   
   public static final String REPORT_NAME = "stock";
   
-  public static final Option OPT_PROJECT = CommonOptions.project(true);
-  public static final Option OPT_AFTER = CommonOptions.after(false);
-  public static final Option OPT_BEFORE = CommonOptions.before(false);
+  private static final Option OPT_PROJECT = CommonOptions.project(true);
+  private static final Option OPT_AFTER = CommonOptions.after(false);
+  private static final Option OPT_BEFORE = CommonOptions.before(false);
 
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("Stock Created", TextAlignment.CENTER),

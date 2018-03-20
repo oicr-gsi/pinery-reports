@@ -111,8 +111,8 @@ public class LanesBillingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "lanes-billing";
-  public static final Option OPT_AFTER = CommonOptions.after(false);
-  public static final Option OPT_BEFORE = CommonOptions.before(false);
+  private static final Option OPT_AFTER = CommonOptions.after(false);
+  private static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final String DNA_LANE = "DNA";
   private static final String RNA_LANE = "RNA";
   private static final String MIXED_LANE = "MIXED";

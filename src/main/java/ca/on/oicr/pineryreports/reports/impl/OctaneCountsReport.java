@@ -94,9 +94,9 @@ public class OctaneCountsReport extends TableReport {
   
   public static final String REPORT_NAME = "octane";
   
-  public static final Option OPT_AFTER = CommonOptions.after(false);
-  public static final Option OPT_BEFORE = CommonOptions.before(false);
-  public static final Option OPT_USER_IDS = CommonOptions.users(false);
+  private static final Option OPT_AFTER = CommonOptions.after(false);
+  private static final Option OPT_BEFORE = CommonOptions.before(false);
+  private static final Option OPT_USER_IDS = CommonOptions.users(false);
 
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("CASE NUMBERS"),
