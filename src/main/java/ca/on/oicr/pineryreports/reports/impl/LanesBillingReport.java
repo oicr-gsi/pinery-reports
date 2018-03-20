@@ -116,8 +116,7 @@ public class LanesBillingReport extends TableReport {
   private static final String DNA_LANE = "DNA";
   private static final String RNA_LANE = "RNA";
   private static final String MIXED_LANE = "MIXED";
-  
-  private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
+
   private String start;
   private String end;
 
@@ -291,7 +290,7 @@ public class LanesBillingReport extends TableReport {
   
   static final List<Map.Entry<String, Map<String, BigDecimal>>> listifySummary(Map<String, Map<String, BigDecimal>> summary) {
     // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet have one of those
-    return new ArrayList(summary.entrySet());
+    return new ArrayList<>(summary.entrySet());
   }
 
   @Override

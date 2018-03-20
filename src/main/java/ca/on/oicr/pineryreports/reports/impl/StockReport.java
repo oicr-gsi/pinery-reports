@@ -1,6 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.removeTime;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.Arrays;
@@ -36,9 +36,7 @@ public class StockReport extends TableReport {
   private static final Option OPT_PROJECT = CommonOptions.project(true);
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
-  
-  private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
-  
+
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("Stock Created", TextAlignment.CENTER),
       new ColumnDefinition("MISO Alias"),
@@ -107,7 +105,7 @@ public class StockReport extends TableReport {
   private List<SampleDto> filterReportableStocks(List<SampleDto> unfiltered) {
     Set<Predicate<SampleDto>> filters = Sets.newHashSet();
     filters.add(byProject(project));
-    filters.add(bySampleCategory("Stock"));
+    filters.add(bySampleCategory(SAMPLE_CATEGORY_STOCK));
     filters.add(byCreatedBetween(start, end));
     return filter(unfiltered, filters);
   }
@@ -148,14 +146,14 @@ public class StockReport extends TableReport {
     
     row[0] = removeTime(stock.getCreatedDate());
     row[1] = stock.getName();
-    row[2] = getUpstreamAttribute("External Name", stock, allSamplesById);
+    row[2] = getUpstreamAttribute(ATTR_EXTERNAL_NAME, stock, allSamplesById);
     Float concentration = stock.getConcentration();
     row[3] = concentration == null ? null : round(concentration, 2);
     Float volume = stock.getVolume();
     row[4] = volume == null ? null : round(volume, 2);
     row[5] = toStringOrNull(concentration == null || volume == null ? null : round(concentration * volume, 2));
-    row[6] = getUpstreamAttribute("Receive Date", stock, allSamplesById);
-    row[7] = getUpstreamAttribute("Institute", stock, allSamplesById);
+    row[6] = getUpstreamAttribute(ATTR_RECEIVE_DATE, stock, allSamplesById);
+    row[7] = getUpstreamAttribute(ATTR_INSTITUTE, stock, allSamplesById);
     
     return row;
   }

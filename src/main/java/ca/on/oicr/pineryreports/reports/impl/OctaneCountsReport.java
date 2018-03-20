@@ -1,6 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.mapUsersById;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.text.DateFormat;
@@ -97,11 +97,7 @@ public class OctaneCountsReport extends TableReport {
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final Option OPT_USER_IDS = CommonOptions.users(false);
-  
-  private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
-  private static final String DATE_FORMAT = "yyyy-MM-dd";
-  private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
-  
+
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("CASE NUMBERS"),
       new ColumnDefinition("")
@@ -168,24 +164,7 @@ public class OctaneCountsReport extends TableReport {
         + (userIds.isEmpty() ? " for all users" : " for selected users");
   }
   
-  private static final String ATTR_CATEGORY = "Sample Category";
-  private static final String ATTR_TISSUE_TYPE = "Tissue Type";
-  private static final String ATTR_TISSUE_ORIGIN = "Tissue Origin";
-  private static final String ATTR_SLIDES = "Slides";
-  private static final String ATTR_DISCARDS = "Discards";
-  private static final String ATTR_CONSUMED = "Slides Consumed";
-  private static final String ATTR_REMAINING = "Remaining";
-  private static final String ATTR_STAIN = "Stain";
-  
-  private static final String SAMPLE_CLASS_SLIDE = "Slide";
-  private static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
-  
-  private static final String SAMPLE_CATEGORY_IDENTITY = "Identity";
-  private static final String SAMPLE_CATEGORY_TISSUE = "Tissue";
-  private static final String SAMPLE_CATEGORY_STOCK = "Stock";
-  private static final String SAMPLE_CATEGORY_ALIQUOT = "Aliquot";
 
-  private static final String STAIN_HE = "Hematoxylin+Eosin";
   
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {

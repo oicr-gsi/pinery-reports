@@ -165,7 +165,7 @@ public class ProjectSequencingReport extends TableReport {
   protected String[] getRow(int rowNum) {
     ReportObject obj = reportData.get(rowNum);
     String[] row = new String[COLUMNS.size()];
-    SampleDto stock = getParent(obj.getDilution(), "Stock", allSamplesById);
+    SampleDto stock = getParent(obj.getDilution(), SAMPLE_CATEGORY_STOCK, allSamplesById);
     
     String i1 = getUpstreamAttribute("Barcode", obj.getDilution(), allSamplesById);
     String i2 = getUpstreamAttribute("Barcode Two", obj.getDilution(), allSamplesById);

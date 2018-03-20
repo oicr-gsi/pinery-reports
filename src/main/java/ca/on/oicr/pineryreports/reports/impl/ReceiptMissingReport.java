@@ -14,6 +14,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
@@ -21,9 +24,6 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class ReceiptMissingReport extends TableReport {
 
@@ -88,10 +88,10 @@ public class ReceiptMissingReport extends TableReport {
     Map<String, SampleDto> allSamplesById = mapSamplesById(samples);
     
     Map<SampleDto, List<SampleDto>> slidesByTissue = samples.stream()
-        .filter(sam -> "Slide".equals(sam.getSampleType()))
-        .collect(Collectors.groupingBy(slide -> getParent(slide, "Tissue", allSamplesById)));
+        .filter(sam -> SAMPLE_CLASS_SLIDE.equals(sam.getSampleType()))
+        .collect(Collectors.groupingBy(slide -> getParent(slide, SAMPLE_CATEGORY_TISSUE, allSamplesById)));
     samples.stream()
-        .filter(bySampleCategory("Tissue"))
+        .filter(bySampleCategory(SAMPLE_CATEGORY_TISSUE))
         .forEach(tissue -> {
           if (!slidesByTissue.containsKey(tissue)) {
             slidesByTissue.put(tissue, Lists.newArrayList());
@@ -100,12 +100,12 @@ public class ReceiptMissingReport extends TableReport {
     
     rows = new ArrayList<>();
     slidesByTissue.forEach((tissue, slides) -> {
-      if (getAttribute("Receive Date", tissue) == null) {
+      if (getAttribute(ATTR_RECEIVE_DATE, tissue) == null) {
         if (slides.isEmpty()) {
           rows.add(new ReportObject(tissue, null));
         } else {
           slides.forEach(slide -> {
-            if (getAttribute("Receive Date", slide) == null) {
+            if (getAttribute(ATTR_RECEIVE_DATE, slide) == null) {
               rows.add(new ReportObject(tissue, slide));
             }
           });

@@ -18,6 +18,10 @@ public class GeneralUtils {
     throw new IllegalStateException("Util class not intended for instantiation");
   }
 
+  public static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
+  public static final String DATE_FORMAT = "yyyy-MM-dd";
+  public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
+
   /**
    * Removes the time portion of a date/time String
    * 

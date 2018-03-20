@@ -79,7 +79,7 @@ public class GeccoReport extends TableReport {
     allSamplesById = mapSamplesById(allSamples);
     List<RunDto> sequencerRuns = pinery.getSequencerRun().all();
     sequencerRunMap = sequencerRunHash(sequencerRuns);
-    geccoTissues = filter(filter(allSamples, byProject("GECCO")), bySampleCategory("Tissue"));
+    geccoTissues = filter(filter(allSamples, byProject("GECCO")), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     geccoTissues.sort((dto1, dto2) -> dto1.getName().compareTo(dto2.getName()));
   }
 
@@ -141,11 +141,11 @@ public class GeccoReport extends TableReport {
     String[] row = new String[columns.size()];
     
     row[0] = tissue.getName();
-    row[1] = getUpstreamAttribute("External Name", tissue, allSamplesById);
-    row[2] = getAttribute("Tube ID", tissue);
-    row[3] = getUpstreamAttribute("Sex", tissue, allSamplesById);
-    row[4] = getAttribute("Tissue Origin", tissue);
-    row[5] = getAttribute("Tissue Type", tissue);
+    row[1] = getUpstreamAttribute(ATTR_EXTERNAL_NAME, tissue, allSamplesById);
+    row[2] = getAttribute(ATTR_TUBE_ID, tissue);
+    row[3] = getUpstreamAttribute(ATTR_SEX, tissue, allSamplesById);
+    row[4] = getAttribute(ATTR_TISSUE_ORIGIN, tissue);
+    row[5] = getAttribute(ATTR_TISSUE_TYPE, tissue);
     Set<String> libSeqIds = getLibSeqIds(allSamplesById, tissue);
     row[6] = Integer.toString(libSeqIds.size());
     Set<String> runs = getRuns(sequencerRunMap, libSeqIds);
