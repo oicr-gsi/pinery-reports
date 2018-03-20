@@ -16,8 +16,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-import com.google.common.collect.Sets;
-
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
@@ -82,7 +80,7 @@ public class DysReport extends TableReport {
 	  new ColumnDefinition("Freezer.Box.position")
   ));
   
-  private static String DYS = "DYS";
+  private static final String DYS = "DYS";
   Map<String, SampleDto> allSamplesById;
   List<ReportObject> reportData;
   
@@ -136,8 +134,8 @@ public class DysReport extends TableReport {
    * Sort descending by pool date
    */
   private final Comparator<ReportObject> byPoolDate = (o1, o2) -> {
-    String o1Created = removeTime(o1.getLane().getPoolCreated());
-    String o2Created = removeTime(o2.getLane().getPoolCreated());
+    String o1Created = o1.getLane().getPoolCreated();
+    String o2Created = o2.getLane().getPoolCreated();
     if (o1Created == null) {
       if (o2Created != null) {
         return -1;
