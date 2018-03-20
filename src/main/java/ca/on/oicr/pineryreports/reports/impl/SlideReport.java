@@ -1,6 +1,5 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.OPT_PROJECT;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.text.SimpleDateFormat;
@@ -23,6 +22,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
 
 public class SlideReport extends TableReport {
@@ -36,6 +36,8 @@ public class SlideReport extends TableReport {
       new ColumnDefinition("Slides"),
       new ColumnDefinition("Discards")
   ));
+
+  public static final Option OPT_PROJECT = CommonOptions.project(true);
 
   private String project;
   

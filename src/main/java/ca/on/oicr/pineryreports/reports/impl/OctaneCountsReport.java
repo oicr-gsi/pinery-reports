@@ -30,6 +30,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.AttributeDto;
 import ca.on.oicr.ws.dto.SampleDto;
 import ca.on.oicr.ws.dto.UserDto;
@@ -93,6 +94,10 @@ public class OctaneCountsReport extends TableReport {
   
   public static final String REPORT_NAME = "octane";
   
+  public static final Option OPT_AFTER = CommonOptions.after(false);
+  public static final Option OPT_BEFORE = CommonOptions.before(false);
+  public static final Option OPT_USER_IDS = CommonOptions.users(false);
+
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("CASE NUMBERS"),
       new ColumnDefinition("")

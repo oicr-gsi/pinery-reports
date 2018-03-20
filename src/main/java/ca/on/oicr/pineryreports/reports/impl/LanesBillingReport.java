@@ -26,6 +26,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.InstrumentDto;
 import ca.on.oicr.ws.dto.InstrumentModelDto;
 import ca.on.oicr.ws.dto.RunDto;
@@ -110,6 +111,8 @@ public class LanesBillingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "lanes-billing";
+  public static final Option OPT_AFTER = CommonOptions.after(false);
+  public static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final String DNA_LANE = "DNA";
   private static final String RNA_LANE = "RNA";
   private static final String MIXED_LANE = "MIXED";

@@ -21,6 +21,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
 
 public class LibrariesBillingReport extends TableReport {
@@ -108,6 +109,8 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   public static final String REPORT_NAME = "libraries-billing";
+  public static final Option OPT_AFTER = CommonOptions.after(false);
+  public static final Option OPT_BEFORE = CommonOptions.before(false);
 
   private String start;
   private String end;

@@ -23,6 +23,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
 
 /**
@@ -32,6 +33,10 @@ public class StockReport extends TableReport {
   
   public static final String REPORT_NAME = "stock";
   
+  public static final Option OPT_PROJECT = CommonOptions.project(true);
+  public static final Option OPT_AFTER = CommonOptions.after(false);
+  public static final Option OPT_BEFORE = CommonOptions.before(false);
+
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("Stock Created", TextAlignment.CENTER),
       new ColumnDefinition("MISO Alias"),
