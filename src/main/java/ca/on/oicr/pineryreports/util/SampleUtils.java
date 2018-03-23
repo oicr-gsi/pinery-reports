@@ -1,6 +1,7 @@
 package ca.on.oicr.pineryreports.util;
 
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ public class SampleUtils {
   public static final String ATTR_REMAINING = "Remaining";
   public static final String ATTR_STAIN = "Stain";
   public static final String ATTR_RECEIVE_DATE = "Receive Date";
+  public static final String ATTR_SOURCE_TEMPLATE_TYPE = "Source Template Type";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
@@ -46,7 +48,26 @@ public class SampleUtils {
   public static final String SAMPLE_CATEGORY_STOCK = "Stock";
   public static final String SAMPLE_CATEGORY_ALIQUOT = "Aliquot";
 
+  public static final String DNA = "DNA";
+  public static final String RNA = "RNA";
   public static final String STAIN_HE = "Hematoxylin+Eosin";
+  // All DNA library design codes
+  public static final String LIBRARY_DESIGN_WG = "WG";
+  public static final String LIBRARY_DESIGN_EX = "EX";
+  public static final String LIBRARY_DESIGN_TS = "TS";
+  // Lesser-used DNA library design codes
+  public static final String LIBRARY_DESIGN_CH = "CH";
+  public static final String LIBRARY_DESIGN_AS = "AS";
+  public static final String LIBRARY_DESIGN_BS = "BS";
+  // RNA Library design codes
+  public static final String LIBRARY_DESIGN_MR = "MR";
+  public static final String LIBRARY_DESIGN_SM = "SM";
+  public static final String LIBRARY_DESIGN_WT = "WT";
+  public static final String LIBRARY_DESIGN_TR = "TR";
+  public static final List<String> RNA_LIBRARY_DESIGN_CODES = Arrays.asList(LIBRARY_DESIGN_MR, LIBRARY_DESIGN_SM, LIBRARY_DESIGN_WT,
+      LIBRARY_DESIGN_TR);
+  // Unknown library design code
+  public static final String LIBRARY_DESIGN_NN = "NN";
 
   public static Map<String, SampleDto> mapSamplesById(Collection<SampleDto> samples) {
     return samples.stream()
@@ -79,7 +100,7 @@ public class SampleUtils {
   public static Predicate<SampleDto> bySampleCategory(String sampleCategory) {
     return dto -> sampleCategory.equals(getAttribute(ATTR_CATEGORY, dto));
   }
-
+  
   public static Predicate<SampleDto> byCreatedBetween(String start, String end) {
     return dto -> (start == null || dto.getCreatedDate().compareTo(start) > 0)
         && (end == null || dto.getCreatedDate().compareTo(end) < 0);
@@ -95,6 +116,14 @@ public class SampleUtils {
       String received = getAttribute(ATTR_RECEIVE_DATE, dto);
       return received != null && (start == null || received.compareTo(start) > 0) && (end == null || received.compareTo(end) < 0);
     };
+  }
+
+  public static Predicate<SampleDto> byReceived() {
+    return dto -> getAttribute(ATTR_RECEIVE_DATE, dto) != null;
+  }
+
+  public static Predicate<SampleDto> byPropagated() {
+    return dto -> getAttribute(ATTR_RECEIVE_DATE, dto) == null;
   }
 
   /**
@@ -253,7 +282,14 @@ public class SampleUtils {
     return df.format(number);
   }
   
-  public static boolean isRnaLibrary(SampleDto library, Map<String, SampleDto> mapById) {
+  /**
+   * Determine if a library is an RNA library, based on whether the parent sample is RNA or is cDNA (derived from RNA)
+   * 
+   * @param library library or dilution to test for RNA-ness
+   * @param potentialParents potential parents of the library
+   * @return a boolean indicating whether the parent aliquot is RNA or cDNA
+   */
+  public static boolean isRnaLibrary(SampleDto library, Map<String, SampleDto> potentialParents) {
     if (library == null) {
       throw new IllegalArgumentException("Library cannot be null");
     }
@@ -264,13 +300,27 @@ public class SampleUtils {
     if (!library.getSampleType().contains("Library")) {
       throw new IllegalArgumentException("Provided sample " + library.getName() + " is not a library");
     }
-    for (SampleDto current = library; current != null; current = getParent(current, mapById)) {
+    for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
       if (current.getSampleType().contains("Library")) {
         continue;
       }
       return current.getSampleType().contains("RNA");
     }
     return false;
+  }
+
+  /**
+   * Determine if a library was created using a 10X kit (assumes all 10X kits have "10X" in the kit name)
+   * 
+   * @param library an actual library (will return false for all dilutions)
+   * @return a boolean indicating if the library was created using a 10X kit
+   */
+  public static boolean is10XLibrary(SampleDto library) {
+    if (library == null) {
+      throw new IllegalArgumentException("Library cannot be null");
+    }
+    if (library.getPreparationKit() == null || library.getPreparationKit().getName() == null) return false; // old libraries
+    return library.getPreparationKit().getName().contains("10X");
   }
 
 }

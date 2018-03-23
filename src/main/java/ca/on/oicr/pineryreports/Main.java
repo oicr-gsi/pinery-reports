@@ -17,6 +17,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ReportFormat;
 import ca.on.oicr.pineryreports.reports.Report;
+import ca.on.oicr.pineryreports.reports.impl.BisqueProjectsStatusReport;
 import ca.on.oicr.pineryreports.reports.impl.DysReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
@@ -117,7 +118,8 @@ public class Main {
                 + "lanes-billing, "
                 + "dys, "
                 + "tgl-libraries-run, "
-                + "location-missing"
+                + "location-missing, "
+                + "projects-status"
                 + "}")
         .build());
     opts.addOption(Option.builder("f")
@@ -160,6 +162,8 @@ public class Main {
       return new DysReport();
     case LocationMissingReport.REPORT_NAME:
       return new LocationMissingReport();
+    case BisqueProjectsStatusReport.REPORT_NAME:
+      return new BisqueProjectsStatusReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }
