@@ -85,64 +85,83 @@ public class BisqueProjectsStatusReport extends TableReport {
     }
   }
 
-  public static final String SAMPLE_TISSUE_PRIMARY_RECEIVED = "Primary Tumor Tissue Received";
-  public static final String SAMPLE_TISSUE_REFERENCE_RECEIVED = "Reference Tissue Received";
-  public static final String SAMPLE_TISSUE_METASTATIC_RECEIVED = "Metastatic Tumor Tissue Received";
-  public static final String SAMPLE_TISSUE_MISC_RECEIVED = "Misc. Tissue Received";
-  public static final String SAMPLE_TISSUE_XENOGRAFT_RECEIVED = "Xenograft Tissue Received";
-  public static final String SAMPLE_TISSUE_CELLS_RECEIVED = "Cell Line Received";
-  public static final String SAMPLE_DNA_RECEIVED = "DNA Analyte Received";
-  public static final String SAMPLE_RNA_RECEIVED = "RNA Analyte Received";
-  public static final String SAMPLE_DNA_STOCK_PREPPED = "DNA Stock Prepped";
-  public static final String SAMPLE_RNA_STOCK_PREPPED = "RNA Stock Prepped";
-  public static final String SAMPLE_DNA_ALIQUOT_PREPPED = "DNA Aliquot Prepped";
-  public static final String SAMPLE_RNA_ALIQUOT_PREPPED = "RNA Aliquot Prepped";
-  public static final String SAMPLE_STOCK_UNRECEIVED = "Stock Unreceived";
-  public static final String LIBRARY_DNA_RECEIVED = "DNA Library Received";
-  public static final String LIBRARY_RNA_RECEIVED = "RNA Library Received";
-  public static final String LIBRARY_WG_PREPPED = "WG Library Prepped";
-  public static final String LIBRARY_EX_PREPPED = "EX Library Prepped";
-  public static final String LIBRARY_TS_PREPPED = "TS Library Prepped";
-  public static final String LIBRARY_DNA_PREPPED = "AS/CH/BS Library Prepped";
-  public static final String LIBRARY_RNA_PREPPED = "RNA Library Prepped";
-  public static final String LIBRARY_NN_PREPPED = "NN Library Prepped";
+  public static final String TISSUE_PRIMARY = "Primary Tissue";
+  public static final String TISSUE_REFERENCE = "Reference Tissue";
+  public static final String TISSUE_METASTATIC = "Metastatic Tissue";
+  public static final String TISSUE_XENOGRAFT = "Xenograft Tissue";
+  public static final String TISSUE_MISC = "Other Tissue";
+  public static final String DNA_P_STOCK = "DNA P Stock";
+  public static final String DNA_R_STOCK = "DNA R Stock";
+  public static final String DNA_O_STOCK = "DNA O Stock";
+  public static final String RNA_P_STOCK = "RNA P Stock";
+  public static final String RNA_R_STOCK = "RNA R Stock";
+  public static final String RNA_O_STOCK = "RNA O Stock";
+  public static final String DNA_P_ALIQUOT = "DNA P Aliquot";
+  public static final String DNA_R_ALIQUOT = "DNA R Aliquot";
+  public static final String DNA_O_ALIQUOT = "DNA O Aliquot";
+  public static final String RNA_P_ALIQUOT = "RNA P Aliquot";
+  public static final String RNA_R_ALIQUOT = "RNA R Aliquot";
+  public static final String RNA_O_ALIQUOT = "RNA O Aliquot";
+
+  public static final String LIBRARY_WG = "WG Library";
+  public static final String LIBRARY_EX = "EX Library";
+  public static final String LIBRARY_TS = "TS Library";
+  public static final String LIBRARY_DNA_10X = "DNA 10X Library";
+  public static final String LIBRARY_DNA = "AS/CH/BS Library";
+  public static final String LIBRARY_NN = "NN Library";
+  public static final String LIBRARY_RNA = "RNA Library";
+  public static final String LIBRARY_RNA_10X = "RNA 10X Library";
   public static final String LIBRARY_DNA_SEQUENCED_COMPLETED = "DNA Sequenced Completed";
   public static final String LIBRARY_RNA_SEQUENCED_COMPLETED = "RNA Sequenced Completed";
-  public static final String LIBRARY_10X_SEQUENCED_COMPLETED = "10X Sequenced Completed";
+  public static final String LIBRARY_DNA_10X_SEQUENCED_COMPLETED = "DNA 10X Sequenced Completed";
+  public static final String LIBRARY_RNA_10X_SEQUENCED_COMPLETED = "RNA 10X Sequenced Completed";
   public static final String LIBRARY_DNA_SEQUENCED_FAILED = "DNA Sequenced Failed";
   public static final String LIBRARY_RNA_SEQUENCED_FAILED = "RNA Sequenced Failed";
+  public static final String LIBRARY_DNA_10X_SEQUENCED_FAILED = "DNA 10X Sequenced Failed";
+  public static final String LIBRARY_RNA_10X_SEQUENCED_FAILED = "RNA 10X Sequenced Failed";
   public static final String LIBRARY_DNA_SEQUENCED_REPEATED = "DNA Sequenced Repeated";
   public static final String LIBRARY_RNA_SEQUENCED_REPEATED = "RNA Sequenced Repeated";
+  public static final String LIBRARY_DNA_10X_SEQUENCED_REPEATED = "DNA 10X Sequenced Repeated";
+  public static final String LIBRARY_RNA_10X_SEQUENCED_REPEATED = "RNA 10X Sequenced Repeated";
 
   public static final List<String> cols = Arrays.asList(
-      SAMPLE_TISSUE_PRIMARY_RECEIVED,
-      SAMPLE_TISSUE_REFERENCE_RECEIVED,
-      SAMPLE_TISSUE_METASTATIC_RECEIVED,
-      SAMPLE_TISSUE_MISC_RECEIVED,
-      SAMPLE_TISSUE_XENOGRAFT_RECEIVED,
-      SAMPLE_TISSUE_CELLS_RECEIVED,
-      SAMPLE_DNA_RECEIVED,
-      SAMPLE_RNA_RECEIVED,
-      SAMPLE_DNA_STOCK_PREPPED,
-      SAMPLE_RNA_STOCK_PREPPED,
-      SAMPLE_DNA_ALIQUOT_PREPPED,
-      SAMPLE_RNA_ALIQUOT_PREPPED,
-      SAMPLE_STOCK_UNRECEIVED,
-      LIBRARY_WG_PREPPED,
-      LIBRARY_EX_PREPPED,
-      LIBRARY_TS_PREPPED,
-      LIBRARY_DNA_PREPPED,
-      LIBRARY_RNA_PREPPED,
-      LIBRARY_NN_PREPPED,
-      LIBRARY_DNA_RECEIVED,
-      LIBRARY_RNA_RECEIVED,
+      TISSUE_PRIMARY,
+      TISSUE_REFERENCE,
+      TISSUE_METASTATIC,
+      TISSUE_XENOGRAFT,
+      TISSUE_MISC,
+      DNA_P_STOCK,
+      DNA_R_STOCK,
+      DNA_O_STOCK,
+      RNA_P_STOCK,
+      RNA_R_STOCK,
+      RNA_O_STOCK,
+      DNA_P_ALIQUOT,
+      DNA_R_ALIQUOT,
+      DNA_O_ALIQUOT,
+      RNA_P_ALIQUOT,
+      RNA_R_ALIQUOT,
+      RNA_O_ALIQUOT,
+      LIBRARY_WG,
+      LIBRARY_EX,
+      LIBRARY_TS,
+      LIBRARY_DNA_10X,
+      LIBRARY_DNA,
+      LIBRARY_NN,
+      LIBRARY_RNA,
+      LIBRARY_RNA_10X,
       LIBRARY_DNA_SEQUENCED_COMPLETED,
       LIBRARY_RNA_SEQUENCED_COMPLETED,
-      LIBRARY_10X_SEQUENCED_COMPLETED,
+      LIBRARY_DNA_10X_SEQUENCED_COMPLETED,
+      LIBRARY_RNA_10X_SEQUENCED_COMPLETED,
       LIBRARY_DNA_SEQUENCED_FAILED,
       LIBRARY_RNA_SEQUENCED_FAILED,
+      LIBRARY_DNA_10X_SEQUENCED_FAILED,
+      LIBRARY_RNA_10X_SEQUENCED_FAILED,
       LIBRARY_DNA_SEQUENCED_REPEATED,
-      LIBRARY_RNA_SEQUENCED_REPEATED);
+      LIBRARY_RNA_SEQUENCED_REPEATED,
+      LIBRARY_DNA_10X_SEQUENCED_REPEATED,
+      LIBRARY_RNA_10X_SEQUENCED_REPEATED);
 
   public static final String REPORT_NAME = "projects-status";
 
@@ -186,36 +205,45 @@ public class BisqueProjectsStatusReport extends TableReport {
     List<SampleDto> realSamples = new ArrayList<>(); // no identities
     List<SampleDto> libraries = new ArrayList<>();
     Set<String> projects = new HashSet<>();
-    List<SampleDto> receivedPrimaryTissueSamples;
-    List<SampleDto> receivedReferenceTissueSamples;
-    List<SampleDto> receivedMetastaticTissueSamples;
-    List<SampleDto> receivedXenoTissueSamples;
-    List<SampleDto> receivedCellTissueSamples;
-    List<SampleDto> receivedMiscTissueSamples;
-    List<SampleDto> receivedDnaAnalyte;
-    List<SampleDto> receivedRnaAnalyte;
-    List<SampleDto> receivedDnaLibraries;
-    List<SampleDto> receivedRnaLibraries;
-    List<SampleDto> unreceivedAliquots;
+    List<SampleDto> primaryTissues;
+    List<SampleDto> referenceTissues;
+    List<SampleDto> metastaticTissues;
+    List<SampleDto> xenoTissues;
+    List<SampleDto> miscTissues;
+    List<SampleDto> dnaPStock;
+    List<SampleDto> dnaRStock;
+    List<SampleDto> dnaOStock;
+    List<SampleDto> rnaPStock;
+    List<SampleDto> rnaRStock;
+    List<SampleDto> rnaOStock;
+    List<SampleDto> dnaPAliquots;
+    List<SampleDto> dnaRAliquots;
+    List<SampleDto> dnaOAliquots;
+    List<SampleDto> rnaPAliquots;
+    List<SampleDto> rnaRAliquots;
+    List<SampleDto> rnaOAliquots;
 
-    List<SampleDto> preppedDnaStockSamples;
-    List<SampleDto> preppedRnaStockSamples;
-    List<SampleDto> preppedDnaAliquotSamples;
-    List<SampleDto> preppedRnaAliquotSamples;
-    List<SampleDto> preppedWgLibraries;
-    List<SampleDto> preppedExLibraries;
-    List<SampleDto> preppedTsLibraries;
-    List<SampleDto> preppedDnaLibraries;
-    List<SampleDto> preppedRnaLibraries;
-    List<SampleDto> preppedNnLibraries;
+    List<SampleDto> wgLibraries;
+    List<SampleDto> exLibraries;
+    List<SampleDto> tsLibraries;
+    List<SampleDto> dna10XLibraries;
+    List<SampleDto> dnaOtherLibraries;
+    List<SampleDto> nnLibraries;
+    List<SampleDto> rnaLibraries;
+    List<SampleDto> rna10XLibraries;
 
     Set<SampleDto> sequencedCompletedDnaLibraries = new HashSet<>();
     Set<SampleDto> sequencedCompletedRnaLibraries = new HashSet<>();
-    Set<SampleDto> sequencedCompleted10XLibraries = new HashSet<>();
+    Set<SampleDto> sequencedCompletedDna10XLibraries = new HashSet<>();
+    Set<SampleDto> sequencedCompletedRna10XLibraries = new HashSet<>();
     Set<SampleDto> sequencedFailedDnaLibraries = new HashSet<>();
     Set<SampleDto> sequencedFailedRnaLibraries = new HashSet<>();
+    Set<SampleDto> sequencedFailedDna10XLibraries = new HashSet<>();
+    Set<SampleDto> sequencedFailedRna10XLibraries = new HashSet<>();
     Set<SampleDto> sequencedRepeatedDnaLibraries = new HashSet<>();
     Set<SampleDto> sequencedRepeatedRnaLibraries = new HashSet<>();
+    Set<SampleDto> sequencedRepeatedDna10XLibraries = new HashSet<>();
+    Set<SampleDto> sequencedRepeatedRna10XLibraries = new HashSet<>();
 
     for (SampleDto sam : allSamples) {
       projects.add(sam.getProjectName());
@@ -231,44 +259,41 @@ public class BisqueProjectsStatusReport extends TableReport {
       realSamples.add(sam);
     }
 
-    receivedPrimaryTissueSamples = 
-        filter(realSamples, Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byTissueLike(),
-            byTissueTypes(Arrays.asList("P", "S", "O", "A"), allSamplesById)));
-    receivedReferenceTissueSamples = filter(realSamples,
-        Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byTissueLike(), byTissueTypes(Arrays.asList("R"), allSamplesById)));
-    receivedMetastaticTissueSamples = filter(realSamples,
-        Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byTissueLike(), byTissueTypes(Arrays.asList("M"), allSamplesById)));
-    receivedXenoTissueSamples = filter(realSamples,
-        Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byTissueLike(), byTissueTypes(Arrays.asList("X"), allSamplesById)));
-    receivedCellTissueSamples = filter(realSamples,
-        Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byTissueLike(), byTissueTypes(Arrays.asList("C"), allSamplesById)));
-    receivedMiscTissueSamples = filter(realSamples,
-        Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byTissueLike(),
-            byTissueTypes(Arrays.asList("U", "n", "E", "T"), allSamplesById)));
-    receivedDnaAnalyte = filter(realSamples,
-        Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byAnalyte(), byAnalyteType(DNA)));
-    receivedRnaAnalyte = filter(realSamples,
-        Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byAnalyte(), byAnalyteType(RNA)));
-    receivedDnaLibraries = filter(libraries, Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byDnaLibrary()));
-    receivedRnaLibraries = filter(libraries, Arrays.asList(byReceivedWithUnreceivedParents(allSamplesById), byRnaLibrary()));
-    unreceivedAliquots = filter(realSamples,
-        Arrays.asList(bySampleCategory(SAMPLE_CATEGORY_STOCK), byUnreceivedHierarchy(allSamplesById)));
-
-    preppedDnaStockSamples = filter(realSamples,
-        Arrays.asList(byPropagated(), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
-    preppedRnaStockSamples = filter(realSamples,
-        Arrays.asList(byPropagated(), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
-    preppedDnaAliquotSamples = filter(realSamples,
-        Arrays.asList(byPropagated(), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
-    preppedRnaAliquotSamples = filter(realSamples,
-        Arrays.asList(byPropagated(), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
-    preppedWgLibraries = filter(libraries, Arrays.asList(byPropagated(), byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG))));
-    preppedExLibraries = filter(libraries, Arrays.asList(byPropagated(), byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX))));
-    preppedTsLibraries = filter(libraries, Arrays.asList(byPropagated(), byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS))));
-    preppedDnaLibraries = filter(libraries,
+    primaryTissues = filter(realSamples, Arrays.asList(byTissueLike(), byPrimary(allSamplesById)));
+    referenceTissues = filter(realSamples, Arrays.asList(byTissueLike(), byReference(allSamplesById)));
+    metastaticTissues = filter(realSamples, Arrays.asList(byTissueLike(), byMetastatic(allSamplesById)));
+    xenoTissues = filter(realSamples, Arrays.asList(byTissueLike(), byXeno(allSamplesById)));
+    miscTissues = filter(realSamples, Arrays.asList(byTissueLike(), byMisc(allSamplesById)));
+    dnaPStock = filter(realSamples, Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
+    dnaRStock = filter(realSamples,
+        Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
+    dnaOStock = filter(realSamples, Arrays.asList(byOther(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
+    rnaPStock = filter(realSamples, Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
+    rnaRStock = filter(realSamples,
+        Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
+    rnaOStock = filter(realSamples, Arrays.asList(byOther(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
+    dnaPAliquots = filter(realSamples,
+        Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
+    dnaRAliquots = filter(realSamples,
+        Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
+    dnaOAliquots = filter(realSamples,
+        Arrays.asList(byOther(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
+    rnaPAliquots = filter(realSamples,
+        Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
+    rnaRAliquots = filter(realSamples,
+        Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
+    rnaOAliquots = filter(realSamples,
+        Arrays.asList(byOther(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
+    
+    wgLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG))));
+    exLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX))));
+    tsLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS))));
+    dna10XLibraries = filter(libraries, Arrays.asList(byDnaLibrary(), by10XLibrary()));
+    dnaOtherLibraries = filter(libraries,
         Arrays.asList(byPropagated(), byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_CH, LIBRARY_DESIGN_AS, LIBRARY_DESIGN_BS))));
-    preppedRnaLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary()));
-    preppedNnLibraries = filter(libraries, Arrays.asList(byPropagated(), byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN))));
+    nnLibraries = filter(libraries, Arrays.asList(byPropagated(), byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN))));
+    rnaLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary()));
+    rna10XLibraries = filter(libraries, Arrays.asList(byRnaLibrary(), by10XLibrary()));
     
     // track which libraries where sequenced
     for (RunDto run : allRuns) {
@@ -280,21 +305,44 @@ public class BisqueProjectsStatusReport extends TableReport {
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = allSamplesById.get(sam.getId());
           SampleDto library = getParent(dilution, allSamplesById);
-          if (is10XLibrary(library)) {
-            sequencedCompleted10XLibraries.add(library);
-          } else if (isRnaLibrary(dilution, allSamplesById)) {
-            if (RUN_FAILED.equals(run.getState())) sequencedFailedRnaLibraries.add(library);
+          boolean is10X = is10XLibrary(library);
+          if (isRnaLibrary(dilution, allSamplesById)) {
+            if (RUN_FAILED.equals(run.getState())) {
+              if (is10X) {
+                sequencedFailedRna10XLibraries.add(library);
+              } else {
+                sequencedFailedRnaLibraries.add(library);
+              }
+            }
             if (sequencedCompletedRnaLibraries.contains(library)) {
               sequencedRepeatedRnaLibraries.add(library);
+            } else if (sequencedCompletedRna10XLibraries.contains(library)) {
+              sequencedRepeatedRna10XLibraries.add(library);
             } else {
-              sequencedCompletedRnaLibraries.add(library);
+              if (is10X) {
+                sequencedCompletedRna10XLibraries.add(library);
+              } else {
+                sequencedCompletedRnaLibraries.add(library);
+              }
             }
           } else {
-            if (RUN_FAILED.equals(run.getState())) sequencedFailedDnaLibraries.add(library);
+            if (RUN_FAILED.equals(run.getState())) {
+              if (is10X) {
+                sequencedFailedDna10XLibraries.add(library);
+              } else {
+                sequencedFailedDnaLibraries.add(library);
+              }
+            }
             if (sequencedCompletedDnaLibraries.contains(library)) {
               sequencedRepeatedDnaLibraries.add(library);
+            } else if (sequencedCompletedDna10XLibraries.contains(library)) {
+              sequencedRepeatedDna10XLibraries.add(library);
             } else {
-              sequencedCompletedDnaLibraries.add(library);
+              if (is10X) {
+                sequencedCompletedDna10XLibraries.add(library);
+              } else {
+                sequencedCompletedDnaLibraries.add(library);
+              }
             }
           }
         }
@@ -302,55 +350,58 @@ public class BisqueProjectsStatusReport extends TableReport {
     }
 
     for (String project : projects) {
-      Count recdP = new Count(SAMPLE_TISSUE_PRIMARY_RECEIVED, filter(receivedPrimaryTissueSamples, byProject(project)).size());
-      Count recdR = new Count(SAMPLE_TISSUE_REFERENCE_RECEIVED, filter(receivedReferenceTissueSamples, byProject(project)).size());
-      Count recdM = new Count(SAMPLE_TISSUE_METASTATIC_RECEIVED, filter(receivedMetastaticTissueSamples, byProject(project)).size());
-      Count recdU = new Count(SAMPLE_TISSUE_MISC_RECEIVED, filter(receivedMiscTissueSamples, byProject(project)).size());
-      Count recdX = new Count(SAMPLE_TISSUE_XENOGRAFT_RECEIVED, filter(receivedXenoTissueSamples, byProject(project)).size());
-      Count recdC = new Count(SAMPLE_TISSUE_CELLS_RECEIVED, filter(receivedCellTissueSamples, byProject(project)).size());
-      Count recdDAn = new Count(SAMPLE_DNA_RECEIVED, filter(receivedDnaAnalyte, byProject(project)).size());
-      Count recdRAn = new Count(SAMPLE_RNA_RECEIVED, filter(receivedRnaAnalyte, byProject(project)).size());
-      Count unrecd = new Count(SAMPLE_STOCK_UNRECEIVED, filter(unreceivedAliquots, byProject(project)).size());
+      Count pTissue = new Count(TISSUE_PRIMARY, filter(primaryTissues, byProject(project)).size());
+      Count rTissue = new Count(TISSUE_REFERENCE, filter(referenceTissues, byProject(project)).size());
+      Count mTissue = new Count(TISSUE_METASTATIC, filter(metastaticTissues, byProject(project)).size());
+      Count xTissue = new Count(TISSUE_XENOGRAFT, filter(xenoTissues, byProject(project)).size());
+      Count oTissue = new Count(TISSUE_MISC, filter(miscTissues, byProject(project)).size());
+      Count dPStock = new Count(DNA_P_STOCK, filter(dnaPStock, byProject(project)).size());
+      Count dRStock = new Count(DNA_R_STOCK, filter(dnaRStock, byProject(project)).size());
+      Count dOStock = new Count(DNA_O_STOCK, filter(dnaOStock, byProject(project)).size());
+      Count rPStock = new Count(RNA_P_STOCK, filter(rnaPStock, byProject(project)).size());
+      Count rRStock = new Count(RNA_R_STOCK, filter(rnaRStock, byProject(project)).size());
+      Count rOStock = new Count(RNA_O_STOCK, filter(rnaOStock, byProject(project)).size());
+      Count dPAli = new Count(DNA_P_ALIQUOT, filter(dnaPAliquots, byProject(project)).size());
+      Count dRAli = new Count(DNA_R_ALIQUOT, filter(dnaRAliquots, byProject(project)).size());
+      Count dOAli = new Count(DNA_O_ALIQUOT, filter(dnaOAliquots, byProject(project)).size());
+      Count rPAli = new Count(RNA_P_ALIQUOT, filter(rnaPAliquots, byProject(project)).size());
+      Count rRAli = new Count(RNA_R_ALIQUOT, filter(rnaRAliquots, byProject(project)).size());
+      Count rOAli = new Count(RNA_O_ALIQUOT, filter(rnaOAliquots, byProject(project)).size());
 
-      Count prepdDSt = new Count(SAMPLE_DNA_STOCK_PREPPED, filter(preppedDnaStockSamples, byProject(project)).size());
-      Count prepdRSt = new Count(SAMPLE_RNA_STOCK_PREPPED, filter(preppedRnaStockSamples, byProject(project)).size());
-      Count prepdDAl = new Count(SAMPLE_DNA_ALIQUOT_PREPPED, filter(preppedDnaAliquotSamples, byProject(project)).size());
-      Count prepdRAl = new Count(SAMPLE_RNA_ALIQUOT_PREPPED, filter(preppedRnaAliquotSamples, byProject(project)).size());
-
-      Count prepdWgLi = new Count(LIBRARY_WG_PREPPED, filter(preppedWgLibraries, byProject(project)).size());
-      Count prepdExLi = new Count(LIBRARY_EX_PREPPED, filter(preppedExLibraries, byProject(project)).size());
-      Count prepdTsLi = new Count(LIBRARY_TS_PREPPED, filter(preppedTsLibraries, byProject(project)).size());
-      Count prepdDLi = new Count(LIBRARY_DNA_PREPPED, filter(preppedDnaLibraries, byProject(project)).size());
-      Count prepdRLi = new Count(LIBRARY_RNA_PREPPED, filter(preppedRnaLibraries, byProject(project)).size());
-      Count prepdNnLi = new Count(LIBRARY_NN_PREPPED, filter(preppedNnLibraries, byProject(project)).size());
-
-      Count recdDLi = new Count(LIBRARY_DNA_RECEIVED, filter(receivedDnaLibraries, byProject(project)).size());
-      Count recdRLi = new Count(LIBRARY_RNA_RECEIVED, filter(receivedRnaLibraries, byProject(project)).size());
+      Count wgLi = new Count(LIBRARY_WG, filter(wgLibraries, byProject(project)).size());
+      Count exLi = new Count(LIBRARY_EX, filter(exLibraries, byProject(project)).size());
+      Count tsLi = new Count(LIBRARY_TS, filter(tsLibraries, byProject(project)).size());
+      Count d10Li = new Count(LIBRARY_DNA_10X, filter(dna10XLibraries, byProject(project)).size());
+      Count dOLi = new Count(LIBRARY_DNA, filter(dnaOtherLibraries, byProject(project)).size());
+      Count nnLi = new Count(LIBRARY_NN, filter(nnLibraries, byProject(project)).size());
+      Count rLi = new Count(LIBRARY_RNA, filter(rnaLibraries, byProject(project)).size());
+      Count r10Li = new Count(LIBRARY_RNA_10X, filter(rna10XLibraries, byProject(project)).size());
 
       Count seqdDLiComp = new Count(LIBRARY_DNA_SEQUENCED_COMPLETED, filter(sequencedCompletedDnaLibraries, byProject(project)).size());
       Count seqdRLiComp = new Count(LIBRARY_RNA_SEQUENCED_COMPLETED, filter(sequencedCompletedRnaLibraries, byProject(project)).size());
-      Count seqd10XComp = new Count(LIBRARY_10X_SEQUENCED_COMPLETED, filter(sequencedCompleted10XLibraries, byProject(project)).size());
+      Count seqdD10XComp = new Count(LIBRARY_DNA_10X_SEQUENCED_COMPLETED,
+          filter(sequencedCompletedDna10XLibraries, byProject(project)).size());
+      Count seqdR10XComp = new Count(LIBRARY_RNA_10X_SEQUENCED_COMPLETED,
+          filter(sequencedCompletedRna10XLibraries, byProject(project)).size());
       Count seqdDLiFail = new Count(LIBRARY_DNA_SEQUENCED_FAILED, filter(sequencedFailedDnaLibraries, byProject(project)).size());
       Count seqdRLiFail = new Count(LIBRARY_RNA_SEQUENCED_FAILED, filter(sequencedFailedRnaLibraries, byProject(project)).size());
+      Count seqdD10XFail = new Count(LIBRARY_DNA_10X_SEQUENCED_FAILED, filter(sequencedFailedDna10XLibraries, byProject(project)).size());
+      Count seqdR10XFail = new Count(LIBRARY_RNA_10X_SEQUENCED_FAILED, filter(sequencedFailedRna10XLibraries, byProject(project)).size());
       Count seqdDLiRep = new Count(LIBRARY_DNA_SEQUENCED_REPEATED, filter(sequencedRepeatedDnaLibraries, byProject(project)).size());
       Count seqdRLiRep = new Count(LIBRARY_RNA_SEQUENCED_REPEATED, filter(sequencedRepeatedRnaLibraries, byProject(project)).size());
-      List<Count> countsForProj = Arrays.asList(recdP, recdR, recdM, recdU, recdX, recdC, recdDAn, recdRAn, prepdDSt, prepdRSt, prepdDAl,
-          prepdRAl, unrecd, prepdWgLi, prepdExLi, prepdTsLi, prepdDLi, prepdRLi, prepdNnLi, recdDLi, recdRLi, seqdDLiComp, seqdRLiComp,
-          seqd10XComp, seqdDLiFail, seqdRLiFail, seqdDLiRep, seqdRLiRep);
+      Count seqdD10XRep = new Count(LIBRARY_DNA_10X_SEQUENCED_REPEATED,
+          filter(sequencedRepeatedDna10XLibraries, byProject(project)).size());
+      Count seqdR10XRep = new Count(LIBRARY_RNA_10X_SEQUENCED_REPEATED,
+          filter(sequencedRepeatedRna10XLibraries, byProject(project)).size());
+
+      List<Count> countsForProj = Arrays.asList(pTissue, rTissue, mTissue, xTissue, oTissue, dPStock, dRStock, dOStock, rPStock, rRStock,
+          rOStock, dPAli, dRAli, dOAli, rPAli, rRAli, rOAli, wgLi, exLi, tsLi, d10Li, dOLi, nnLi, rLi, r10Li, seqdDLiComp, seqdRLiComp,
+          seqdD10XComp, seqdR10XComp, seqdDLiFail, seqdRLiFail, seqdD10XFail, seqdR10XFail, seqdDLiRep, seqdRLiRep, seqdD10XRep,
+          seqdR10XRep);
       countsByProject.put(project, countsForProj);
     }
 
     countsByProjectAsList = listifyCountsByProject(countsByProject);
-  }
-
-  private Predicate<SampleDto> byReceivedWithUnreceivedParents(Map<String, SampleDto> allSamples) {
-    return dto -> {
-      String received = getAttribute(ATTR_RECEIVE_DATE, dto);
-      if (received == null) return false;
-      String parentReceived = getUpstreamAttribute(ATTR_RECEIVE_DATE, dto, allSamples);
-      if (parentReceived == null) return true;
-      return false;
-    };
   }
 
   private Predicate<SampleDto> byTissueLike() {
@@ -362,21 +413,52 @@ public class BisqueProjectsStatusReport extends TableReport {
     };
   }
 
-  private Predicate<SampleDto> byAnalyte() {
+  private boolean tissueTypeMatches(SampleDto sample, List<String> tissueTypes, Map<String, SampleDto> allSamples) {
+    String type = getAttribute(ATTR_TISSUE_TYPE, sample);
+    if (type == null) type = getUpstreamAttribute(ATTR_TISSUE_TYPE, sample, allSamples);
+      if (type == null) throw new IllegalArgumentException("sample is missing tissue type");
+      return tissueTypes.contains(type);
+  }
+
+  private Predicate<SampleDto> byPrimary(Map<String, SampleDto> allSamples) {
     return dto -> {
-      String sampleCategory = getAttribute(ATTR_CATEGORY, dto);
-      if (sampleCategory == null) throw new IllegalArgumentException("Sample is missing sample category");
-      List<String> analyte = Arrays.asList(SAMPLE_CATEGORY_STOCK, SAMPLE_CATEGORY_ALIQUOT);
-      return analyte.contains(sampleCategory);
+      List<String> primaryLike = Arrays.asList("P", "S", "O", "A");
+      return tissueTypeMatches(dto, primaryLike, allSamples);
     };
   }
 
-  private Predicate<SampleDto> byTissueTypes(List<String> tissueTypes, Map<String, SampleDto> allSamples) {
+  private Predicate<SampleDto> byReference(Map<String, SampleDto> allSamples) {
     return dto -> {
-      String type = getAttribute(ATTR_TISSUE_TYPE, dto);
-      if (type == null) type = getUpstreamAttribute(ATTR_TISSUE_TYPE, dto, allSamples);
-      if (type == null) throw new IllegalArgumentException("sample is missing tissue type");
-      return tissueTypes.contains(type);
+      List<String> primaryLike = Arrays.asList("R");
+      return tissueTypeMatches(dto, primaryLike, allSamples);
+    };
+  }
+
+  private Predicate<SampleDto> byMetastatic(Map<String, SampleDto> allSamples) {
+    return dto -> {
+      List<String> primaryLike = Arrays.asList("M");
+      return tissueTypeMatches(dto, primaryLike, allSamples);
+    };
+  }
+
+  private Predicate<SampleDto> byXeno(Map<String, SampleDto> allSamples) {
+    return dto -> {
+      List<String> primaryLike = Arrays.asList("X");
+      return tissueTypeMatches(dto, primaryLike, allSamples);
+    };
+  }
+
+  private Predicate<SampleDto> byMisc(Map<String, SampleDto> allSamples) {
+    return dto -> {
+      List<String> primaryLike = Arrays.asList("C", "U", "n", "E", "T");
+      return tissueTypeMatches(dto, primaryLike, allSamples);
+    };
+  }
+
+  private Predicate<SampleDto> byOther(Map<String, SampleDto> allSamples) {
+    return dto -> {
+      List<String> primaryLike = Arrays.asList("C", "M", "U", "X", "n", "E", "T");
+      return tissueTypeMatches(dto, primaryLike, allSamples);
     };
   }
 
@@ -392,7 +474,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     return dto -> {
       String designCode = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto);
       if (designCode == null)
-        throw new IllegalArgumentException("Library is missing a library design code; is " + dto.getName() + " really a library?");
+        throw new IllegalArgumentException("Library is missing a library design code; is " + dto.getId() + " really a library?");
       return RNA_LIBRARY_DESIGN_CODES.contains(designCode);
     };
   }
@@ -401,70 +483,12 @@ public class BisqueProjectsStatusReport extends TableReport {
     return byRnaLibrary().negate();
   }
 
+  private Predicate<SampleDto> by10XLibrary() {
+    return dto -> is10XLibrary(dto);
+  }
+
   private Predicate<SampleDto> byLibraryDesignCodes(List<String> libraryDesignCodes) {
     return dto -> libraryDesignCodes.contains(getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto));
-  }
-
-  /**
-   * Filters for samples which have no receive dates anywhere in the hierarchy (the sample itself; its parents; its children)
-   * 
-   * @param allSamples list of samples mapped by ID
-   * @return a filter which returns true if a sample and all its children and direct ancestors have no received date.
-   */
-  private Predicate<SampleDto> byUnreceivedHierarchy(Map<String, SampleDto> allSamples) {
-    return dto -> {
-      String received = getAttribute(ATTR_RECEIVE_DATE, dto);
-      if (received != null && !"".equals(received)) return false;
-      received = getUpstreamAttribute(ATTR_RECEIVE_DATE, dto, allSamples);
-      if (received != null && !"".equals(received)) return false;
-      received = getDownstreamAttribute(ATTR_RECEIVE_DATE, dto, allSamples);
-      if (received != null && !"".equals(received)) return false;
-      return true;
-    };
-  }
-
-  /**
-   * Finds the direct children of a given sample.
-   * 
-   * @param sample the sample whose children should be returned
-   * @param allSamples list of all samples, mapped by ID
-   * @return a fully-populated list of children (if they exist; empty list otherwise)
-   */
-  private static List<SampleDto> getChildren(SampleDto sample, Map<String, SampleDto> allSamples) {
-    if (sample.getChildren() == null) return null;
-    List<String> childIds = sample.getChildren().stream().map(ref -> ref.getId()).collect(Collectors.toList());
-    if (childIds == null || childIds.isEmpty()) {
-      return null;
-    }
-    return childIds.stream().map(id -> allSamples.get(id)).collect(Collectors.toList());
-  }
-
-  /**
-   * Get a downstream attribute if it is present on any of the children further down the hierarchy. Will never return an attribute present
-   * on the given sample.
-   * 
-   * @param attributeName the attribute name to search for
-   * @param sample a given sample
-   * @param allSamples list of all samples mapped by ID
-   * @return the attribute value if it is found; null otherwise
-   */
-  private static String getDownstreamAttribute(String attributeName, SampleDto sample, Map<String, SampleDto> allSamples) {
-    List<SampleDto> children = getChildren(sample, allSamples);
-    boolean found = false;
-    if (children == null || children.isEmpty()) return null;
-    for (SampleDto child : children) {
-      // see if the child has the attr
-      if (found) break;
-      String attr = getAttribute(attributeName, child);
-      if (attr != null) {
-        found = true;
-        return attr;
-      } else {
-        // if it doesn't, call this on its children
-        getDownstreamAttribute(attributeName, child, allSamples);
-      }
-    }
-    return null;
   }
 
   static final List<Map.Entry<String, List<Count>>> listifyCountsByProject(Map<String, List<Count>> countsByProject) {

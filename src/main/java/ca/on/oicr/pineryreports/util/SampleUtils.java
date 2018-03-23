@@ -283,7 +283,7 @@ public class SampleUtils {
   }
   
   /**
-   * Determine if a library is an RNA library, based on whether the parent sample is RNA or is cDNA (derived from RNA)
+   * Determine if a library or dilution is an RNA library/dilution, based on whether the parent sample is RNA or is cDNA (derived from RNA)
    * 
    * @param library library or dilution to test for RNA-ness
    * @param potentialParents potential parents of the library
