@@ -46,6 +46,7 @@ public class LanesBillingReport extends TableReport {
     private final String runEndDate;
     private final String runName;
     private final String runStatus;
+    private final String readLengths;
     
     public DetailedObject(RunDto run, String instrumentName, String instrumentModel, String laneNumber, String project,
         BigDecimal libsPercent, String laneContents) {
@@ -58,6 +59,7 @@ public class LanesBillingReport extends TableReport {
       this.projLibsPercent = libsPercent;
       this.runStatus = run.getState();
       this.laneContents = laneContents;
+      this.readLengths = formatReadLengths(run.getRunBasesMask());
     }
 
     public String getInstrumentModel() {
@@ -100,6 +102,20 @@ public class LanesBillingReport extends TableReport {
       return runStatus;
     }
     
+    public String getReadLengths() {
+      return readLengths;
+    }
+
+    private String formatReadLengths(String runBasesMask) {
+      // format: y#,I#?,y#
+      // We only care about the y# parts; the I# parts are optional and indicate indices
+      if (runBasesMask == null || "".equals(runBasesMask)) return "";
+      return Arrays.stream(runBasesMask.split(","))
+          .filter(read -> read.startsWith("y"))
+          .map(read -> read.substring(1))
+          .collect(Collectors.joining("_"));
+    }
+
     private static final Comparator<DetailedObject> detailedComparator = (DetailedObject o1, DetailedObject o2) -> {
         if (o1.getProject().equals(o2.getProject())) {
           return o2.getRunEndDate().compareTo(o2.getRunEndDate());
@@ -258,7 +274,7 @@ public class LanesBillingReport extends TableReport {
   private void addSummaryData(Map<String, Map<String, BigDecimal>> summary, DetailedObject newReport) {
     String summaryKey = getSummaryKey(newReport);
     if (summary.containsKey(summaryKey)) {
-      // increment lane number+type for this project+instrument
+      // increment lane number+type for this project+instrument+readLengths
       addSummaryLanes(summary.get(summaryKey), newReport.getLaneContents(), newReport.getProjLibsPercent());
     } else {
       // add new project+instrument and lane number+type
@@ -270,9 +286,9 @@ public class LanesBillingReport extends TableReport {
   private BigDecimal getPercentProjectInLane(Integer numProjectLibraries, Integer numLaneLibraries) {
     return new BigDecimal(numProjectLibraries).divide(new BigDecimal(numLaneLibraries), 1,  RoundingMode.HALF_UP);
   }
-  
+
   private String getSummaryKey(DetailedObject row) {
-    return row.getProject() + ":" + row.getInstrumentModel();
+    return row.getProject() + ":" + row.getInstrumentModel() + ":" + row.getReadLengths();
   }
   
   private Map<String, BigDecimal> makeNewSummaryLanes(String laneType, BigDecimal laneCount) {
@@ -298,6 +314,7 @@ public class LanesBillingReport extends TableReport {
     return Arrays.asList(
         new ColumnDefinition("Project"),
         new ColumnDefinition("Instrument Model"),
+        new ColumnDefinition("Read Lengths"),
         new ColumnDefinition(DNA_LANE),
         new ColumnDefinition(RNA_LANE),
         new ColumnDefinition(MIXED_LANE),
@@ -314,6 +331,7 @@ public class LanesBillingReport extends TableReport {
         "Project",
         "Instrument Name",
         "Instrument Model",
+        "Read Lengths",
         "Run Status",
         "Run End Date",
         "Run Name",
@@ -388,6 +406,8 @@ public class LanesBillingReport extends TableReport {
     row[++i] = key[0];
     // Instrument Model
     row[++i] = key[1];
+    // Read Lengths
+    row[++i] = key[2];
     // DNA Lanes
     row[++i] = obj.getValue().get(DNA_LANE).toPlainString();
     // RNA Lanes
@@ -425,6 +445,8 @@ public class LanesBillingReport extends TableReport {
     row[++i] = obj.getInstrumentName();
     // Instrument Model
     row[++i] = obj.getInstrumentModel();
+    // Read Lengths
+    row[++i] = obj.getReadLengths();
     // Run Status
     row[++i] = obj.getRunStatus();
     // Run End Date
