@@ -53,13 +53,13 @@ public class Main {
         String formatOpt = mainCommand.getOptionValue(OPT_FORMAT);
         ReportFormat format = formatOpt == null ? report.getDefaultFormat() : ReportFormat.get(formatOpt);
         if (!report.getValidFormats().contains(format)) {
-          throw new ParseException("Invalid format for this report: " + formatOpt);
+          throw new ParseException(String.format("Invalid format for this report: %s", formatOpt));
         }
         
         String outputOpt = mainCommand.getOptionValue(OPT_OUTFILE, OPT_REPORT + format.getExtension());
         File outFile = new File(outputOpt);
         if (outFile.exists()) {
-          throw new ParseException("Output file already exists: " + outputOpt);
+          throw new ParseException(String.format("Output file already exists: %s", outputOpt));
         }
         
         for (Option opt : report.getOptions()) {
@@ -68,9 +68,9 @@ public class Main {
         CommandLine reportCommand = getCommandLine(args, opts, true);
         report.processOptions(reportCommand);
         
-        LOG.info("Options ok. Generating " + report.getTitle() + "...");
+        LOG.info(String.format("Options ok. Generating %s...", report.getTitle()));
         report.generate(pinery, format, outFile);
-        LOG.info("Report generated: " + outFile.getName());
+        LOG.info(String.format("Report generated: %s", outFile.getName()));
       }
     } catch (ParseException e) {
       LOG.error(e.getMessage());
@@ -106,7 +106,19 @@ public class Main {
         .hasArg()
         .argName("name")
         .desc(
-            "Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide, libraries-billing, lanes-billing, dys, tgl-libraries-run}")
+            "Report to generate {"
+                + "stock, "
+                + "gecco, "
+                + "sequencing, "
+                + "octane, "
+                + "receipt-missing, "
+                + "slide, "
+                + "libraries-billing, "
+                + "lanes-billing, "
+                + "dys, "
+                + "tgl-libraries-run, "
+                + "location-missing"
+                + "}")
         .build());
     opts.addOption(Option.builder("f")
         .longOpt(OPT_FORMAT)
