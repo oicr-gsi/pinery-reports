@@ -68,9 +68,9 @@ public class Main {
         CommandLine reportCommand = getCommandLine(args, opts, true);
         report.processOptions(reportCommand);
         
-        LOG.info(String.format("Options ok. Generating %s...", report.getTitle()));
+        LOG.info("Options ok. Generating {}...", report.getTitle());
         report.generate(pinery, format, outFile);
-        LOG.info(String.format("Report generated: %s", outFile.getName()));
+        LOG.info("Report generated: {}", outFile.getName());
       }
     } catch (ParseException e) {
       LOG.error(e.getMessage());

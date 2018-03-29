@@ -33,7 +33,7 @@ public class LocationMissingReport extends TableReport {
 
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
-  private static final Option OPT_PROJECT = CommonOptions.project(true);
+  private static final Option OPT_PROJECT = CommonOptions.project(false);
   private static final Option OPT_USER_IDS = CommonOptions.users(false);
 
   private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
