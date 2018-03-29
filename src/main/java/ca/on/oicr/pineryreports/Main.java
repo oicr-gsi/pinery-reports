@@ -21,6 +21,7 @@ import ca.on.oicr.pineryreports.reports.impl.DysReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
+import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
@@ -52,13 +53,13 @@ public class Main {
         String formatOpt = mainCommand.getOptionValue(OPT_FORMAT);
         ReportFormat format = formatOpt == null ? report.getDefaultFormat() : ReportFormat.get(formatOpt);
         if (!report.getValidFormats().contains(format)) {
-          throw new ParseException("Invalid format for this report: " + formatOpt);
+          throw new ParseException(String.format("Invalid format for this report: %s", formatOpt));
         }
         
         String outputOpt = mainCommand.getOptionValue(OPT_OUTFILE, OPT_REPORT + format.getExtension());
         File outFile = new File(outputOpt);
         if (outFile.exists()) {
-          throw new ParseException("Output file already exists: " + outputOpt);
+          throw new ParseException(String.format("Output file already exists: %s", outputOpt));
         }
         
         for (Option opt : report.getOptions()) {
@@ -67,9 +68,9 @@ public class Main {
         CommandLine reportCommand = getCommandLine(args, opts, true);
         report.processOptions(reportCommand);
         
-        LOG.info("Options ok. Generating " + report.getTitle() + "...");
+        LOG.info("Options ok. Generating {}...", report.getTitle());
         report.generate(pinery, format, outFile);
-        LOG.info("Report generated: " + outFile.getName());
+        LOG.info("Report generated: {}", outFile.getName());
       }
     } catch (ParseException e) {
       LOG.error(e.getMessage());
@@ -105,7 +106,19 @@ public class Main {
         .hasArg()
         .argName("name")
         .desc(
-            "Report to generate {stock, gecco, sequencing, octane, receipt-missing, slide, libraries-billing, lanes-billing, dys, tgl-libraries-run}")
+            "Report to generate {"
+                + "stock, "
+                + "gecco, "
+                + "sequencing, "
+                + "octane, "
+                + "receipt-missing, "
+                + "slide, "
+                + "libraries-billing, "
+                + "lanes-billing, "
+                + "dys, "
+                + "tgl-libraries-run, "
+                + "location-missing"
+                + "}")
         .build());
     opts.addOption(Option.builder("f")
         .longOpt(OPT_FORMAT)
@@ -145,6 +158,8 @@ public class Main {
       return new TglLibrariesRunReport();
     case DysReport.REPORT_NAME:
       return new DysReport();
+    case LocationMissingReport.REPORT_NAME:
+      return new LocationMissingReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }

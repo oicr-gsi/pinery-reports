@@ -79,14 +79,22 @@ public class SampleUtils {
   public static Predicate<SampleDto> bySampleCategory(String sampleCategory) {
     return dto -> sampleCategory.equals(getAttribute(ATTR_CATEGORY, dto));
   }
-  
+
   public static Predicate<SampleDto> byCreatedBetween(String start, String end) {
     return dto -> (start == null || dto.getCreatedDate().compareTo(start) > 0)
         && (end == null || dto.getCreatedDate().compareTo(end) < 0);
   }
   
   public static Predicate<SampleDto> byCreator(List<Integer> userIds) {
+    if (userIds.isEmpty()) return dto -> true;
     return dto -> userIds.contains(dto.getCreatedById());
+  }
+
+  public static Predicate<SampleDto> byReceivedBetween(String start, String end) {
+    return dto -> {
+      String received = getAttribute(ATTR_RECEIVE_DATE, dto);
+      return received != null && (start == null || received.compareTo(start) > 0) && (end == null || received.compareTo(end) < 0);
+    };
   }
 
   /**
