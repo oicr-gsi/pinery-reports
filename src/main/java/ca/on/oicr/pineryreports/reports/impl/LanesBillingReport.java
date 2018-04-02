@@ -407,7 +407,7 @@ public class LanesBillingReport extends TableReport {
     // Instrument Model
     row[++i] = key[1];
     // Read Lengths
-    row[++i] = key[2];
+    row[++i] = key.length > 2 ? key[2] : "";
     // DNA Lanes
     row[++i] = obj.getValue().get(DNA_LANE).toPlainString();
     // RNA Lanes
