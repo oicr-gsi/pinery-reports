@@ -293,7 +293,7 @@ public class SampleUtils {
     if (library == null) {
       throw new IllegalArgumentException("Library cannot be null");
     }
-    if (library.getSampleType().equals("Unknown")) {
+    if ("Unknown".equals(library.getSampleType())) {
       // probably a PacBio library; assume DNA until we're told otherwise
       return false;
     }
@@ -315,9 +315,22 @@ public class SampleUtils {
    * @param library an actual library (will return false for all dilutions)
    * @return a boolean indicating if the library was created using a 10X kit
    */
-  public static boolean is10XLibrary(SampleDto library) {
+  public static boolean is10XLibrary(SampleDto library, Map<String, SampleDto> potentialParents) {
     if (library == null) {
       throw new IllegalArgumentException("Library cannot be null");
+    }
+    if ("Unknown".equals(library.getSampleType())) {
+      // probably a PacBio library, so not 10X
+      return false;
+    }
+    if (library.getSampleType().contains(" Seq")) {
+      // is a dilution; get parent library
+      for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
+        if (current.getSampleType().contains("Library")) {
+          library = current; // reassign so we check the prep kit of the actual library
+          continue;
+        }
+      }
     }
     if (library.getPreparationKit() == null || library.getPreparationKit().getName() == null) return false; // old libraries
     return library.getPreparationKit().getName().contains("10X");
