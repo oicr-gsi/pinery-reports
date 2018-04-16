@@ -232,6 +232,16 @@ public class LanesBillingReport extends TableReport {
           // but it's only possible to add one pool, so the lab only enters the first lane into LIMS.
           if ("NextSeq 550".equals(instrumentModel) && laneNumber != 1) continue;
 
+          // some lanes without libraries come from sequencing done at UHN, and are rsynced into a folder called "UHN_HiSeqs".
+          // we want to distinguish them from the "NoProject" lanes because we know why the UHN lanes have no libraries
+          if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
+            DetailedObject uhn = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "UHN_HiSeqs",
+                BigDecimal.ONE, DNA_LANE);
+            detailedData.add(uhn);
+            addSummaryData(summaryData, uhn);
+            continue;
+          }
+
           // legitimately empty lanes should still be reported for billing purposes (may be run as Sequencing as a service)
           // reported as DNA by default, though Pinery has no knowledge of the actual contents
           DetailedObject noProject = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "NoProject",
