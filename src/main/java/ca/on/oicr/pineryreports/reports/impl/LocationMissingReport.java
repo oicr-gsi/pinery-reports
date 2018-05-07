@@ -31,20 +31,14 @@ public class LocationMissingReport extends TableReport {
   public static final String REPORT_NAME = "location-missing";
   private List<SampleDto> locationMissing = new ArrayList<>();
 
-  private static final Option OPT_AFTER = CommonOptions.after(false);
-  private static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final Option OPT_PROJECT = CommonOptions.project(false);
   private static final Option OPT_USER_IDS = CommonOptions.users(false);
-
-  private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
 
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("Sample ID"),
       new ColumnDefinition("Sample Alias"),
       new ColumnDefinition("Sample Barcode")));
 
-  private String start;
-  private String end;
   private String project;
   private final List<Integer> userIds = new ArrayList<>();
 
@@ -55,27 +49,11 @@ public class LocationMissingReport extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    return Sets.newHashSet(OPT_AFTER, OPT_BEFORE, OPT_PROJECT, OPT_USER_IDS);
+    return Sets.newHashSet(OPT_PROJECT, OPT_USER_IDS);
   }
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    if (cmd.hasOption(OPT_AFTER.getLongOpt())) {
-      String after = cmd.getOptionValue(OPT_AFTER.getLongOpt());
-      if (!after.matches(DATE_REGEX)) {
-        throw new ParseException("After date must be in format yyyy-mm-dd");
-      }
-      this.start = after;
-    }
-
-    if (cmd.hasOption(OPT_BEFORE.getLongOpt())) {
-      String before = cmd.getOptionValue(OPT_BEFORE.getLongOpt());
-      if (!before.matches(DATE_REGEX)) {
-        throw new ParseException("Before date must be in format yyyy-mm-dd");
-      }
-      this.end = before;
-    }
-
     if (cmd.hasOption(OPT_PROJECT.getLongOpt())) {
       this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
     }
@@ -106,8 +84,8 @@ public class LocationMissingReport extends TableReport {
     }
     Map<String, SampleDto> allSamples = mapSamplesById(samples);
 
-    locationMissing = filter(samples, Arrays.asList(byNullLocation(), byCreator(userIds), byReceivedBetween(start, end),
-        byNotIdentity(), byReceivedOrChildOfReceived(allSamples), byNonZeroVolume()));
+    locationMissing = filter(samples,
+        Arrays.asList(byNullLocation(), byCreator(userIds), byNotIdentity(), byReceivedOrChildOfReceived(allSamples), byNonZeroVolume()));
     locationMissing.sort(new Comparator<SampleDto>() {
       @Override
       public int compare(SampleDto s1, SampleDto s2) {
