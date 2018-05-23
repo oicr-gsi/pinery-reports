@@ -86,31 +86,31 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   private enum CountLabel {
 
-    P_TISSUE("P Tissue"), R_TISSUE("R Tissue"), M_TISSUE("M Tissue"), X_TISSUE("X Tissue"), L_TISSUE("L Tissue"), //
-    DNA_P_STOCK("DNA P Stock"), DNA_R_STOCK("DNA R Stock"), DNA_M_STOCK("DNA M Stock"), DNA_X_STOCK("DNA X Stock"), DNA_L_STOCK("DNA L Stock"), //
-    RNA_P_STOCK("RNA P Stock"), RNA_R_STOCK("RNA R Stock"), RNA_M_STOCK("RNA M Stock"), RNA_X_STOCK("RNA X Stock"), RNA_L_STOCK("RNA L Stock"), //
-    DNA_P_ALIQUOT("DNA P Aliq"), DNA_R_ALIQUOT("DNA R Aliq"), DNA_M_ALIQUOT("DNA M Aliq"), DNA_X_ALIQUOT("DNA X Aliq"), DNA_L_ALIQUOT("DNA L Aliq"), //
-    RNA_P_ALIQUOT("RNA P Aliq"), RNA_R_ALIQUOT("RNA R Aliq"), RNA_M_ALIQUOT("RNA M Aliq"), RNA_X_ALIQUOT("RNA X Aliq"), RNA_L_ALIQUOT("RNA L Aliq"), //
+    P_TISSUE("P Tissue"), R_TISSUE("R Tissue"), M_TISSUE("M Tissue"), O_TISSUE("O Tissue"), X_TISSUE("X Tissue"), L_TISSUE("L Tissue"), //
+    DNA_P_STOCK("DNA P Stock"), DNA_R_STOCK("DNA R Stock"), DNA_O_STOCK("DNA O Stock"), DNA_M_STOCK("DNA M Stock"), DNA_X_STOCK("DNA X Stock"), DNA_L_STOCK("DNA L Stock"), //
+    RNA_P_STOCK("RNA P Stock"), RNA_R_STOCK("RNA R Stock"), RNA_O_STOCK("RNA O Stock"), RNA_M_STOCK("RNA M Stock"), RNA_X_STOCK("RNA X Stock"), RNA_L_STOCK("RNA L Stock"), //
+    DNA_P_ALIQUOT("DNA P Aliq"), DNA_R_ALIQUOT("DNA R Aliq"), DNA_O_ALIQUOT("DNA O Aliquot"), DNA_M_ALIQUOT("DNA M Aliq"), DNA_X_ALIQUOT("DNA X Aliq"), DNA_L_ALIQUOT("DNA L Aliq"), //
+    RNA_P_ALIQUOT("RNA P Aliq"), RNA_R_ALIQUOT("RNA R Aliq"), RNA_O_ALIQUOT("RNA O Aliquot"), RNA_M_ALIQUOT("RNA M Aliq"), RNA_X_ALIQUOT("RNA X Aliq"), RNA_L_ALIQUOT("RNA L Aliq"), //
 
-    LIB_P_WG("WG P Lib"), LIB_R_WG("WG R Lib"), LIB_X_WG("WG X Lib"), LIB_M_WG("WG M Lib"), LIB_L_WG("WG L Lib"), //
-    LIB_P_EX("EX P Lib"), LIB_R_EX("EX R Lib"), LIB_X_EX("EX X Lib"), LIB_M_EX("EX M Lib"), LIB_L_EX("EX L Lib"), //
-    LIB_P_TS("TS P Lib"), LIB_R_TS("TS R Lib"), LIB_X_TS("TS X Lib"), LIB_M_TS("TS M Lib"), LIB_L_TS("TS L Lib"), //
-    LIB_P_DNA_10X("DNA 10X P Lib"), LIB_R_DNA_10X("DNA 10X R Lib"), LIB_X_DNA_10X("DNA 10X X Lib"), LIB_M_DNA_10X("DNA 10X M Lib"), LIB_L_DNA_10X("DNA 10X L Lib"), //
-    LIB_P_DNA("AS/CH/BS P Lib"), LIB_R_DNA("AS/CH/BS R Lib"), LIB_X_DNA("AS/CH/BS X Lib"), LIB_M_DNA("AS/CH/BS M Lib"), LIB_L_DNA("AS/CH/BS L Lib"), //
-    LIB_P_NN("NN P Lib"), LIB_R_NN("NN R Lib"), LIB_X_NN("NN X Lib"), LIB_M_NN("NN M Lib"), LIB_L_NN("NN L Lib"), //
-    LIB_P_RNA("RNA P Lib"), LIB_R_RNA("RNA R Lib"), LIB_X_RNA("RNA X Lib"), LIB_M_RNA("RNA M Lib"), LIB_L_RNA("RNA L Lib"), //
-    LIB_P_RNA_10X("RNA 10X P Lib"), LIB_R_RNA_10X("RNA 10X R Lib"), LIB_X_RNA_10X("RNA 10X X Lib"), LIB_M_RNA_10X("RNA 10X M Lib"), LIB_L_RNA_10X("RNA 10X L Lib"), //
+    LIB_P_WG("WG P Lib"), LIB_R_WG("WG R Lib"), LIB_O_WG("WG O Lib"), LIB_X_WG("WG X Lib"), LIB_M_WG("WG M Lib"), LIB_L_WG("WG L Lib"), //
+    LIB_P_EX("EX P Lib"), LIB_R_EX("EX R Lib"), LIB_O_EX("EX O Lib"), LIB_X_EX("EX X Lib"), LIB_M_EX("EX M Lib"), LIB_L_EX("EX L Lib"), //
+    LIB_P_TS("TS P Lib"), LIB_R_TS("TS R Lib"), LIB_O_TS("TS O Lib"), LIB_X_TS("TS X Lib"), LIB_M_TS("TS M Lib"), LIB_L_TS("TS L Lib"), //
+    LIB_P_DNA_10X("DNA 10X P Lib"), LIB_R_DNA_10X("DNA 10X R Lib"), LIB_O_DNA_10X("DNA 10X O Lib"), LIB_X_DNA_10X("DNA 10X X Lib"), LIB_M_DNA_10X("DNA 10X M Lib"), LIB_L_DNA_10X("DNA 10X L Lib"), //
+    LIB_P_DNA("AS/CH/BS P Lib"), LIB_R_DNA("AS/CH/BS R Lib"), LIB_O_DNA("AS/CH/BS O Lib"), LIB_X_DNA("AS/CH/BS X Lib"), LIB_M_DNA("AS/CH/BS M Lib"), LIB_L_DNA("AS/CH/BS L Lib"), //
+    LIB_P_NN("NN P Lib"), LIB_R_NN("NN R Lib"), LIB_O_NN("NN O Lib"), LIB_X_NN("NN X Lib"), LIB_M_NN("NN M Lib"), LIB_L_NN("NN L Lib"), //
+    LIB_P_RNA("RNA P Lib"), LIB_R_RNA("RNA R Lib"), LIB_O_RNA("RNA O Lib"), LIB_X_RNA("RNA X Lib"), LIB_M_RNA("RNA M Lib"), LIB_L_RNA("RNA L Lib"), //
+    LIB_P_RNA_10X("RNA 10X P Lib"), LIB_R_RNA_10X("RNA 10X R Lib"), LIB_O_RNA_10X("RNA 10X O Lib"), LIB_X_RNA_10X("RNA 10X X Lib"), LIB_M_RNA_10X("RNA 10X M Lib"), LIB_L_RNA_10X("RNA 10X L Lib"), //
 
     LIB_NON_ILL("Non-Illumina Lib"), //
 
-    LIB_P_WG_SEQD("WG P Seqd"), LIB_R_WG_SEQD("WG R Seqd"), LIB_X_WG_SEQD("WG X Seqd"), LIB_M_WG_SEQD("WG M Seqd"), LIB_L_WG_SEQD("WG L Seqd"), //
-    LIB_P_EX_SEQD("EX P Seqd"), LIB_R_EX_SEQD("EX R Seqd"), LIB_X_EX_SEQD("EX X Seqd"), LIB_M_EX_SEQD("EX M Seqd"), LIB_L_EX_SEQD("EX L Seqd"), //
-    LIB_P_TS_SEQD("TS P Seqd"), LIB_R_TS_SEQD("TS R Seqd"), LIB_X_TS_SEQD("TS X Seqd"), LIB_M_TS_SEQD("TS M Seqd"), LIB_L_TS_SEQD("TS L Seqd"), //
-    LIB_P_DNA_10X_SEQD("DNA 10X P Seqd"), LIB_R_DNA_10X_SEQD("DNA 10X R Seqd"), LIB_X_DNA_10X_SEQD("DNA 10X X Seqd"), LIB_M_DNA_10X_SEQD("DNA 10X M Seqd"), LIB_L_DNA_10X_SEQD("DNA 10X L Seqd"), //
-    LIB_P_DNA_SEQD("AS/CH/BS P Seqd"), LIB_R_DNA_SEQD("AS/CH/BS R Seqd"), LIB_X_DNA_SEQD("AS/CH/BS X Seqd"), LIB_M_DNA_SEQD("AS/CH/BS M Seqd"), LIB_L_DNA_SEQD("AS/CH/BS L Seqd"), //
-    LIB_P_NN_SEQD("NN P Seqd"), LIB_R_NN_SEQD("NN R Seqd"), LIB_X_NN_SEQD("NN X Seqd"), LIB_M_NN_SEQD("NN M Seqd"), LIB_L_NN_SEQD("NN L Seqd"), //
-    LIB_P_RNA_SEQD("RNA P Seqd"), LIB_R_RNA_SEQD("RNA R Seqd"), LIB_X_RNA_SEQD("RNA X Seqd"), LIB_M_RNA_SEQD("RNA M Seqd"), LIB_L_RNA_SEQD("RNA L Seqd"), //
-    LIB_P_RNA_10X_SEQD("RNA 10X P Seqd"), LIB_R_RNA_10X_SEQD("RNA 10X R Seqd"), LIB_X_RNA_10X_SEQD("RNA 10X X Seqd"), LIB_M_RNA_10X_SEQD("RNA 10X M Seqd"), LIB_L_RNA_10X_SEQD("RNA 10X L Seqd"), //
+    LIB_P_WG_SEQD("WG P Seqd"), LIB_R_WG_SEQD("WG R Seqd"), LIB_O_WG_SEQD("WG O Seqd"), LIB_X_WG_SEQD("WG X Seqd"), LIB_M_WG_SEQD("WG M Seqd"), LIB_L_WG_SEQD("WG L Seqd"), //
+    LIB_P_EX_SEQD("EX P Seqd"), LIB_R_EX_SEQD("EX R Seqd"), LIB_O_EX_SEQD("EX O Seqd"), LIB_X_EX_SEQD("EX X Seqd"), LIB_M_EX_SEQD("EX M Seqd"), LIB_L_EX_SEQD("EX L Seqd"), //
+    LIB_P_TS_SEQD("TS P Seqd"), LIB_R_TS_SEQD("TS R Seqd"), LIB_O_TS_SEQD("TS O Seqd"), LIB_X_TS_SEQD("TS X Seqd"), LIB_M_TS_SEQD("TS M Seqd"), LIB_L_TS_SEQD("TS L Seqd"), //
+    LIB_P_DNA_10X_SEQD("DNA 10X P Seqd"), LIB_R_DNA_10X_SEQD("DNA 10X R Seqd"), LIB_O_DNA_10X_SEQD("DNA 10X O Seqd"), LIB_X_DNA_10X_SEQD("DNA 10X X Seqd"), LIB_M_DNA_10X_SEQD("DNA 10X M Seqd"), LIB_L_DNA_10X_SEQD("DNA 10X L Seqd"), //
+    LIB_P_DNA_SEQD("AS/CH/BS P Seqd"), LIB_R_DNA_SEQD("AS/CH/BS R Seqd"), LIB_O_DNA_SEQD("AS/CH/BS/O Seqd"), LIB_X_DNA_SEQD("AS/CH/BS X Seqd"), LIB_M_DNA_SEQD("AS/CH/BS M Seqd"), LIB_L_DNA_SEQD("AS/CH/BS L Seqd"), //
+    LIB_P_NN_SEQD("NN P Seqd"), LIB_R_NN_SEQD("NN R Seqd"), LIB_O_NN_SEQD("NN O Seqd"), LIB_X_NN_SEQD("NN X Seqd"), LIB_M_NN_SEQD("NN M Seqd"), LIB_L_NN_SEQD("NN L Seqd"), //
+    LIB_P_RNA_SEQD("RNA P Seqd"), LIB_R_RNA_SEQD("RNA R Seqd"), LIB_O_RNA_SEQD("RNA O Seqd"), LIB_X_RNA_SEQD("RNA X Seqd"), LIB_M_RNA_SEQD("RNA M Seqd"), LIB_L_RNA_SEQD("RNA L Seqd"), //
+    LIB_P_RNA_10X_SEQD("RNA 10X P Seqd"), LIB_R_RNA_10X_SEQD("RNA 10X R Seqd"), LIB_O_RNA_10X_SEQD("RNA 10X O Seqd"), LIB_X_RNA_10X_SEQD("RNA 10X X Seqd"), LIB_M_RNA_10X_SEQD("RNA 10X M Seqd"), LIB_L_RNA_10X_SEQD("RNA 10X L Seqd"), //
     
     LIB_NON_ILL_SEQD("Non-Illumina Seqd");
 
@@ -143,7 +143,7 @@ public class BisqueProjectsStatusReport extends TableReport {
   private static final String COUNT_CATEGORY_WG_LIB = "WG Library";
   private static final String COUNT_CATEGORY_EX_LIB = "EX Library";
   private static final String COUNT_CATEGORY_TS_LIB = "TS Library";
-  private static final String COUNT_CATEGORY_DNA_10X_LIB = "DNA 10X Library;";
+  private static final String COUNT_CATEGORY_DNA_10X_LIB = "DNA 10X Library";
   private static final String COUNT_CATEGORY_DNA_LIB = "DNA Library;";
   private static final String COUNT_CATEGORY_NN_LIB = "NN Library";
   private static final String COUNT_CATEGORY_RNA_LIB = "RNA Library";
@@ -170,11 +170,6 @@ public class BisqueProjectsStatusReport extends TableReport {
   protected int columnCount = 0;
 
   public static final String REPORT_NAME = "projects-status";
-
-  // private static final List<ColumnDefinition> COLUMNS = {
-  // for int i =
-  // }
-
 
   private List<Map.Entry<String, Map<String, List<Count>>>> countsByProjectAsList; // String project, List<Count> all counts
 
@@ -211,67 +206,80 @@ public class BisqueProjectsStatusReport extends TableReport {
     List<SampleDto> libraries = new ArrayList<>();
     List<SampleDto> primaryTissues;
     List<SampleDto> referenceTissues;
+    List<SampleDto> organoidTissues;
     List<SampleDto> metastaticTissues;
     List<SampleDto> xenoTissues;
     List<SampleDto> miscTissues;
     List<SampleDto> dnaPStock;
     List<SampleDto> dnaRStock;
+    List<SampleDto> dnaOStock;
     List<SampleDto> dnaXStock;
     List<SampleDto> dnaMStock;
     List<SampleDto> dnaLStock;
     List<SampleDto> rnaPStock;
     List<SampleDto> rnaRStock;
+    List<SampleDto> rnaOStock;
     List<SampleDto> rnaXStock;
     List<SampleDto> rnaMStock;
     List<SampleDto> rnaLStock;
     List<SampleDto> dnaPAliquots;
     List<SampleDto> dnaRAliquots;
+    List<SampleDto> dnaOAliquots;
     List<SampleDto> dnaXAliquots;
     List<SampleDto> dnaMAliquots;
     List<SampleDto> dnaLAliquots;
     List<SampleDto> rnaPAliquots;
     List<SampleDto> rnaRAliquots;
+    List<SampleDto> rnaOAliquots;
     List<SampleDto> rnaXAliquots;
     List<SampleDto> rnaMAliquots;
     List<SampleDto> rnaLAliquots;
 
     List<SampleDto> wgPLibraries;
     List<SampleDto> wgRLibraries;
+    List<SampleDto> wgOLibraries;
     List<SampleDto> wgXLibraries;
     List<SampleDto> wgMLibraries;
     List<SampleDto> wgLLibraries;
     List<SampleDto> exPLibraries;
     List<SampleDto> exRLibraries;
+    List<SampleDto> exOLibraries;
     List<SampleDto> exXLibraries;
     List<SampleDto> exMLibraries;
     List<SampleDto> exLLibraries;
     List<SampleDto> tsPLibraries;
     List<SampleDto> tsRLibraries;
+    List<SampleDto> tsOLibraries;
     List<SampleDto> tsXLibraries;
     List<SampleDto> tsMLibraries;
     List<SampleDto> tsLLibraries;
     List<SampleDto> dna10xPLibraries;
     List<SampleDto> dna10xRLibraries;
+    List<SampleDto> dna10xOLibraries;
     List<SampleDto> dna10xXLibraries;
     List<SampleDto> dna10xMLibraries;
     List<SampleDto> dna10xLLibraries;
     List<SampleDto> dnaOtherPLibraries;
     List<SampleDto> dnaOtherRLibraries;
+    List<SampleDto> dnaOtherOLibraries;
     List<SampleDto> dnaOtherXLibraries;
     List<SampleDto> dnaOtherMLibraries;
     List<SampleDto> dnaOtherLLibraries;
     List<SampleDto> nnPLibraries;
     List<SampleDto> nnRLibraries;
+    List<SampleDto> nnOLibraries;
     List<SampleDto> nnXLibraries;
     List<SampleDto> nnMLibraries;
     List<SampleDto> nnLLibraries;
     List<SampleDto> rnaPLibraries;
     List<SampleDto> rnaRLibraries;
+    List<SampleDto> rnaOLibraries;
     List<SampleDto> rnaXLibraries;
     List<SampleDto> rnaMLibraries;
     List<SampleDto> rnaLLibraries;
     List<SampleDto> rna10xPLibraries;
     List<SampleDto> rna10xRLibraries;
+    List<SampleDto> rna10xOLibraries;
     List<SampleDto> rna10xXLibraries;
     List<SampleDto> rna10xMLibraries;
     List<SampleDto> rna10xLLibraries;
@@ -279,41 +287,49 @@ public class BisqueProjectsStatusReport extends TableReport {
 
     Set<SampleDto> sequencedWgPLibraries = new HashSet<>();
     Set<SampleDto> sequencedWgRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedWgOLibraries = new HashSet<>();
     Set<SampleDto> sequencedWgXLibraries = new HashSet<>();
     Set<SampleDto> sequencedWgMLibraries = new HashSet<>();
     Set<SampleDto> sequencedWgLLibraries = new HashSet<>();
     Set<SampleDto> sequencedExPLibraries = new HashSet<>();
     Set<SampleDto> sequencedExRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedExOLibraries = new HashSet<>();
     Set<SampleDto> sequencedExXLibraries = new HashSet<>();
     Set<SampleDto> sequencedExMLibraries = new HashSet<>();
     Set<SampleDto> sequencedExLLibraries = new HashSet<>();
     Set<SampleDto> sequencedTsPLibraries = new HashSet<>();
     Set<SampleDto> sequencedTsRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedTsOLibraries = new HashSet<>();
     Set<SampleDto> sequencedTsXLibraries = new HashSet<>();
     Set<SampleDto> sequencedTsMLibraries = new HashSet<>();
     Set<SampleDto> sequencedTsLLibraries = new HashSet<>();
     Set<SampleDto> sequencedDna10xPLibraries = new HashSet<>();
     Set<SampleDto> sequencedDna10xRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedDna10xOLibraries = new HashSet<>();
     Set<SampleDto> sequencedDna10xXLibraries = new HashSet<>();
     Set<SampleDto> sequencedDna10xMLibraries = new HashSet<>();
     Set<SampleDto> sequencedDna10xLLibraries = new HashSet<>();
     Set<SampleDto> sequencedDnaPLibraries = new HashSet<>();
     Set<SampleDto> sequencedDnaRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedDnaOLibraries = new HashSet<>();
     Set<SampleDto> sequencedDnaXLibraries = new HashSet<>();
     Set<SampleDto> sequencedDnaMLibraries = new HashSet<>();
     Set<SampleDto> sequencedDnaLLibraries = new HashSet<>();
     Set<SampleDto> sequencedNnPLibraries = new HashSet<>();
     Set<SampleDto> sequencedNnRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedNnOLibraries = new HashSet<>();
     Set<SampleDto> sequencedNnXLibraries = new HashSet<>();
     Set<SampleDto> sequencedNnMLibraries = new HashSet<>();
     Set<SampleDto> sequencedNnLLibraries = new HashSet<>();
     Set<SampleDto> sequencedRnaPLibraries = new HashSet<>();
     Set<SampleDto> sequencedRnaRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedRnaOLibraries = new HashSet<>();
     Set<SampleDto> sequencedRnaXLibraries = new HashSet<>();
     Set<SampleDto> sequencedRnaMLibraries = new HashSet<>();
     Set<SampleDto> sequencedRnaLLibraries = new HashSet<>();
     Set<SampleDto> sequencedRna10xPLibraries = new HashSet<>();
     Set<SampleDto> sequencedRna10xRLibraries = new HashSet<>();
+    Set<SampleDto> sequencedRna10xOLibraries = new HashSet<>();
     Set<SampleDto> sequencedRna10xXLibraries = new HashSet<>();
     Set<SampleDto> sequencedRna10xMLibraries = new HashSet<>();
     Set<SampleDto> sequencedRna10xLLibraries = new HashSet<>();
@@ -334,12 +350,14 @@ public class BisqueProjectsStatusReport extends TableReport {
 
     primaryTissues = filter(realSamples, Arrays.asList(byTissueLike(), byPrimary(allSamplesById)));
     referenceTissues = filter(realSamples, Arrays.asList(byTissueLike(), byReference(allSamplesById)));
+    organoidTissues = filter(realSamples, Arrays.asList(byTissueLike(), byOrganoid(allSamplesById)));
     metastaticTissues = filter(realSamples, Arrays.asList(byTissueLike(), byMetastatic(allSamplesById)));
     xenoTissues = filter(realSamples, Arrays.asList(byTissueLike(), byXeno(allSamplesById)));
     miscTissues = filter(realSamples, Arrays.asList(byTissueLike(), byLeftover(allSamplesById)));
     dnaPStock = filter(realSamples, Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
     dnaRStock = filter(realSamples,
         Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
+    dnaOStock = filter(realSamples, Arrays.asList(byOrganoid(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
     dnaXStock = filter(realSamples, Arrays.asList(byXeno(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
     dnaMStock = filter(realSamples,
         Arrays.asList(byMetastatic(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(DNA)));
@@ -347,6 +365,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     rnaPStock = filter(realSamples, Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
     rnaRStock = filter(realSamples,
         Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
+    rnaOStock = filter(realSamples, Arrays.asList(byOrganoid(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
     rnaXStock = filter(realSamples, Arrays.asList(byXeno(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
     rnaMStock = filter(realSamples,
         Arrays.asList(byMetastatic(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_STOCK), byAnalyteType(RNA)));
@@ -355,6 +374,8 @@ public class BisqueProjectsStatusReport extends TableReport {
         Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
     dnaRAliquots = filter(realSamples,
         Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
+    dnaOAliquots = filter(realSamples,
+        Arrays.asList(byOrganoid(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
     dnaXAliquots = filter(realSamples,
         Arrays.asList(byXeno(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(DNA)));
     dnaMAliquots = filter(realSamples,
@@ -365,6 +386,8 @@ public class BisqueProjectsStatusReport extends TableReport {
         Arrays.asList(byPrimary(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
     rnaRAliquots = filter(realSamples,
         Arrays.asList(byReference(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
+    rnaOAliquots = filter(realSamples,
+        Arrays.asList(byOrganoid(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
     rnaXAliquots = filter(realSamples,
         Arrays.asList(byXeno(allSamplesById), bySampleCategory(SAMPLE_CATEGORY_ALIQUOT), byAnalyteType(RNA)));
     rnaMAliquots = filter(realSamples,
@@ -374,21 +397,25 @@ public class BisqueProjectsStatusReport extends TableReport {
     
     wgPLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG)), byPrimary(allSamplesById)));
     wgRLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG)), byReference(allSamplesById)));
+    wgOLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG)), byOrganoid(allSamplesById)));
     wgXLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG)), byXeno(allSamplesById)));
     wgMLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG)), byMetastatic(allSamplesById)));
     wgLLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_WG)), byLeftover(allSamplesById)));
     exPLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX)), byPrimary(allSamplesById)));
     exRLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX)), byReference(allSamplesById)));
+    exOLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX)), byOrganoid(allSamplesById)));
     exXLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX)), byXeno(allSamplesById)));
     exMLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX)), byMetastatic(allSamplesById)));
     exLLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_EX)), byLeftover(allSamplesById)));
     tsPLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS)), byPrimary(allSamplesById)));
     tsRLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS)), byReference(allSamplesById)));
+    tsOLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS)), byOrganoid(allSamplesById)));
     tsXLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS)), byXeno(allSamplesById)));
     tsMLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS)), byMetastatic(allSamplesById)));
     tsLLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_TS)), byLeftover(allSamplesById)));
     dna10xPLibraries = filter(libraries, Arrays.asList(byDnaLibrary(), by10XLibrary(allSamplesById), byPrimary(allSamplesById)));
     dna10xRLibraries = filter(libraries, Arrays.asList(byDnaLibrary(), by10XLibrary(allSamplesById), byReference(allSamplesById)));
+    dna10xOLibraries = filter(libraries, Arrays.asList(byDnaLibrary(), by10XLibrary(allSamplesById), byOrganoid(allSamplesById)));
     dna10xXLibraries = filter(libraries, Arrays.asList(byDnaLibrary(), by10XLibrary(allSamplesById), byXeno(allSamplesById)));
     dna10xMLibraries = filter(libraries, Arrays.asList(byDnaLibrary(), by10XLibrary(allSamplesById), byMetastatic(allSamplesById)));
     dna10xLLibraries = filter(libraries, Arrays.asList(byDnaLibrary(), by10XLibrary(allSamplesById), byLeftover(allSamplesById)));
@@ -396,6 +423,8 @@ public class BisqueProjectsStatusReport extends TableReport {
             byPrimary(allSamplesById)));
     dnaOtherRLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_CH, LIBRARY_DESIGN_AS, LIBRARY_DESIGN_BS)),
             byReference(allSamplesById)));
+    dnaOtherOLibraries = filter(libraries, Arrays
+        .asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_CH, LIBRARY_DESIGN_AS, LIBRARY_DESIGN_BS)), byOrganoid(allSamplesById)));
     dnaOtherXLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_CH, LIBRARY_DESIGN_AS, LIBRARY_DESIGN_BS)),
             byXeno(allSamplesById)));
     dnaOtherMLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_CH, LIBRARY_DESIGN_AS, LIBRARY_DESIGN_BS)),
@@ -404,16 +433,19 @@ public class BisqueProjectsStatusReport extends TableReport {
             byLeftover(allSamplesById)));
     nnPLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN)), byPrimary(allSamplesById)));
     nnRLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN)), byReference(allSamplesById)));
+    nnOLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN)), byOrganoid(allSamplesById)));
     nnXLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN)), byXeno(allSamplesById)));
     nnMLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN)), byMetastatic(allSamplesById)));
     nnLLibraries = filter(libraries, Arrays.asList(byLibraryDesignCodes(Arrays.asList(LIBRARY_DESIGN_NN)), byLeftover(allSamplesById)));
     rnaPLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary(), byPrimary(allSamplesById)));
     rnaRLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary(), byReference(allSamplesById)));
+    rnaOLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary(), byOrganoid(allSamplesById)));
     rnaXLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary(), byXeno(allSamplesById)));
     rnaMLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary(), byMetastatic(allSamplesById)));
     rnaLLibraries = filter(libraries, Arrays.asList(byPropagated(), byRnaLibrary(), byLeftover(allSamplesById)));
     rna10xPLibraries = filter(libraries, Arrays.asList(byRnaLibrary(), by10XLibrary(allSamplesById), byPrimary(allSamplesById)));
     rna10xRLibraries = filter(libraries, Arrays.asList(byRnaLibrary(), by10XLibrary(allSamplesById), byReference(allSamplesById)));
+    rna10xOLibraries = filter(libraries, Arrays.asList(byRnaLibrary(), by10XLibrary(allSamplesById), byOrganoid(allSamplesById)));
     rna10xXLibraries = filter(libraries, Arrays.asList(byRnaLibrary(), by10XLibrary(allSamplesById), byXeno(allSamplesById)));
     rna10xMLibraries = filter(libraries, Arrays.asList(byRnaLibrary(), by10XLibrary(allSamplesById), byMetastatic(allSamplesById)));
     rna10xLLibraries = filter(libraries, Arrays.asList(byRnaLibrary(), by10XLibrary(allSamplesById), byLeftover(allSamplesById)));
@@ -440,34 +472,38 @@ public class BisqueProjectsStatusReport extends TableReport {
             if (is10XLibrary(dilution, allSamplesById)) {
               // RNA, 10X
               assignLibraryByTissueType(dilution, allSamplesById, sequencedRna10xPLibraries, sequencedRna10xRLibraries,
-                  sequencedRna10xXLibraries, sequencedRna10xMLibraries, sequencedRna10xLLibraries);
+                  sequencedRna10xOLibraries, sequencedRna10xXLibraries, sequencedRna10xMLibraries, sequencedRna10xLLibraries);
             } else {
               // RNA, no 10X
-              assignLibraryByTissueType(dilution, allSamplesById, sequencedRnaPLibraries, sequencedRnaRLibraries, sequencedRnaXLibraries,
-                  sequencedRnaMLibraries, sequencedRnaLLibraries);
+              assignLibraryByTissueType(dilution, allSamplesById, sequencedRnaPLibraries, sequencedRnaRLibraries, sequencedRnaOLibraries,
+                  sequencedRnaXLibraries, sequencedRnaMLibraries, sequencedRnaLLibraries);
             }
           } else {
             if (is10XLibrary(dilution, allSamplesById)) {
               // DNA, 10X
               assignLibraryByTissueType(dilution, allSamplesById, sequencedDna10xPLibraries, sequencedDna10xRLibraries,
-                  sequencedDna10xXLibraries, sequencedDna10xMLibraries, sequencedDna10xLLibraries);
+                  sequencedDna10xOLibraries, sequencedDna10xXLibraries, sequencedDna10xMLibraries, sequencedDna10xLLibraries);
             } else if (LIBRARY_DESIGN_WG.equals(code)) {
               // DNA, no 10X, WG
-              assignLibraryByTissueType(dilution, allSamplesById, sequencedWgPLibraries, sequencedWgRLibraries, sequencedWgXLibraries, sequencedWgMLibraries, sequencedWgLLibraries);
+              assignLibraryByTissueType(dilution, allSamplesById, sequencedWgPLibraries, sequencedWgRLibraries, sequencedWgOLibraries,
+                  sequencedWgXLibraries, sequencedWgMLibraries, sequencedWgLLibraries);
             } else if (LIBRARY_DESIGN_EX.equals(code)) {
               // DNA, no 10X, EX
-              assignLibraryByTissueType(dilution, allSamplesById, sequencedExPLibraries, sequencedExRLibraries, sequencedExXLibraries,
-                  sequencedExMLibraries, sequencedExLLibraries);
+              assignLibraryByTissueType(dilution, allSamplesById, sequencedExPLibraries, sequencedExRLibraries, sequencedExOLibraries,
+                  sequencedExXLibraries, sequencedExMLibraries, sequencedExLLibraries);
             } else if (LIBRARY_DESIGN_TS.equals(code)) {
               // DNA, no 10X, TS
-              assignLibraryByTissueType(dilution, allSamplesById, sequencedTsPLibraries, sequencedTsRLibraries, sequencedTsXLibraries,
+              assignLibraryByTissueType(dilution, allSamplesById, sequencedTsPLibraries, sequencedTsRLibraries, sequencedTsOLibraries,
+                  sequencedTsXLibraries,
                   sequencedTsMLibraries, sequencedTsLLibraries);
             } else if (LIBRARY_DESIGN_NN.equals(code)) {
               // DNA, no 10X, NN
-              assignLibraryByTissueType(dilution, allSamplesById, sequencedNnPLibraries, sequencedNnRLibraries, sequencedNnXLibraries, sequencedNnMLibraries, sequencedNnLLibraries);
+              assignLibraryByTissueType(dilution, allSamplesById, sequencedNnPLibraries, sequencedNnRLibraries, sequencedNnOLibraries,
+                  sequencedNnXLibraries, sequencedNnMLibraries, sequencedNnLLibraries);
             } else if (ldO.contains(code)) {
               // DNA, no 10X, AS/CH/BS
-              assignLibraryByTissueType(dilution, allSamplesById, sequencedDnaPLibraries, sequencedDnaRLibraries, sequencedDnaXLibraries,
+              assignLibraryByTissueType(dilution, allSamplesById, sequencedDnaPLibraries, sequencedDnaRLibraries, sequencedDnaOLibraries,
+                  sequencedDnaXLibraries,
                   sequencedDnaMLibraries, sequencedDnaLLibraries);
             } else {
               System.out.println("Unexpected library design code " + code + " was found on dilution " + dilution.getId());
@@ -478,150 +514,179 @@ public class BisqueProjectsStatusReport extends TableReport {
     }
 
     for (String project : projects) {
-      Count priTissue = new Count(CountLabel.P_TISSUE, filter(primaryTissues, byProject(project)).size());
-      Count refTissue = new Count(CountLabel.R_TISSUE, filter(referenceTissues, byProject(project)).size());
-      Count metTissue = new Count(CountLabel.M_TISSUE, filter(metastaticTissues, byProject(project)).size());
-      Count xenoTissue = new Count(CountLabel.X_TISSUE, filter(xenoTissues, byProject(project)).size());
-      Count otherTissue = new Count(CountLabel.L_TISSUE, filter(miscTissues, byProject(project)).size());
-      Count dnaPriStock = new Count(CountLabel.DNA_P_STOCK, filter(dnaPStock, byProject(project)).size());
-      Count dnaRefStock = new Count(CountLabel.DNA_R_STOCK, filter(dnaRStock, byProject(project)).size());
-      Count dnaXenoStock = new Count(CountLabel.DNA_X_STOCK, filter(dnaXStock, byProject(project)).size());
-      Count dnaMetsStock = new Count(CountLabel.DNA_M_STOCK, filter(dnaMStock, byProject(project)).size());
-      Count dnaLeftoStock = new Count(CountLabel.DNA_L_STOCK, filter(dnaLStock, byProject(project)).size());
-      Count rnaPriStock = new Count(CountLabel.RNA_P_STOCK, filter(rnaPStock, byProject(project)).size());
-      Count rnaRefStock = new Count(CountLabel.RNA_R_STOCK, filter(rnaRStock, byProject(project)).size());
-      Count rnaXenoStock = new Count(CountLabel.RNA_L_STOCK, filter(rnaXStock, byProject(project)).size());
-      Count rnaMetsStock = new Count(CountLabel.RNA_L_STOCK, filter(rnaMStock, byProject(project)).size());
-      Count rnaLeftoStock = new Count(CountLabel.RNA_L_STOCK, filter(rnaLStock, byProject(project)).size());
-      Count dnaPriAliq = new Count(CountLabel.DNA_P_ALIQUOT, filter(dnaPAliquots, byProject(project)).size());
-      Count dnaRefAliq = new Count(CountLabel.DNA_R_ALIQUOT, filter(dnaRAliquots, byProject(project)).size());
-      Count dnaXenoAliq = new Count(CountLabel.DNA_L_ALIQUOT, filter(dnaXAliquots, byProject(project)).size());
-      Count dnaMetsAliq = new Count(CountLabel.DNA_L_ALIQUOT, filter(dnaMAliquots, byProject(project)).size());
-      Count dnaLeftoAliq = new Count(CountLabel.DNA_L_ALIQUOT, filter(dnaLAliquots, byProject(project)).size());
-      Count rnaPriAliq = new Count(CountLabel.RNA_P_ALIQUOT, filter(rnaPAliquots, byProject(project)).size());
-      Count rnaRefAliq = new Count(CountLabel.RNA_R_ALIQUOT, filter(rnaRAliquots, byProject(project)).size());
-      Count rnaXenoAliq = new Count(CountLabel.RNA_L_ALIQUOT, filter(rnaXAliquots, byProject(project)).size());
-      Count rnaMetsAliq = new Count(CountLabel.RNA_L_ALIQUOT, filter(rnaMAliquots, byProject(project)).size());
-      Count rnaLeftoAliq = new Count(CountLabel.RNA_L_ALIQUOT, filter(rnaLAliquots, byProject(project)).size());
+      Count priTissue = makeCount(CountLabel.P_TISSUE, primaryTissues, project);
+      Count refTissue = makeCount(CountLabel.R_TISSUE, referenceTissues, project);
+      Count orgTissue = makeCount(CountLabel.O_TISSUE, organoidTissues, project);
+      Count metTissue = makeCount(CountLabel.M_TISSUE, metastaticTissues, project);
+      Count xenoTissue = makeCount(CountLabel.X_TISSUE, xenoTissues, project);
+      Count otherTissue = makeCount(CountLabel.L_TISSUE, miscTissues, project);
+      Count dnaPriStock = makeCount(CountLabel.DNA_P_STOCK, dnaPStock, project);
+      Count dnaRefStock = makeCount(CountLabel.DNA_R_STOCK, dnaRStock, project);
+      Count dnaOrgStock = makeCount(CountLabel.DNA_O_STOCK, dnaOStock, project);
+      Count dnaXenoStock = makeCount(CountLabel.DNA_X_STOCK, dnaXStock, project);
+      Count dnaMetsStock = makeCount(CountLabel.DNA_M_STOCK, dnaMStock, project);
+      Count dnaLeftoStock = makeCount(CountLabel.DNA_L_STOCK, dnaLStock, project);
+      Count rnaPriStock = makeCount(CountLabel.RNA_P_STOCK, rnaPStock, project);
+      Count rnaRefStock = makeCount(CountLabel.RNA_R_STOCK, rnaRStock, project);
+      Count rnaOrgStock = makeCount(CountLabel.RNA_O_STOCK, rnaOStock, project);
+      Count rnaXenoStock = makeCount(CountLabel.RNA_L_STOCK, rnaXStock, project);
+      Count rnaMetsStock = makeCount(CountLabel.RNA_L_STOCK, rnaMStock, project);
+      Count rnaLeftoStock = makeCount(CountLabel.RNA_L_STOCK, rnaLStock, project);
+      Count dnaPriAliq = makeCount(CountLabel.DNA_P_ALIQUOT, dnaPAliquots, project);
+      Count dnaRefAliq = makeCount(CountLabel.DNA_R_ALIQUOT, dnaRAliquots, project);
+      Count dnaOrgAliq = makeCount(CountLabel.DNA_O_ALIQUOT, dnaOAliquots, project);
+      Count dnaXenoAliq = makeCount(CountLabel.DNA_L_ALIQUOT, dnaXAliquots, project);
+      Count dnaMetsAliq = makeCount(CountLabel.DNA_L_ALIQUOT, dnaMAliquots, project);
+      Count dnaLeftoAliq = makeCount(CountLabel.DNA_L_ALIQUOT, dnaLAliquots, project);
+      Count rnaPriAliq = makeCount(CountLabel.RNA_P_ALIQUOT, rnaPAliquots, project);
+      Count rnaRefAliq = makeCount(CountLabel.RNA_R_ALIQUOT, rnaRAliquots, project);
+      Count rnaOrgAliq = makeCount(CountLabel.RNA_O_ALIQUOT, rnaOAliquots, project);
+      Count rnaXenoAliq = makeCount(CountLabel.RNA_L_ALIQUOT, rnaXAliquots, project);
+      Count rnaMetsAliq = makeCount(CountLabel.RNA_L_ALIQUOT, rnaMAliquots, project);
+      Count rnaLeftoAliq = makeCount(CountLabel.RNA_L_ALIQUOT, rnaLAliquots, project);
 
-      Count wgPriLib = new Count(CountLabel.LIB_P_WG, filter(wgPLibraries, byProject(project)).size());
-      Count wgRefLib = new Count(CountLabel.LIB_R_WG, filter(wgRLibraries, byProject(project)).size());
-      Count wgXenoLib = new Count(CountLabel.LIB_X_WG, filter(wgXLibraries, byProject(project)).size());
-      Count wgMetsLib = new Count(CountLabel.LIB_M_WG, filter(wgMLibraries, byProject(project)).size());
-      Count wgLeftoLib = new Count(CountLabel.LIB_L_WG, filter(wgLLibraries, byProject(project)).size());
-      Count exPriLib = new Count(CountLabel.LIB_P_EX, filter(exPLibraries, byProject(project)).size());
-      Count exRefLib = new Count(CountLabel.LIB_R_EX, filter(exRLibraries, byProject(project)).size());
-      Count exXenoLib = new Count(CountLabel.LIB_X_EX, filter(exXLibraries, byProject(project)).size());
-      Count exMetsLib = new Count(CountLabel.LIB_M_EX, filter(exMLibraries, byProject(project)).size());
-      Count exLeftoLib = new Count(CountLabel.LIB_L_EX, filter(exLLibraries, byProject(project)).size());
-      Count tsPriLib = new Count(CountLabel.LIB_P_TS, filter(tsPLibraries, byProject(project)).size());
-      Count tsRefLib = new Count(CountLabel.LIB_R_TS, filter(tsRLibraries, byProject(project)).size());
-      Count tsXenoLib = new Count(CountLabel.LIB_X_TS, filter(tsXLibraries, byProject(project)).size());
-      Count tsMetsLib = new Count(CountLabel.LIB_M_TS, filter(tsMLibraries, byProject(project)).size());
-      Count tsLeftoLib = new Count(CountLabel.LIB_L_TS, filter(tsLLibraries, byProject(project)).size());
-      Count dna10xPriLib = new Count(CountLabel.LIB_P_DNA_10X, filter(dna10xPLibraries, byProject(project)).size());
-      Count dna10xRefLib = new Count(CountLabel.LIB_R_DNA_10X, filter(dna10xRLibraries, byProject(project)).size());
-      Count dna10xXenoLib = new Count(CountLabel.LIB_X_DNA_10X, filter(dna10xXLibraries, byProject(project)).size());
-      Count dna10xMetsLib = new Count(CountLabel.LIB_M_DNA_10X, filter(dna10xMLibraries, byProject(project)).size());
-      Count dna10xLeftoLib = new Count(CountLabel.LIB_L_DNA_10X, filter(dna10xLLibraries, byProject(project)).size());
-      Count dnaMiscPriLib = new Count(CountLabel.LIB_P_DNA, filter(dnaOtherPLibraries, byProject(project)).size());
-      Count dnaMiscRefLib = new Count(CountLabel.LIB_R_DNA, filter(dnaOtherRLibraries, byProject(project)).size());
-      Count dnaMiscXenoLib = new Count(CountLabel.LIB_X_DNA, filter(dnaOtherXLibraries, byProject(project)).size());
-      Count dnaMiscMetsLib = new Count(CountLabel.LIB_M_DNA, filter(dnaOtherMLibraries, byProject(project)).size());
-      Count dnaMiscLeftoLib = new Count(CountLabel.LIB_L_DNA, filter(dnaOtherLLibraries, byProject(project)).size());
-      Count nnPriLib = new Count(CountLabel.LIB_P_NN, filter(nnPLibraries, byProject(project)).size());
-      Count nnRefLib = new Count(CountLabel.LIB_R_NN, filter(nnRLibraries, byProject(project)).size());
-      Count nnXenoLib = new Count(CountLabel.LIB_X_NN, filter(nnXLibraries, byProject(project)).size());
-      Count nnMetsLib = new Count(CountLabel.LIB_M_NN, filter(nnMLibraries, byProject(project)).size());
-      Count nnLeftoLib = new Count(CountLabel.LIB_L_NN, filter(nnLLibraries, byProject(project)).size());
-      Count rnaPriLib = new Count(CountLabel.LIB_P_RNA, filter(rnaPLibraries, byProject(project)).size());
-      Count rnaRefLib = new Count(CountLabel.LIB_R_RNA, filter(rnaRLibraries, byProject(project)).size());
-      Count rnaXenoLib = new Count(CountLabel.LIB_X_RNA, filter(rnaXLibraries, byProject(project)).size());
-      Count rnaMetsLib = new Count(CountLabel.LIB_M_RNA, filter(rnaMLibraries, byProject(project)).size());
-      Count rnaLeftoLib = new Count(CountLabel.LIB_L_RNA, filter(rnaLLibraries, byProject(project)).size());
-      Count rna10xPriLib = new Count(CountLabel.LIB_P_RNA_10X, filter(rna10xPLibraries, byProject(project)).size());
-      Count rna10xRefLib = new Count(CountLabel.LIB_R_RNA_10X, filter(rna10xRLibraries, byProject(project)).size());
-      Count rna10xXenoLib = new Count(CountLabel.LIB_X_RNA_10X, filter(rna10xXLibraries, byProject(project)).size());
-      Count rna10xMetsLib = new Count(CountLabel.LIB_M_RNA_10X, filter(rna10xMLibraries, byProject(project)).size());
-      Count rna10xLeftoLib = new Count(CountLabel.LIB_L_RNA_10X, filter(rna10xLLibraries, byProject(project)).size());
-      Count nonIllLib = new Count(CountLabel.LIB_NON_ILL, filter(nonIlluminaLibraries, byProject(project)).size());
+      Count wgPriLib = makeCount(CountLabel.LIB_P_WG, wgPLibraries, project);
+      Count wgRefLib = makeCount(CountLabel.LIB_R_WG, wgRLibraries, project);
+      Count wgOrgLib = makeCount(CountLabel.LIB_O_WG, wgOLibraries, project);
+      Count wgXenoLib = makeCount(CountLabel.LIB_X_WG, wgXLibraries, project);
+      Count wgMetsLib = makeCount(CountLabel.LIB_M_WG, wgMLibraries, project);
+      Count wgLeftoLib = makeCount(CountLabel.LIB_L_WG, wgLLibraries, project);
+      Count exPriLib = makeCount(CountLabel.LIB_P_EX, exPLibraries, project);
+      Count exRefLib = makeCount(CountLabel.LIB_R_EX, exRLibraries, project);
+      Count exOrgLib = makeCount(CountLabel.LIB_O_EX, exOLibraries, project);
+      Count exXenoLib = makeCount(CountLabel.LIB_X_EX, exXLibraries, project);
+      Count exMetsLib = makeCount(CountLabel.LIB_M_EX, exMLibraries, project);
+      Count exLeftoLib = makeCount(CountLabel.LIB_L_EX, exLLibraries, project);
+      Count tsPriLib = makeCount(CountLabel.LIB_P_TS, tsPLibraries, project);
+      Count tsRefLib = makeCount(CountLabel.LIB_R_TS, tsRLibraries, project);
+      Count tsOrgLib = makeCount(CountLabel.LIB_O_TS, tsOLibraries, project);
+      Count tsXenoLib = makeCount(CountLabel.LIB_X_TS, tsXLibraries, project);
+      Count tsMetsLib = makeCount(CountLabel.LIB_M_TS, tsMLibraries, project);
+      Count tsLeftoLib = makeCount(CountLabel.LIB_L_TS, tsLLibraries, project);
+      Count dna10xPriLib = makeCount(CountLabel.LIB_P_DNA_10X, dna10xPLibraries, project);
+      Count dna10xRefLib = makeCount(CountLabel.LIB_R_DNA_10X, dna10xRLibraries, project);
+      Count dna10xOrgLib = makeCount(CountLabel.LIB_O_DNA_10X, dna10xOLibraries, project);
+      Count dna10xXenoLib = makeCount(CountLabel.LIB_X_DNA_10X, dna10xXLibraries, project);
+      Count dna10xMetsLib = makeCount(CountLabel.LIB_M_DNA_10X, dna10xMLibraries, project);
+      Count dna10xLeftoLib = makeCount(CountLabel.LIB_L_DNA_10X, dna10xLLibraries, project);
+      Count dnaMiscPriLib = makeCount(CountLabel.LIB_P_DNA, dnaOtherPLibraries, project);
+      Count dnaMiscRefLib = makeCount(CountLabel.LIB_R_DNA, dnaOtherRLibraries, project);
+      Count dnaMiscOrgLib = makeCount(CountLabel.LIB_O_DNA, dnaOtherOLibraries, project);
+      Count dnaMiscXenoLib = makeCount(CountLabel.LIB_X_DNA, dnaOtherXLibraries, project);
+      Count dnaMiscMetsLib = makeCount(CountLabel.LIB_M_DNA, dnaOtherMLibraries, project);
+      Count dnaMiscLeftoLib = makeCount(CountLabel.LIB_L_DNA, dnaOtherLLibraries, project);
+      Count nnPriLib = makeCount(CountLabel.LIB_P_NN, nnPLibraries, project);
+      Count nnRefLib = makeCount(CountLabel.LIB_R_NN, nnRLibraries, project);
+      Count nnOrgLib = makeCount(CountLabel.LIB_O_NN, nnOLibraries, project);
+      Count nnXenoLib = makeCount(CountLabel.LIB_X_NN, nnXLibraries, project);
+      Count nnMetsLib = makeCount(CountLabel.LIB_M_NN, nnMLibraries, project);
+      Count nnLeftoLib = makeCount(CountLabel.LIB_L_NN, nnLLibraries, project);
+      Count rnaPriLib = makeCount(CountLabel.LIB_P_RNA, rnaPLibraries, project);
+      Count rnaRefLib = makeCount(CountLabel.LIB_R_RNA, rnaRLibraries, project);
+      Count rnaOrgLib = makeCount(CountLabel.LIB_O_RNA, rnaOLibraries, project);
+      Count rnaXenoLib = makeCount(CountLabel.LIB_X_RNA, rnaXLibraries, project);
+      Count rnaMetsLib = makeCount(CountLabel.LIB_M_RNA, rnaMLibraries, project);
+      Count rnaLeftoLib = makeCount(CountLabel.LIB_L_RNA, rnaLLibraries, project);
+      Count rna10xPriLib = makeCount(CountLabel.LIB_P_RNA_10X, rna10xPLibraries, project);
+      Count rna10xRefLib = makeCount(CountLabel.LIB_R_RNA_10X, rna10xRLibraries, project);
+      Count rna10xOrgLib = makeCount(CountLabel.LIB_O_RNA_10X, rna10xOLibraries, project);
+      Count rna10xXenoLib = makeCount(CountLabel.LIB_X_RNA_10X, rna10xXLibraries, project);
+      Count rna10xMetsLib = makeCount(CountLabel.LIB_M_RNA_10X, rna10xMLibraries, project);
+      Count rna10xLeftoLib = makeCount(CountLabel.LIB_L_RNA_10X, rna10xLLibraries, project);
+      Count nonIllLib = makeCount(CountLabel.LIB_NON_ILL, nonIlluminaLibraries, project);
 
-      Count wgPSeqd = new Count(CountLabel.LIB_P_WG_SEQD, filter(sequencedWgPLibraries, byProject(project)).size());
-      Count wgRSeqd = new Count(CountLabel.LIB_R_WG_SEQD, filter(sequencedWgRLibraries, byProject(project)).size());
-      Count wgXSeqd = new Count(CountLabel.LIB_X_WG_SEQD, filter(sequencedWgXLibraries, byProject(project)).size());
-      Count wgMSeqd = new Count(CountLabel.LIB_M_WG_SEQD, filter(sequencedWgMLibraries, byProject(project)).size());
-      Count wgLSeqd = new Count(CountLabel.LIB_L_WG_SEQD, filter(sequencedWgLLibraries, byProject(project)).size());
-      Count exPSeqd = new Count(CountLabel.LIB_P_EX_SEQD, filter(sequencedExPLibraries, byProject(project)).size());
-      Count exRSeqd = new Count(CountLabel.LIB_R_EX_SEQD, filter(sequencedExRLibraries, byProject(project)).size());
-      Count exXSeqd = new Count(CountLabel.LIB_X_EX_SEQD, filter(sequencedExXLibraries, byProject(project)).size());
-      Count exMSeqd = new Count(CountLabel.LIB_M_EX_SEQD, filter(sequencedExMLibraries, byProject(project)).size());
-      Count exLSeqd = new Count(CountLabel.LIB_L_EX_SEQD, filter(sequencedExLLibraries, byProject(project)).size());
-      Count tsPSeqd = new Count(CountLabel.LIB_P_TS_SEQD, filter(sequencedTsPLibraries, byProject(project)).size());
-      Count tsRSeqd = new Count(CountLabel.LIB_R_TS_SEQD, filter(sequencedTsRLibraries, byProject(project)).size());
-      Count tsXSeqd = new Count(CountLabel.LIB_X_TS_SEQD, filter(sequencedTsXLibraries, byProject(project)).size());
-      Count tsMSeqd = new Count(CountLabel.LIB_M_TS_SEQD, filter(sequencedTsMLibraries, byProject(project)).size());
-      Count tsLSeqd = new Count(CountLabel.LIB_L_TS_SEQD, filter(sequencedTsLLibraries, byProject(project)).size());
-      Count nnPSeqd = new Count(CountLabel.LIB_P_NN_SEQD, filter(sequencedNnPLibraries, byProject(project)).size());
-      Count nnRSeqd = new Count(CountLabel.LIB_R_NN_SEQD, filter(sequencedNnRLibraries, byProject(project)).size());
-      Count nnXSeqd = new Count(CountLabel.LIB_X_NN_SEQD, filter(sequencedNnXLibraries, byProject(project)).size());
-      Count nnMSeqd = new Count(CountLabel.LIB_M_NN_SEQD, filter(sequencedNnMLibraries, byProject(project)).size());
-      Count nnLSeqd = new Count(CountLabel.LIB_L_NN_SEQD, filter(sequencedNnLLibraries, byProject(project)).size());
-      Count dnaPSeqd = new Count(CountLabel.LIB_P_DNA_SEQD, filter(sequencedDnaPLibraries, byProject(project)).size());
-      Count dnaRSeqd = new Count(CountLabel.LIB_R_DNA_SEQD, filter(sequencedDnaRLibraries, byProject(project)).size());
-      Count dnaXSeqd = new Count(CountLabel.LIB_X_DNA_SEQD, filter(sequencedDnaXLibraries, byProject(project)).size());
-      Count dnaMSeqd = new Count(CountLabel.LIB_M_DNA_SEQD, filter(sequencedDnaMLibraries, byProject(project)).size());
-      Count dnaLSeqd = new Count(CountLabel.LIB_L_DNA_SEQD, filter(sequencedDnaLLibraries, byProject(project)).size());
-      Count dna10xPSeqd = new Count(CountLabel.LIB_P_DNA_10X_SEQD, filter(sequencedDna10xPLibraries, byProject(project)).size());
-      Count dna10xRSeqd = new Count(CountLabel.LIB_R_DNA_10X_SEQD, filter(sequencedDna10xRLibraries, byProject(project)).size());
-      Count dna10xXSeqd = new Count(CountLabel.LIB_X_DNA_10X_SEQD, filter(sequencedDna10xXLibraries, byProject(project)).size());
-      Count dna10xMSeqd = new Count(CountLabel.LIB_M_DNA_10X_SEQD, filter(sequencedDna10xMLibraries, byProject(project)).size());
-      Count dna10xLSeqd = new Count(CountLabel.LIB_L_DNA_10X_SEQD, filter(sequencedDna10xLLibraries, byProject(project)).size());
+      Count wgPSeqd = makeCount(CountLabel.LIB_P_WG_SEQD, sequencedWgPLibraries, project);
+      Count wgRSeqd = makeCount(CountLabel.LIB_R_WG_SEQD, sequencedWgRLibraries, project);
+      Count wgOSeqd = makeCount(CountLabel.LIB_O_WG_SEQD, sequencedWgOLibraries, project);
+      Count wgXSeqd = makeCount(CountLabel.LIB_X_WG_SEQD, sequencedWgXLibraries, project);
+      Count wgMSeqd = makeCount(CountLabel.LIB_M_WG_SEQD, sequencedWgMLibraries, project);
+      Count wgLSeqd = makeCount(CountLabel.LIB_L_WG_SEQD, sequencedWgLLibraries, project);
+      Count exPSeqd = makeCount(CountLabel.LIB_P_EX_SEQD, sequencedExPLibraries, project);
+      Count exRSeqd = makeCount(CountLabel.LIB_R_EX_SEQD, sequencedExRLibraries, project);
+      Count exOSeqd = makeCount(CountLabel.LIB_O_EX_SEQD, sequencedExOLibraries, project);
+      Count exXSeqd = makeCount(CountLabel.LIB_X_EX_SEQD, sequencedExXLibraries, project);
+      Count exMSeqd = makeCount(CountLabel.LIB_M_EX_SEQD, sequencedExMLibraries, project);
+      Count exLSeqd = makeCount(CountLabel.LIB_L_EX_SEQD, sequencedExLLibraries, project);
+      Count tsPSeqd = makeCount(CountLabel.LIB_P_TS_SEQD, sequencedTsPLibraries, project);
+      Count tsRSeqd = makeCount(CountLabel.LIB_R_TS_SEQD, sequencedTsRLibraries, project);
+      Count tsOSeqd = makeCount(CountLabel.LIB_O_TS_SEQD, sequencedTsOLibraries, project);
+      Count tsXSeqd = makeCount(CountLabel.LIB_X_TS_SEQD, sequencedTsXLibraries, project);
+      Count tsMSeqd = makeCount(CountLabel.LIB_M_TS_SEQD, sequencedTsMLibraries, project);
+      Count tsLSeqd = makeCount(CountLabel.LIB_L_TS_SEQD, sequencedTsLLibraries, project);
+      Count nnPSeqd = makeCount(CountLabel.LIB_P_NN_SEQD, sequencedNnPLibraries, project);
+      Count nnRSeqd = makeCount(CountLabel.LIB_R_NN_SEQD, sequencedNnRLibraries, project);
+      Count nnOSeqd = makeCount(CountLabel.LIB_O_NN_SEQD, sequencedNnOLibraries, project);
+      Count nnXSeqd = makeCount(CountLabel.LIB_X_NN_SEQD, sequencedNnXLibraries, project);
+      Count nnMSeqd = makeCount(CountLabel.LIB_M_NN_SEQD, sequencedNnMLibraries, project);
+      Count nnLSeqd = makeCount(CountLabel.LIB_L_NN_SEQD, sequencedNnLLibraries, project);
+      Count dnaPSeqd = makeCount(CountLabel.LIB_P_DNA_SEQD, sequencedDnaPLibraries, project);
+      Count dnaRSeqd = makeCount(CountLabel.LIB_R_DNA_SEQD, sequencedDnaRLibraries, project);
+      Count dnaOSeqd = makeCount(CountLabel.LIB_O_DNA_SEQD, sequencedDnaOLibraries, project);
+      Count dnaXSeqd = makeCount(CountLabel.LIB_X_DNA_SEQD, sequencedDnaXLibraries, project);
+      Count dnaMSeqd = makeCount(CountLabel.LIB_M_DNA_SEQD, sequencedDnaMLibraries, project);
+      Count dnaLSeqd = makeCount(CountLabel.LIB_L_DNA_SEQD, sequencedDnaLLibraries, project);
+      Count dna10xPSeqd = makeCount(CountLabel.LIB_P_DNA_10X_SEQD, sequencedDna10xPLibraries, project);
+      Count dna10xRSeqd = makeCount(CountLabel.LIB_R_DNA_10X_SEQD, sequencedDna10xRLibraries, project);
+      Count dna10xOSeqd = makeCount(CountLabel.LIB_O_DNA_10X_SEQD, sequencedDna10xOLibraries, project);
+      Count dna10xXSeqd = makeCount(CountLabel.LIB_X_DNA_10X_SEQD, sequencedDna10xXLibraries, project);
+      Count dna10xMSeqd = makeCount(CountLabel.LIB_M_DNA_10X_SEQD, sequencedDna10xMLibraries, project);
+      Count dna10xLSeqd = makeCount(CountLabel.LIB_L_DNA_10X_SEQD, sequencedDna10xLLibraries, project);
 
-      Count rnaPSeqd = new Count(CountLabel.LIB_P_RNA_SEQD, filter(sequencedRnaPLibraries, byProject(project)).size());
-      Count rnaRSeqd = new Count(CountLabel.LIB_R_RNA_SEQD, filter(sequencedRnaRLibraries, byProject(project)).size());
-      Count rnaXSeqd = new Count(CountLabel.LIB_X_RNA_SEQD, filter(sequencedRnaXLibraries, byProject(project)).size());
-      Count rnaMSeqd = new Count(CountLabel.LIB_M_RNA_SEQD, filter(sequencedRnaMLibraries, byProject(project)).size());
-      Count rnaLSeqd = new Count(CountLabel.LIB_L_RNA_SEQD, filter(sequencedRnaLLibraries, byProject(project)).size());
-      Count rna10xPSeqd = new Count(CountLabel.LIB_P_RNA_10X_SEQD, filter(sequencedRna10xPLibraries, byProject(project)).size());
-      Count rna10xRSeqd = new Count(CountLabel.LIB_R_RNA_10X_SEQD, filter(sequencedRna10xRLibraries, byProject(project)).size());
-      Count rna10xXSeqd = new Count(CountLabel.LIB_X_RNA_10X_SEQD, filter(sequencedRna10xXLibraries, byProject(project)).size());
-      Count rna10xMSeqd = new Count(CountLabel.LIB_M_RNA_10X_SEQD, filter(sequencedRna10xMLibraries, byProject(project)).size());
-      Count rna10xLSeqd = new Count(CountLabel.LIB_L_RNA_10X_SEQD, filter(sequencedRna10xLLibraries, byProject(project)).size());
+      Count rnaPSeqd = makeCount(CountLabel.LIB_P_RNA_SEQD, sequencedRnaPLibraries, project);
+      Count rnaRSeqd = makeCount(CountLabel.LIB_R_RNA_SEQD, sequencedRnaRLibraries, project);
+      Count rnaOSeqd = makeCount(CountLabel.LIB_O_RNA_SEQD, sequencedRnaOLibraries, project);
+      Count rnaXSeqd = makeCount(CountLabel.LIB_X_RNA_SEQD, sequencedRnaXLibraries, project);
+      Count rnaMSeqd = makeCount(CountLabel.LIB_M_RNA_SEQD, sequencedRnaMLibraries, project);
+      Count rnaLSeqd = makeCount(CountLabel.LIB_L_RNA_SEQD, sequencedRnaLLibraries, project);
+      Count rna10xPSeqd = makeCount(CountLabel.LIB_P_RNA_10X_SEQD, sequencedRna10xPLibraries, project);
+      Count rna10xRSeqd = makeCount(CountLabel.LIB_R_RNA_10X_SEQD, sequencedRna10xRLibraries, project);
+      Count rna10xOSeqd = makeCount(CountLabel.LIB_O_RNA_10X_SEQD, sequencedRna10xOLibraries, project);
+      Count rna10xXSeqd = makeCount(CountLabel.LIB_X_RNA_10X_SEQD, sequencedRna10xXLibraries, project);
+      Count rna10xMSeqd = makeCount(CountLabel.LIB_M_RNA_10X_SEQD, sequencedRna10xMLibraries, project);
+      Count rna10xLSeqd = makeCount(CountLabel.LIB_L_RNA_10X_SEQD, sequencedRna10xLLibraries, project);
       
-      Count nonIllSeqd = new Count(CountLabel.LIB_NON_ILL_SEQD, filter(sequencedNonIlluminaLibraries, byProject(project)).size());
+      Count nonIllSeqd = makeCount(CountLabel.LIB_NON_ILL_SEQD, sequencedNonIlluminaLibraries, project);
 
       Map<String, List<Count>> categoryCounts = new LinkedHashMap<>();
-      categoryCounts.put(COUNT_CATEGORY_TISSUE, new ArrayList<>(Arrays.asList(priTissue, refTissue, metTissue, xenoTissue, otherTissue)));
+      categoryCounts.put(COUNT_CATEGORY_TISSUE,
+          new ArrayList<>(Arrays.asList(priTissue, refTissue, orgTissue, xenoTissue, metTissue, otherTissue)));
       categoryCounts.put(COUNT_CATEGORY_DNA_STOCK,
-          new ArrayList<>(Arrays.asList(dnaPriStock, dnaRefStock, dnaXenoStock, dnaMetsStock, dnaLeftoStock)));
+          new ArrayList<>(Arrays.asList(dnaPriStock, dnaRefStock, dnaOrgStock, dnaXenoStock, dnaMetsStock, dnaLeftoStock)));
       categoryCounts.put(COUNT_CATEGORY_RNA_STOCK,
-          new ArrayList<>(Arrays.asList(rnaPriStock, rnaRefStock, rnaXenoStock, rnaMetsStock, rnaLeftoStock)));
+          new ArrayList<>(Arrays.asList(rnaPriStock, rnaRefStock, rnaOrgStock, rnaXenoStock, rnaMetsStock, rnaLeftoStock)));
       categoryCounts.put(COUNT_CATEGORY_DNA_ALIQUOT,
-          new ArrayList<>(Arrays.asList(dnaPriAliq, dnaRefAliq, dnaXenoAliq, dnaMetsAliq, dnaLeftoAliq)));
+          new ArrayList<>(Arrays.asList(dnaPriAliq, dnaRefAliq, dnaOrgAliq, dnaXenoAliq, dnaMetsAliq, dnaLeftoAliq)));
       categoryCounts.put(COUNT_CATEGORY_RNA_ALIQUOT,
-          new ArrayList<>(Arrays.asList(rnaPriAliq, rnaRefAliq, rnaXenoAliq, rnaMetsAliq, rnaLeftoAliq)));
-      categoryCounts.put(COUNT_CATEGORY_WG_LIB, new ArrayList<>(Arrays.asList(wgPriLib, wgRefLib, wgXenoLib, wgMetsLib, wgLeftoLib)));
-      categoryCounts.put(COUNT_CATEGORY_EX_LIB, new ArrayList<>(Arrays.asList(exPriLib, exRefLib, exXenoLib, exMetsLib, exLeftoLib)));
-      categoryCounts.put(COUNT_CATEGORY_TS_LIB, new ArrayList<>(Arrays.asList(tsPriLib, tsRefLib, tsXenoLib, tsMetsLib, tsLeftoLib)));
+          new ArrayList<>(Arrays.asList(rnaPriAliq, rnaRefAliq, rnaOrgAliq, rnaXenoAliq, rnaMetsAliq, rnaLeftoAliq)));
+      categoryCounts.put(COUNT_CATEGORY_WG_LIB,
+          new ArrayList<>(Arrays.asList(wgPriLib, wgRefLib, wgOrgLib, wgXenoLib, wgMetsLib, wgLeftoLib)));
+      categoryCounts.put(COUNT_CATEGORY_EX_LIB,
+          new ArrayList<>(Arrays.asList(exPriLib, exRefLib, exOrgLib, exXenoLib, exMetsLib, exLeftoLib)));
+      categoryCounts.put(COUNT_CATEGORY_TS_LIB,
+          new ArrayList<>(Arrays.asList(tsPriLib, tsRefLib, tsOrgLib, tsXenoLib, tsMetsLib, tsLeftoLib)));
       categoryCounts.put(COUNT_CATEGORY_DNA_LIB,
-          new ArrayList<>(Arrays.asList(dnaMiscPriLib, dnaMiscRefLib, dnaMiscXenoLib, dnaMiscMetsLib, dnaMiscLeftoLib)));
+          new ArrayList<>(Arrays.asList(dnaMiscPriLib, dnaMiscRefLib, dnaMiscOrgLib, dnaMiscXenoLib, dnaMiscMetsLib, dnaMiscLeftoLib)));
       categoryCounts.put(COUNT_CATEGORY_DNA_10X_LIB,
-          new ArrayList<>(Arrays.asList(dna10xPriLib, dna10xRefLib, dna10xXenoLib, dna10xMetsLib, dna10xLeftoLib)));
-      categoryCounts.put(COUNT_CATEGORY_NN_LIB, new ArrayList<>(Arrays.asList(nnPriLib, nnRefLib, nnXenoLib, nnMetsLib, nnLeftoLib)));
-      categoryCounts.put(COUNT_CATEGORY_RNA_LIB, new ArrayList<>(Arrays.asList(rnaPriLib, rnaRefLib, rnaXenoLib, rnaMetsLib, rnaLeftoLib)));
+          new ArrayList<>(Arrays.asList(dna10xPriLib, dna10xRefLib, dna10xOrgLib, dna10xXenoLib, dna10xMetsLib, dna10xLeftoLib)));
+      categoryCounts.put(COUNT_CATEGORY_NN_LIB,
+          new ArrayList<>(Arrays.asList(nnPriLib, nnRefLib, nnOrgLib, nnXenoLib, nnMetsLib, nnLeftoLib)));
+      categoryCounts.put(COUNT_CATEGORY_RNA_LIB,
+          new ArrayList<>(Arrays.asList(rnaPriLib, rnaRefLib, rnaOrgLib, rnaXenoLib, rnaMetsLib, rnaLeftoLib)));
       categoryCounts.put(COUNT_CATEGORY_RNA_10X_LIB,
-          new ArrayList<>(Arrays.asList(rna10xPriLib, rna10xRefLib, rna10xXenoLib, rna10xMetsLib, rna10xLeftoLib)));
+          new ArrayList<>(Arrays.asList(rna10xPriLib, rna10xRefLib, rna10xOrgLib, rna10xXenoLib, rna10xMetsLib, rna10xLeftoLib)));
       categoryCounts.put(COUNT_CATEGORY_NON_ILL_LIB, new ArrayList<>(Arrays.asList(nonIllLib)));
-      categoryCounts.put(COUNT_CATEGORY_WG_SEQD, new ArrayList<>(Arrays.asList(wgPSeqd, wgRSeqd, wgXSeqd, wgMSeqd, wgLSeqd)));
-      categoryCounts.put(COUNT_CATEGORY_EX_SEQD, new ArrayList<>(Arrays.asList(exPSeqd, exRSeqd, exXSeqd, exMSeqd, exLSeqd)));
-      categoryCounts.put(COUNT_CATEGORY_TS_SEQD, new ArrayList<>(Arrays.asList(tsPSeqd, tsRSeqd, tsXSeqd, tsMSeqd, tsLSeqd)));
-      categoryCounts.put(COUNT_CATEGORY_DNA_SEQD, new ArrayList<>(Arrays.asList(dnaPSeqd, dnaRSeqd, dnaXSeqd, dnaMSeqd, dnaLSeqd)));
+      categoryCounts.put(COUNT_CATEGORY_WG_SEQD, new ArrayList<>(Arrays.asList(wgPSeqd, wgRSeqd, wgOSeqd, wgXSeqd, wgMSeqd, wgLSeqd)));
+      categoryCounts.put(COUNT_CATEGORY_EX_SEQD, new ArrayList<>(Arrays.asList(exPSeqd, exRSeqd, exOSeqd, exXSeqd, exMSeqd, exLSeqd)));
+      categoryCounts.put(COUNT_CATEGORY_TS_SEQD, new ArrayList<>(Arrays.asList(tsPSeqd, tsRSeqd, tsOSeqd, tsXSeqd, tsMSeqd, tsLSeqd)));
+      categoryCounts.put(COUNT_CATEGORY_DNA_SEQD,
+          new ArrayList<>(Arrays.asList(dnaPSeqd, dnaRSeqd, dnaOSeqd, dnaXSeqd, dnaMSeqd, dnaLSeqd)));
       categoryCounts.put(COUNT_CATEGORY_DNA_10X_SEQD,
-          new ArrayList<>(Arrays.asList(dna10xPSeqd, dna10xRSeqd, dna10xXSeqd, dna10xMSeqd, dna10xLSeqd)));
-      categoryCounts.put(COUNT_CATEGORY_NN_SEQD, new ArrayList<>(Arrays.asList(nnPSeqd, nnRSeqd, nnXSeqd, nnMSeqd, nnLSeqd)));
-      categoryCounts.put(COUNT_CATEGORY_RNA_SEQD, new ArrayList<>(Arrays.asList(rnaPSeqd, rnaRSeqd, rnaXSeqd, rnaMSeqd, rnaLSeqd)));
+          new ArrayList<>(Arrays.asList(dna10xPSeqd, dna10xRSeqd, dna10xOSeqd, dna10xXSeqd, dna10xMSeqd, dna10xLSeqd)));
+      categoryCounts.put(COUNT_CATEGORY_NN_SEQD, new ArrayList<>(Arrays.asList(nnPSeqd, nnRSeqd, nnOSeqd, nnXSeqd, nnMSeqd, nnLSeqd)));
+      categoryCounts.put(COUNT_CATEGORY_RNA_SEQD,
+          new ArrayList<>(Arrays.asList(rnaPSeqd, rnaRSeqd, rnaOSeqd, rnaXSeqd, rnaMSeqd, rnaLSeqd)));
       categoryCounts.put(COUNT_CATEGORY_RNA_10X_SEQD,
-          new ArrayList<>(Arrays.asList(rna10xPSeqd, rna10xRSeqd, rna10xXSeqd, rna10xMSeqd, rna10xLSeqd)));
+          new ArrayList<>(Arrays.asList(rna10xPSeqd, rna10xRSeqd, rna10xOSeqd, rna10xXSeqd, rna10xMSeqd, rna10xLSeqd)));
       categoryCounts.put(COUNT_CATEGORY_NON_ILL_SEQD, new ArrayList<>(Arrays.asList(nonIllSeqd)));
       removeEmpties(categoryCounts);
       maybeUpdateColumnCount(categoryCounts);
@@ -630,6 +695,10 @@ public class BisqueProjectsStatusReport extends TableReport {
     }
 
     countsByProjectAsList = listifyCountsByProject(countsByProject);
+  }
+
+  private Count makeCount(CountLabel label, Collection<SampleDto> collection, String project) {
+    return new Count(label, filter(collection, byProject(project)).size());
   }
 
   private void removeEmpties(Map<String, List<Count>> categoryCounts) {
@@ -660,17 +729,19 @@ public class BisqueProjectsStatusReport extends TableReport {
   }
 
   private void assignLibraryByTissueType(SampleDto dilution, Map<String, SampleDto> allSamples, Set<SampleDto> pSeqd, Set<SampleDto> rSeqd,
-      Set<SampleDto> xSeqd, Set<SampleDto> mSeqd, Set<SampleDto> lSeqd) {
+      Set<SampleDto> oSeqd, Set<SampleDto> xSeqd, Set<SampleDto> mSeqd, Set<SampleDto> lSeqd) {
     String type = getUpstreamAttribute(ATTR_TISSUE_TYPE, dilution, allSamples);
     switch (type) {
     case "P":
     case "S":
-    case "O":
     case "A":
       pSeqd.add(dilution);
       break;
     case "R":
       rSeqd.add(dilution);
+      break;
+    case "O":
+      oSeqd.add(dilution);
       break;
     case "X":
       xSeqd.add(dilution);
@@ -702,7 +773,7 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   private Predicate<SampleDto> byPrimary(Map<String, SampleDto> allSamples) {
     return dto -> {
-      List<String> primaryLike = Arrays.asList("P", "S", "O", "A");
+      List<String> primaryLike = Arrays.asList("P", "S", "A");
       return tissueTypeMatches(dto, primaryLike, allSamples);
     };
   }
@@ -711,6 +782,13 @@ public class BisqueProjectsStatusReport extends TableReport {
     return dto -> {
       List<String> reference = Arrays.asList("R");
       return tissueTypeMatches(dto, reference, allSamples);
+    };
+  }
+
+  private Predicate<SampleDto> byOrganoid(Map<String, SampleDto> allSamples) {
+    return dto -> {
+      List<String> organoid = Arrays.asList("O");
+      return tissueTypeMatches(dto, organoid, allSamples);
     };
   }
 
