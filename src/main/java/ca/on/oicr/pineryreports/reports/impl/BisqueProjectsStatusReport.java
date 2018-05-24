@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -28,6 +29,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
@@ -167,16 +169,13 @@ public class BisqueProjectsStatusReport extends TableReport {
   private static final String M = "M";
   private static final String L = "L";
 
-  Set<String> projects = Sets.newHashSet(
-      "APT2", "DCRT", "LEO", "LLDM", "MDT", "MNL", "MITO", "NBR", // proposed
-      "APT", "ASHPC", "ASJD", "BLS", "BFS", "BTC", "CPTP", "CYT", //
-      "DCIS", "DKT1", "DXRX", "DYS", "EECS", "FNS", "GCMS", "GECCO", "JAMLR", "JCK",
-      "LCLC", "OVBM", "PCSI", "PRE", "RIPSQ", "ROVC", "SCRM", "TGL", "TPS", "TURN");
+  private Set<String> projects = Sets.newHashSet();
 
   List<String> ldO = Arrays.asList(LIBRARY_DESIGN_CH, LIBRARY_DESIGN_BS, LIBRARY_DESIGN_AS);
 
   protected int columnCount = 0;
 
+  private static final Option OPT_PROJECT = CommonOptions.project(true);
   public static final String REPORT_NAME = "projects-status";
 
   private List<Map.Entry<String, Map<String, List<Count>>>> countsByProjectAsList; // String project, List<Count> all counts
@@ -188,12 +187,13 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    return Sets.newHashSet();
+    return Sets.newHashSet(OPT_PROJECT);
   }
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    // Do nothing
+    List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
+    this.projects = projx.stream().map(proj -> proj.trim()).collect(Collectors.toSet());
   }
 
   @Override
