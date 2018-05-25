@@ -3,6 +3,7 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -202,7 +203,7 @@ public class BisqueProjectsStatusReport extends TableReport {
   }
 
   @Override
-  protected void collectData(PineryClient pinery) throws HttpResponseException {
+  protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
     List<SampleDto> allSamples = pinery.getSample().all();
     Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples);
     List<RunDto> allRuns = pinery.getSequencerRun().all();
@@ -305,7 +306,7 @@ public class BisqueProjectsStatusReport extends TableReport {
               // DNA, no 10X, AS/CH/BS
               assignLibraryByTissueType(dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_DNA_SEQD));
             } else {
-              System.out.println("Unexpected library design code " + code + " was found on dilution " + dilution.getId());
+              throw new IOException("Unable to categorize dilution " + dilution.getId());
             }
           }
         }
