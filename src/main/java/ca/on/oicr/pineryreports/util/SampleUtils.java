@@ -3,6 +3,7 @@ package ca.on.oicr.pineryreports.util;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,7 @@ public class SampleUtils {
   public static final String SAMPLE_CATEGORY_TISSUE_PROCESSING = "Tissue Processing";
   public static final String SAMPLE_CATEGORY_STOCK = "Stock";
   public static final String SAMPLE_CATEGORY_ALIQUOT = "Aliquot";
+  public static final String LIBRARY = "Library";
 
   public static final String DNA = "DNA";
   public static final String RNA = "RNA";
@@ -64,8 +66,9 @@ public class SampleUtils {
   public static final String LIBRARY_DESIGN_SM = "SM";
   public static final String LIBRARY_DESIGN_WT = "WT";
   public static final String LIBRARY_DESIGN_TR = "TR";
-  public static final List<String> RNA_LIBRARY_DESIGN_CODES = Arrays.asList(LIBRARY_DESIGN_MR, LIBRARY_DESIGN_SM, LIBRARY_DESIGN_WT,
-      LIBRARY_DESIGN_TR);
+  public static final List<String> RNA_LIBRARY_DESIGN_CODES = Collections
+      .unmodifiableList(Arrays.asList(LIBRARY_DESIGN_MR, LIBRARY_DESIGN_SM, LIBRARY_DESIGN_WT,
+          LIBRARY_DESIGN_TR));
   // Unknown library design code
   public static final String LIBRARY_DESIGN_NN = "NN";
 
@@ -297,11 +300,11 @@ public class SampleUtils {
       // probably a PacBio library; assume DNA until we're told otherwise
       return false;
     }
-    if (!library.getSampleType().contains("Library")) {
+    if (!library.getSampleType().contains(LIBRARY)) {
       throw new IllegalArgumentException("Provided sample " + library.getName() + " is not a library");
     }
     for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
-      if (current.getSampleType().contains("Library")) {
+      if (current.getSampleType().contains(LIBRARY)) {
         continue;
       }
       return current.getSampleType().contains("RNA");
@@ -326,9 +329,9 @@ public class SampleUtils {
     if (library.getSampleType().contains(" Seq")) {
       // is a dilution; get parent library
       for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
-        if (current.getSampleType().contains("Library")) {
+        if (current.getSampleType().contains(LIBRARY)) {
           library = current; // reassign so we check the prep kit of the actual library
-          continue;
+          break;
         }
       }
     }
