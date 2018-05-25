@@ -3,12 +3,10 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -204,7 +202,7 @@ public class BisqueProjectsStatusReport extends TableReport {
   }
 
   @Override
-  protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
+  protected void collectData(PineryClient pinery) throws HttpResponseException {
     List<SampleDto> allSamples = pinery.getSample().all();
     Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples);
     List<RunDto> allRuns = pinery.getSequencerRun().all();
@@ -307,11 +305,7 @@ public class BisqueProjectsStatusReport extends TableReport {
               // DNA, no 10X, AS/CH/BS
               assignLibraryByTissueType(dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_DNA_SEQD));
             } else {
-              // ignore the known problem dilutions, throw on new problems
-              if (!dnaSamplesWithRnaLDCs.contains(dilution.getId())) {
-                throw new IOException(
-                    String.format("Unexpected library design code %s was found on dilution %s", code, dilution.getId()));
-              }
+              System.out.println("Unexpected library design code " + code + " was found on dilution " + dilution.getId());
             }
           }
         }
@@ -771,17 +765,5 @@ public class BisqueProjectsStatusReport extends TableReport {
     Arrays.fill(row, "");
     return row;
   }
-
-  private static final Set<String> dnaSamplesWithRnaLDCs = Collections.unmodifiableSet(Sets.newHashSet("LDI12339", "LDI12336", "LDI12337",
-      "LDI12335", "LDI12334", "LDI12340", "LDI12342", "LDI12341", "LDI12338", "LDI17105", "LDI15494", "LDI15512", "LDI15509", "LDI15572",
-      "LDI15516", "LDI15513", "LDI15548", "LDI15560", "LDI15575", "LDI15511", "LDI15496", "LDI15564", "LDI15549", "LDI15573", "LDI15576",
-      "LDI15555", "LDI15563", "LDI15541", "LDI15565", "LDI15493", "LDI15490", "LDI15538", "LDI15517", "LDI15507", "LDI15519", "LDI15526",
-      "LDI15529", "LDI15581", "LDI15536", "LDI15567", "LDI15522", "LDI15527", "LDI15498", "LDI15499", "LDI15497", "LDI15568", "LDI15518",
-      "LDI15543", "LDI15523", "LDI15551", "LDI15540", "LDI15525", "LDI15501", "LDI15544", "LDI15510", "LDI15547", "LDI15569", "LDI15546",
-      "LDI15530", "LDI15515", "LDI15492", "LDI15545", "LDI15495", "LDI15503", "LDI15488", "LDI15556", "LDI15489", "LDI15554", "LDI15533",
-      "LDI15500", "LDI15574", "LDI15553", "LDI15580", "LDI15562", "LDI15505", "LDI15550", "LDI15524", "LDI15514", "LDI15506", "LDI15508",
-      "LDI15578", "LDI15566", "LDI15491", "LDI15552", "LDI15537", "LDI15542", "LDI15579", "LDI15521", "LDI15535", "LDI15502", "LDI15577",
-      "LDI15558", "LDI15531", "LDI15534", "LDI15561", "LDI15559", "LDI15504", "LDI15486", "LDI15539", "LDI15557", "LDI15520", "LDI15571",
-      "LDI15528", "LDI15532", "LDI15487", "LDI15570", "LDI24240", "LDI24241", "LDI24240", "LDI24241"));
 
 }

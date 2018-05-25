@@ -304,10 +304,11 @@ public class SampleUtils {
       throw new IllegalArgumentException("Provided sample " + library.getName() + " is not a library");
     }
     for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
-      if (current.getSampleType().contains(LIBRARY)) {
+      if (current.getSampleType().contains(LIBRARY) && !current.getSampleType().contains("Seq")) {
         continue;
       }
-      return current.getSampleType().contains("RNA");
+      String libraryDesignCode = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, current);
+      return libraryDesignCode != null && RNA_LIBRARY_DESIGN_CODES.contains(libraryDesignCode);
     }
     return false;
   }
