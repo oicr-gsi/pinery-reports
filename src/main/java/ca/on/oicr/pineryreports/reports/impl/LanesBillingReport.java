@@ -206,7 +206,7 @@ public class LanesBillingReport extends TableReport {
         .collect(Collectors.toMap(InstrumentModelDto::getId, dto->dto));
     // filter runs within the date range
     Set<RunDto> newRuns = pinery.getSequencerRun().all().stream().filter(byEndedBetween(start, end)).collect(Collectors.toSet());
-    Set<RunDto> failedRuns = newRuns.stream().filter(run -> "Failed".equals(run.getState())).collect(Collectors.toSet());
+    Set<RunDto> failedRuns = newRuns.stream().filter(run -> RUN_FAILED.equals(run.getState())).collect(Collectors.toSet());
     newRuns.removeAll(failedRuns);
     
     completed = getReportAndSummaryData(newRuns, samplesById, instrumentsById, instrumentModelsById);

@@ -22,6 +22,9 @@ public class GeneralUtils {
   public static final String DATE_FORMAT = "yyyy-MM-dd";
   public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
 
+  public static final String RUN_FAILED = "Failed";
+  public static final String RUN_COMPLETED = "Completed";
+
   /**
    * Removes the time portion of a date/time String
    * 
@@ -63,4 +66,5 @@ public class GeneralUtils {
         instruments.get(instrumentId).getModelId())
         .getName();
   }
+
 }

@@ -6,12 +6,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
-import ca.on.oicr.pinery.client.HttpResponseException;
-import ca.on.oicr.pinery.client.PineryClient;
-import ca.on.oicr.pineryreports.data.ColumnDefinition;
-import ca.on.oicr.pineryreports.data.ReportFormat;
-import ca.on.oicr.pineryreports.reports.pdf.AddHeaderFooterEvent;
-
 import com.google.common.collect.Sets;
 import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.kernel.events.IEventHandler;
@@ -26,6 +20,12 @@ import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.property.TextAlignment;
+
+import ca.on.oicr.pinery.client.HttpResponseException;
+import ca.on.oicr.pinery.client.PineryClient;
+import ca.on.oicr.pineryreports.data.ColumnDefinition;
+import ca.on.oicr.pineryreports.data.ReportFormat;
+import ca.on.oicr.pineryreports.reports.pdf.AddHeaderFooterEvent;
 
 /**
  * A type of report that has one table containing all of the data
@@ -171,7 +171,7 @@ public abstract class TableReport implements Report {
    * @param pinery data source
    * @throws HttpResponseException
    */
-  protected abstract void collectData(PineryClient pinery) throws HttpResponseException;
+  protected abstract void collectData(PineryClient pinery) throws HttpResponseException, IOException;
   
   /**
    * @return the column definitions
