@@ -45,4 +45,13 @@ public class CommonOptions {
         .build();
   }
 
+  public static Option analyte(boolean required) {
+    return Option.builder().longOpt("analyte")
+        .hasArg()
+        .argName("analyte")
+        .required(required)
+        .desc("DNA or RNA" + (required ? " (required)" : ""))
+        .build();
+  }
+
 }

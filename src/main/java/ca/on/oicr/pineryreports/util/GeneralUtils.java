@@ -1,5 +1,7 @@
 package ca.on.oicr.pineryreports.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -24,6 +26,7 @@ public class GeneralUtils {
 
   public static final String RUN_FAILED = "Failed";
   public static final String RUN_COMPLETED = "Completed";
+  public static final String RUN_RUNNING = "Running";
 
   /**
    * Removes the time portion of a date/time String
@@ -65,6 +68,10 @@ public class GeneralUtils {
     return models.get(
         instruments.get(instrumentId).getModelId())
         .getName();
+  }
+
+  public static DateFormat getDateTimeFormat() {
+    return new SimpleDateFormat(DATE_FORMAT);
   }
 
 }

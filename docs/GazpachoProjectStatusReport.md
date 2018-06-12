@@ -1,0 +1,58 @@
+# Project Status Report (Gazpacho)
+
+<!-- note that any changes to this report should also be made in the gazpacho-project-status.cron file -->
+
+This report is for a single project. It outputs a list of stocks, and provides numbers on how many libraries have been derived and lanes of sequencing done from material derived from each stock.
+
+In this file, "sample" means "anything descended from the listed stock".
+
+This report will list at least two tables: "Recent" and "All".
+"Recent" samples are those which had activity (sample created, library created, run running or completed) within the past month. These samples are ordered by stock name.
+The "all" samples table displays everything for the given project, in reverse name order.
+The report can be run for just DNA, just RNA, or both together.
+
+| Column Name | Meaning |
+|-------------|---------|
+| Stock       | Stock alias |
+| Ext. Name   | External name on the identity attached to the stock |
+| Group ID    | Comma-separated list of Group IDs attached to samples. For each library that is derived from the stock, the nearest Group ID is found and added to the list. Note that duplicates are removed from the list. |
+| Samples     | Number of stocks received. Note that since each report item is a stock that is received, this will always be "1". |
+| Aliq Waiting | Is "1" if it has been two days since a stock was received or created and an aliquot is not yet made. |
+| Libs Waiting | Is "1" if it has been two days since an aliquot was received or created and a library is not yet made. |
+| Libs         | Number of libraries created. |
+| Seq Waiting  | Is "1" if it has been two days since a library was created and a run containing a sample has not yet started. |
+| Seq Running | Number of lanes containing a sample on a run that has status "Running". |
+| Seq Done    | Number of lanes containing a sample on a run that has status "Completed". |
+| Days in Genomics | Number of days between the stock's creation date and the date the most recent run finished OR (the report end date (for the Recent table) or the date the report was generated (for the All table))* |
+
+* Note that the Days in Genomics number may differ between the Recent and All tables. This is because the All table is not affected by date restrictions, so the All table may report on stocks which were created after the report end date (in cases when reporting on historical data). 
+
+## Options
+
+| Option | Required | Description | Example |
+|--------|----------|-------------|---------|
+| after  | yes | report separately on samples active after (and including) this date (yyyy-MM-dd) | --after=2018-06-01 |
+| before | yes | report separately on samples active before (and not including) this date (yyyy-MM-dd) | --before=2018-07-01 |
+| project | yes | the code/short name of the project to report on | --project=TEST |
+| analyte | no | "DNA" or "RNA" if these should not be included in the same file | --analyte=DNA |
+
+Note: "all" samples report are for the point in time when the report is generated, and are not affected by the above date-filtering options.
+
+## Generate
+
+```
+java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r project-status -o report-csv --after=2018-06-01 --before=2018-07-01 --project=TEST --analyte=DNA
+```
+
+## Example
+|TEST: DNA Recent (2018-06-01 - 2018-07-01)| | | | | | | | | | | |
+|------------------------------------------|-|-|-|-|-|-|-|-|-|-|-|
+|Stock|Ext. Name|Froup ID|Samples|Aliq Waiting|Libs Waiting|Libs|Seq Waiting|Seq Running| Seq Done| Days in Genomics|Analysis|
+|TEST_0005_Ly_R_nn_1-1_D_S2|2234||1|1||||||16||
+|TEST_0006_Px_P_nn_1-1_D_S1|1234||1|||2|||2|23||
+|||||||||||||
+|TEST: DNA (All Time - 2018-07-03)||||||||||||
+|Stock|Ext. Name|Froup ID|Samples|Aliq Waiting|Libs Waiting|Libs|Seq Waiting|Seq Running| Seq Done| Days in Genomics|Analysis|
+|TEST_0006_Px_P_nn_1-1_D_S1|1234||1|||2|||2|25||
+|TEST_0005_Ly_R_nn_1-1_D_S2|2234||1|1||||||18||
+|TEST_0004_Ly_R_nn_1-1_D_S1|3234||1|1||||||36||

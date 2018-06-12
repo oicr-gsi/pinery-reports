@@ -152,7 +152,7 @@ public abstract class TableReport implements Report {
     return widths;
   }
   
-  private static String[] getColumnHeadings(List<ColumnDefinition> columns) {
+  protected static String[] getColumnHeadings(List<ColumnDefinition> columns) {
     String[] headings = new String[columns.size()];
     for (int i = 0; i < headings.length; i++) {
       headings[i] = columns.get(i).getHeading();

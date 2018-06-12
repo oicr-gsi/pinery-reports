@@ -199,7 +199,7 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   @Override
   public String getTitle() {
-    return "Projects Status Report generated " + new SimpleDateFormat(DATE_FORMAT).format(new Date());
+    return "Projects Status Report (Bisque) generated " + new SimpleDateFormat(DATE_FORMAT).format(new Date());
   }
 
   @Override
@@ -261,7 +261,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     seqdLibsByCategory.get(COUNT_CATEGORY_NON_ILL_SEQD).put("All", new HashSet<>());
 
     
-    // track which libraries where sequenced
+    // track which libraries were sequenced
     for (RunDto run : allRuns) {
       // ignore Running, Unknown, Stopped runs
       if (!RUN_FAILED.equals(run.getState()) && !RUN_COMPLETED.equals(run.getState())) continue;
@@ -658,19 +658,6 @@ public class BisqueProjectsStatusReport extends TableReport {
     };
   }
 
-  private Predicate<SampleDto> byRnaLibrary() {
-    return dto -> {
-      String designCode = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto);
-      if (designCode == null)
-        throw new IllegalArgumentException("Library is missing a library design code; is " + dto.getId() + " really a library?");
-      return RNA_LIBRARY_DESIGN_CODES.contains(designCode);
-    };
-  }
-
-  private Predicate<SampleDto> byDnaLibrary() {
-    return byRnaLibrary().negate();
-  }
-
   private Predicate<SampleDto> by10XLibrary(Map<String, SampleDto> allSamplesById) {
     return dto -> is10XLibrary(dto, allSamplesById);
   }
@@ -679,14 +666,6 @@ public class BisqueProjectsStatusReport extends TableReport {
     return dto -> libraryDesignCodes.contains(getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto));
   }
 
-  private boolean isNonIlluminaLibrary(SampleDto dilution) {
-    if (dilution.getSampleType() == null) throw new IllegalArgumentException("Dilution " + dilution.getName() + " has no sample_type");
-    return !dilution.getSampleType().contains("Illumina"); // note the negation here
-  }
-
-  private Predicate<SampleDto> byNonIlluminaLibrary() {
-    return dto -> isNonIlluminaLibrary(dto);
-  }
 
   static final List<Map.Entry<String, Map<String, List<Count>>>> listifyCountsByProject(
       Map<String, Map<String, List<Count>>> countsByProject) {

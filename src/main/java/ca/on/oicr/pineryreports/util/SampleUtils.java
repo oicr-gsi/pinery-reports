@@ -39,6 +39,7 @@ public class SampleUtils {
   public static final String ATTR_STAIN = "Stain";
   public static final String ATTR_RECEIVE_DATE = "Receive Date";
   public static final String ATTR_SOURCE_TEMPLATE_TYPE = "Source Template Type";
+  public static final String ATTR_GROUP_ID = "Group ID";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
@@ -105,7 +106,11 @@ public class SampleUtils {
   }
   
   public static Predicate<SampleDto> byCreatedBetween(String start, String end) {
-    return dto -> (start == null || dto.getCreatedDate().compareTo(start) > 0)
+    return dto -> isCreatedBetween(dto, start, end);
+  }
+
+  public static boolean isCreatedBetween(SampleDto dto, String start, String end) {
+    return (start == null || dto.getCreatedDate().compareTo(start) > 0)
         && (end == null || dto.getCreatedDate().compareTo(end) < 0);
   }
   
@@ -127,6 +132,28 @@ public class SampleUtils {
 
   public static Predicate<SampleDto> byPropagated() {
     return dto -> getAttribute(ATTR_RECEIVE_DATE, dto) == null;
+  }
+
+  public static Predicate<SampleDto> byDnaLibrary() {
+    return byRnaLibrary().negate();
+  }
+
+  public static Predicate<SampleDto> byRnaLibrary() {
+    return dto -> {
+      String designCode = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto);
+      if (designCode == null)
+        throw new IllegalArgumentException("Library is missing a library design code; is " + dto.getId() + " really a library?");
+      return RNA_LIBRARY_DESIGN_CODES.contains(designCode);
+    };
+  }
+
+  public static boolean isNonIlluminaLibrary(SampleDto dilution) {
+    if (dilution.getSampleType() == null) throw new IllegalArgumentException("Dilution " + dilution.getName() + " has no sample_type");
+    return !dilution.getSampleType().contains("Illumina"); // note the negation here
+  }
+
+  public static Predicate<SampleDto> byNonIlluminaLibrary() {
+    return dto -> isNonIlluminaLibrary(dto);
   }
 
   /**
