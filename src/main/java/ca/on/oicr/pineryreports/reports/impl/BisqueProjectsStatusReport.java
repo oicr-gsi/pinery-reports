@@ -81,8 +81,9 @@ public class BisqueProjectsStatusReport extends TableReport {
       if (key == null) {
         if (other.key != null)
           return false;
-      } else if (!key.equals(other.key))
+      } else if (!key.equals(other.key)) {
         return false;
+      }
       return value == other.value;
     }
   }
@@ -115,7 +116,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     LIB_P_RNA_SEQD("RNA P Seqd"), LIB_R_RNA_SEQD("RNA R Seqd"), LIB_O_RNA_SEQD("RNA O Seqd"), LIB_X_RNA_SEQD("RNA X Seqd"), LIB_M_RNA_SEQD("RNA M Seqd"), LIB_L_RNA_SEQD("RNA L Seqd"), //
     LIB_P_RNA_10X_SEQD("RNA 10X P Seqd"), LIB_R_RNA_10X_SEQD("RNA 10X R Seqd"), LIB_O_RNA_10X_SEQD("RNA 10X O Seqd"), LIB_X_RNA_10X_SEQD("RNA 10X X Seqd"), LIB_M_RNA_10X_SEQD("RNA 10X M Seqd"), LIB_L_RNA_10X_SEQD("RNA 10X L Seqd"), //
     
-    LIB_NON_ILL_SEQD("Non-Illumina Seqd");
+    LIB_NON_ILL_SEQD(COUNT_CATEGORY_NON_ILL_SEQD);
 
     private final String key;
     private static final Map<String, CountLabel> lookup = new HashMap<>();
@@ -194,7 +195,7 @@ public class BisqueProjectsStatusReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
-    this.projects = projx.stream().map(proj -> proj.trim()).collect(Collectors.toSet());
+    this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
   }
 
   @Override
@@ -248,13 +249,13 @@ public class BisqueProjectsStatusReport extends TableReport {
     seqdLibsByCategory.put(COUNT_CATEGORY_RNA_SEQD, new HashMap<>());
     seqdLibsByCategory.put(COUNT_CATEGORY_RNA_10X_SEQD, new HashMap<>());
 
-    for (String key : seqdLibsByCategory.keySet()) {
-      seqdLibsByCategory.get(key).put(P, new HashSet<>());
-      seqdLibsByCategory.get(key).put(R, new HashSet<>());
-      seqdLibsByCategory.get(key).put(O, new HashSet<>());
-      seqdLibsByCategory.get(key).put(X, new HashSet<>());
-      seqdLibsByCategory.get(key).put(M, new HashSet<>());
-      seqdLibsByCategory.get(key).put(L, new HashSet<>());
+    for (Map<String, Set<SampleDto>> category : seqdLibsByCategory.values()) {
+      category.put(P, new HashSet<>());
+      category.put(R, new HashSet<>());
+      category.put(O, new HashSet<>());
+      category.put(X, new HashSet<>());
+      category.put(M, new HashSet<>());
+      category.put(L, new HashSet<>());
     }
 
     seqdLibsByCategory.put(COUNT_CATEGORY_NON_ILL_SEQD, new HashMap<>());
@@ -605,7 +606,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     String type = getAttribute(ATTR_TISSUE_TYPE, sample);
     if (type == null) type = getUpstreamAttribute(ATTR_TISSUE_TYPE, sample, allSamples);
     if (type == null) throw new IllegalArgumentException("sample " + sample.getId() + " is missing tissue type");
-      return tissueTypes.contains(type);
+    return tissueTypes.contains(type);
   }
 
   private Predicate<SampleDto> byPrimary(Map<String, SampleDto> allSamples) {
