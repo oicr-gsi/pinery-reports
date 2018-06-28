@@ -1,5 +1,5 @@
 # Projects Status Report (Bisque)
-This reports on the numbers of samples and libraries broken down by various categories: [Tissue, Stock, Aliquot, Library, Sequenced Library] multiplied by [Primary(-like), Reference, Organoid, Xenograft, Metastates, Leftover (catch-all)]. 
+This reports on the total numbers of samples and libraries across projects broken down by various categories: [Tissue, Stock, Aliquot, Library, Sequenced Library] multiplied by [Primary(-like), Reference, Organoid, Xenograft, Metastases, Leftover (catch-all)]. 
 
 | Short form | Meaning |
 |------------|---------|

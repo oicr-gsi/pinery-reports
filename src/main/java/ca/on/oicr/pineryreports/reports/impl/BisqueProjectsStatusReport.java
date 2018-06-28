@@ -81,8 +81,9 @@ public class BisqueProjectsStatusReport extends TableReport {
       if (key == null) {
         if (other.key != null)
           return false;
-      } else if (!key.equals(other.key))
+      } else if (!key.equals(other.key)) {
         return false;
+      }
       return value == other.value;
     }
   }
@@ -115,7 +116,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     LIB_P_RNA_SEQD("RNA P Seqd"), LIB_R_RNA_SEQD("RNA R Seqd"), LIB_O_RNA_SEQD("RNA O Seqd"), LIB_X_RNA_SEQD("RNA X Seqd"), LIB_M_RNA_SEQD("RNA M Seqd"), LIB_L_RNA_SEQD("RNA L Seqd"), //
     LIB_P_RNA_10X_SEQD("RNA 10X P Seqd"), LIB_R_RNA_10X_SEQD("RNA 10X R Seqd"), LIB_O_RNA_10X_SEQD("RNA 10X O Seqd"), LIB_X_RNA_10X_SEQD("RNA 10X X Seqd"), LIB_M_RNA_10X_SEQD("RNA 10X M Seqd"), LIB_L_RNA_10X_SEQD("RNA 10X L Seqd"), //
     
-    LIB_NON_ILL_SEQD("Non-Illumina Seqd");
+    LIB_NON_ILL_SEQD(COUNT_CATEGORY_NON_ILL_SEQD);
 
     private final String key;
     private static final Map<String, CountLabel> lookup = new HashMap<>();
@@ -194,12 +195,12 @@ public class BisqueProjectsStatusReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
-    this.projects = projx.stream().map(proj -> proj.trim()).collect(Collectors.toSet());
+    this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
   }
 
   @Override
   public String getTitle() {
-    return "Projects Status Report generated " + new SimpleDateFormat(DATE_FORMAT).format(new Date());
+    return "Projects Status Report (Bisque) generated " + new SimpleDateFormat(DATE_FORMAT).format(new Date());
   }
 
   @Override
@@ -248,20 +249,20 @@ public class BisqueProjectsStatusReport extends TableReport {
     seqdLibsByCategory.put(COUNT_CATEGORY_RNA_SEQD, new HashMap<>());
     seqdLibsByCategory.put(COUNT_CATEGORY_RNA_10X_SEQD, new HashMap<>());
 
-    for (String key : seqdLibsByCategory.keySet()) {
-      seqdLibsByCategory.get(key).put(P, new HashSet<>());
-      seqdLibsByCategory.get(key).put(R, new HashSet<>());
-      seqdLibsByCategory.get(key).put(O, new HashSet<>());
-      seqdLibsByCategory.get(key).put(X, new HashSet<>());
-      seqdLibsByCategory.get(key).put(M, new HashSet<>());
-      seqdLibsByCategory.get(key).put(L, new HashSet<>());
+    for (Map<String, Set<SampleDto>> category : seqdLibsByCategory.values()) {
+      category.put(P, new HashSet<>());
+      category.put(R, new HashSet<>());
+      category.put(O, new HashSet<>());
+      category.put(X, new HashSet<>());
+      category.put(M, new HashSet<>());
+      category.put(L, new HashSet<>());
     }
 
     seqdLibsByCategory.put(COUNT_CATEGORY_NON_ILL_SEQD, new HashMap<>());
     seqdLibsByCategory.get(COUNT_CATEGORY_NON_ILL_SEQD).put("All", new HashSet<>());
 
     
-    // track which libraries where sequenced
+    // track which libraries were sequenced
     for (RunDto run : allRuns) {
       // ignore Running, Unknown, Stopped runs
       if (!RUN_FAILED.equals(run.getState()) && !RUN_COMPLETED.equals(run.getState())) continue;
@@ -605,7 +606,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     String type = getAttribute(ATTR_TISSUE_TYPE, sample);
     if (type == null) type = getUpstreamAttribute(ATTR_TISSUE_TYPE, sample, allSamples);
     if (type == null) throw new IllegalArgumentException("sample " + sample.getId() + " is missing tissue type");
-      return tissueTypes.contains(type);
+    return tissueTypes.contains(type);
   }
 
   private Predicate<SampleDto> byPrimary(Map<String, SampleDto> allSamples) {
@@ -658,19 +659,6 @@ public class BisqueProjectsStatusReport extends TableReport {
     };
   }
 
-  private Predicate<SampleDto> byRnaLibrary() {
-    return dto -> {
-      String designCode = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto);
-      if (designCode == null)
-        throw new IllegalArgumentException("Library is missing a library design code; is " + dto.getId() + " really a library?");
-      return RNA_LIBRARY_DESIGN_CODES.contains(designCode);
-    };
-  }
-
-  private Predicate<SampleDto> byDnaLibrary() {
-    return byRnaLibrary().negate();
-  }
-
   private Predicate<SampleDto> by10XLibrary(Map<String, SampleDto> allSamplesById) {
     return dto -> is10XLibrary(dto, allSamplesById);
   }
@@ -679,14 +667,6 @@ public class BisqueProjectsStatusReport extends TableReport {
     return dto -> libraryDesignCodes.contains(getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto));
   }
 
-  private boolean isNonIlluminaLibrary(SampleDto dilution) {
-    if (dilution.getSampleType() == null) throw new IllegalArgumentException("Dilution " + dilution.getName() + " has no sample_type");
-    return !dilution.getSampleType().contains("Illumina"); // note the negation here
-  }
-
-  private Predicate<SampleDto> byNonIlluminaLibrary() {
-    return dto -> isNonIlluminaLibrary(dto);
-  }
 
   static final List<Map.Entry<String, Map<String, List<Count>>>> listifyCountsByProject(
       Map<String, Map<String, List<Count>>> countsByProject) {
