@@ -216,6 +216,7 @@ public class GazpachoProjectStatusReport extends TableReport {
 
   private static final Instant TODAY = ZonedDateTime.now().toInstant();
   private static final Instant TWO_DAYS_AGO = ZonedDateTime.now().minusDays(2).toInstant();
+  private static final String ALL = "ALL";
 
   private String project;
   private String start;
@@ -269,8 +270,8 @@ public class GazpachoProjectStatusReport extends TableReport {
 
     if (cmd.hasOption(OPT_ANALYTE.getLongOpt())) {
       this.analyte = cmd.getOptionValue(OPT_ANALYTE.getLongOpt());
-      if (!DNA.equals(analyte) && !RNA.equals(analyte)) {
-        throw new ParseException("Analyte must be DNA or RNA");
+      if (!DNA.equals(analyte) && !RNA.equals(analyte) && !ALL.equals(analyte)) {
+        throw new ParseException("Analyte must be DNA or RNA or ALL");
       }
     }
 
@@ -280,7 +281,7 @@ public class GazpachoProjectStatusReport extends TableReport {
   @Override
   public String getTitle() {
     return "Project Status Report (Gazpacho) for project " + project
-        + (analyte == null ? "" : String.format(" %s", analyte))
+        + (ALL.equals(analyte) ? " DNA & RNA" : String.format(" %s", analyte))
         + " for "
         + (start == null ? "Any Time" : start)
         + " - "
@@ -454,7 +455,7 @@ public class GazpachoProjectStatusReport extends TableReport {
 
   @Override
   protected List<ColumnDefinition> getColumns() {
-    String analyteHeader = (analyte == null ? "DNA" : analyte);
+    String analyteHeader = (RNA.equals(analyte) ? RNA : DNA);
     return Arrays.asList(
         new ColumnDefinition(String.format("%s: %s Recent (%s - %s)", project, analyteHeader, start, end)),
         new ColumnDefinition(""),
@@ -472,7 +473,8 @@ public class GazpachoProjectStatusReport extends TableReport {
 
   @Override
   protected int getRowCount() {
-    if (analyte == null) {
+    switch (analyte) {
+    case ALL:
       // print DNA and RNA on same sheet
       return dnaRecentList.size()
           + 3
@@ -482,18 +484,18 @@ public class GazpachoProjectStatusReport extends TableReport {
           + 3
           + rnaAllList.size()
           + 1;
-    } else if (DNA.equals(analyte)) {
-      // only DNA
+    case DNA:
       return dnaRecentList.size()
           + 3
           + dnaAllList.size()
           + 1;
-    } else {
-      // only RNA
+    case RNA:
       return rnaRecentList.size()
           + 3
           + rnaAllList.size()
           + 1;
+    default:
+      return 1;
     }
     // the "+1" is to make the getRow() call happy -- adds a blank row at the end since
     // don't know whether the last row will be DNA or RNA
@@ -506,15 +508,14 @@ public class GazpachoProjectStatusReport extends TableReport {
     }
     rowNum -= 1;
 
-    if (analyte == null || analyte.equals(DNA)) {
+    if (ALL.equals(analyte) || DNA.equals(analyte)) {
       if (rowNum < dnaRecentList.size()) {
         return makeStatusRow(dnaRecentList.get(rowNum), end);
       }
       rowNum -= dnaRecentList.size();
     }
 
-    if (analyte == null || RNA.equals(analyte)) {
-      if (analyte == null) {
+    if (ALL.equals(analyte)) {
         // add extra headers for DNA & RNA combined report.
         // if RNA.equals(analyte) then the "RNA Recent" title and heading are already written
         if (rowNum == 0) {
@@ -525,15 +526,15 @@ public class GazpachoProjectStatusReport extends TableReport {
           return makeHeadingRow();
         }
         rowNum -= 3;
-      }
-
+    }
+    if (ALL.equals(analyte) || RNA.equals(analyte)) {
       if (rowNum < rnaRecentList.size()) {
         return makeStatusRow(rnaRecentList.get(rowNum), end);
       }
       rowNum -= rnaRecentList.size();
     }
 
-    if (analyte == null || DNA.equals(analyte)) {
+    if (ALL.equals(analyte) || DNA.equals(analyte)) {
       if (rowNum == 0) {
         return makeBlankRow();
       } else if (rowNum == 1) {
@@ -549,7 +550,7 @@ public class GazpachoProjectStatusReport extends TableReport {
       rowNum -= dnaAllList.size();
     }
 
-    if (analyte == null || RNA.equals(analyte)) {
+    if (ALL.equals(analyte) || RNA.equals(analyte)) {
       if (rowNum == 0) {
         return makeBlankRow();
       } else if (rowNum == 1) {
