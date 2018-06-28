@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -156,9 +157,9 @@ public class GazpachoProjectStatusReport extends TableReport {
     public String getNumLanesRunning() {
       Set<RunDto> running = runs.stream().filter(run -> "Running".equals(run.getState())).collect(Collectors.toSet());
       Integer lanesRunning = 0;
-      for (Integer runId : lanesForRun.keySet()) {
-        if (running.stream().map(run -> run.getId()).collect(Collectors.toSet()).contains(runId)) {
-          lanesRunning += lanesForRun.get(runId).size();
+      for (Entry<Integer, List<Integer>> lfr : lanesForRun.entrySet()) {
+        if (running.stream().map(RunDto::getId).collect(Collectors.toSet()).contains(lfr.getKey())) {
+          lanesRunning += lfr.getValue().size();
         }
       }
       return lanesRunning.equals(0) ? "" : lanesRunning.toString();
@@ -167,9 +168,9 @@ public class GazpachoProjectStatusReport extends TableReport {
     public String getNumLanesCompleted() {
       Set<RunDto> completed = runs.stream().filter(run -> "Completed".equals(run.getState())).collect(Collectors.toSet());
       Integer lanesCompleted = 0;
-      for (Integer runId : lanesForRun.keySet()) {
-        if (completed.stream().map(run -> run.getId()).collect(Collectors.toSet()).contains(runId)) {
-          lanesCompleted += lanesForRun.get(runId).size();
+      for (Entry<Integer, List<Integer>> entry : lanesForRun.entrySet()) {
+        if (completed.stream().map(RunDto::getId).collect(Collectors.toSet()).contains(entry.getKey())) {
+          lanesCompleted += entry.getValue().size();
         }
       }
       return lanesCompleted.equals(0) ? "" : lanesCompleted.toString();
@@ -267,11 +268,10 @@ public class GazpachoProjectStatusReport extends TableReport {
     }
 
     if (cmd.hasOption(OPT_ANALYTE.getLongOpt())) {
-      String analyte = cmd.getOptionValue(OPT_ANALYTE.getLongOpt());
+      this.analyte = cmd.getOptionValue(OPT_ANALYTE.getLongOpt());
       if (!DNA.equals(analyte) && !RNA.equals(analyte)) {
         throw new ParseException("Analyte must be DNA or RNA");
       }
-      this.analyte = analyte;
     }
 
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
@@ -280,7 +280,7 @@ public class GazpachoProjectStatusReport extends TableReport {
   @Override
   public String getTitle() {
     return "Project Status Report (Gazpacho) for project " + project
-        + (analyte == null ? "" : (DNA.equals(analyte) ? " DNA" : " RNA"))
+        + (analyte == null ? "" : String.format(" %s", analyte))
         + " for "
         + (start == null ? "Any Time" : start)
         + " - "
@@ -449,9 +449,7 @@ public class GazpachoProjectStatusReport extends TableReport {
   }
 
   private Predicate<RunDto> byCreatedBefore(String end) {
-    return dto -> {
-      return start == null && end != null || dto.getCreatedDate().compareTo(end) < 0;
-    };
+    return dto -> start == null && end != null || dto.getCreatedDate().compareTo(end) < 0;
   }
 
   @Override
