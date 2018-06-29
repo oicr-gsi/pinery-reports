@@ -97,6 +97,12 @@ public class OctaneCountsReport extends TableReport {
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final Option OPT_USER_IDS = CommonOptions.users(false);
+  private static final Option OPT_SITE_PREFIX = Option.builder().longOpt("sitePrefix")
+      .hasArg()
+      .argName("sitePrefix")
+      .required(false)
+      .desc("Optional MISO alias prefix for site to filter on")
+      .build();
 
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("CASE NUMBERS"),
@@ -106,6 +112,7 @@ public class OctaneCountsReport extends TableReport {
   private String start;
   private String end;
   private final List<Integer> userIds = new ArrayList<>();
+  private String sitePrefix = null;
   private Map<Integer, UserDto> allUsersById;
   
   private final List<Count> caseNumbers = new ArrayList<>();
@@ -121,7 +128,7 @@ public class OctaneCountsReport extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    return Sets.newHashSet(OPT_AFTER, OPT_BEFORE, OPT_USER_IDS);
+    return Sets.newHashSet(OPT_AFTER, OPT_BEFORE, OPT_USER_IDS, OPT_SITE_PREFIX);
   }
 
   @Override
@@ -151,11 +158,16 @@ public class OctaneCountsReport extends TableReport {
         }
       }
     }
+
+    if (cmd.hasOption(OPT_SITE_PREFIX.getLongOpt())) {
+      sitePrefix = cmd.getOptionValue(OPT_SITE_PREFIX.getLongOpt());
+    }
   }
 
   @Override
   public String getTitle() {
     return "OCTANE Counts "
+        + (sitePrefix == null ? "" : String.format("for site %s for ", sitePrefix))
         + (start == null ? "Any Time" : start)
         + " - "
         + (end == null ? "Now" : end)
@@ -173,6 +185,9 @@ public class OctaneCountsReport extends TableReport {
 
     List<SampleDto> allOctaneSamples = pinery.getSample().allFiltered(new SamplesFilter().withProjects(Lists.newArrayList("OCT")));
     Map<String, SampleDto> allOctaneSamplesById = mapSamplesById(allOctaneSamples);
+    if (sitePrefix != null) {
+      allOctaneSamples = filterBySitePrefix(allOctaneSamples);
+    }
     
     List<SampleDto> buffyCoats = new ArrayList<>(); // Ly_R tissues
     List<SampleDto> plasma = new ArrayList<>(); // Pl_R tissues
@@ -368,6 +383,12 @@ public class OctaneCountsReport extends TableReport {
     return filter(unfiltered, filters);
   }
   
+  private List<SampleDto> filterBySitePrefix(List<SampleDto> unfiltered) {
+    Set<Predicate<SampleDto>> filters = Sets.newHashSet();
+    filters.add(dto -> dto.getName().startsWith(sitePrefix));
+    return filter(unfiltered, filters);
+  }
+
   private void addSlidesRemainingCount(SampleDto slide) {
     Integer slides = getIntAttribute(ATTR_SLIDES, slide, 0);
     Integer discards = getIntAttribute(ATTR_DISCARDS, slide, 0);
@@ -436,10 +457,11 @@ public class OctaneCountsReport extends TableReport {
    */
   private long countNewCases(Collection<SampleDto> newSamples, Collection<SampleDto> potentialOldSamples,
       Map<String, SampleDto> potentialParents) {
+    String beginning = (start == null ? new Date().toString() : start);
     return getUniqueIdentities(newSamples, potentialParents).stream()
         .filter(identity -> potentialOldSamples.stream()
         .noneMatch(sam -> identity.getId().equals(getParent(sam, "Identity", potentialParents).getId())
-            && sam.getCreatedDate().compareTo(start) < 0))
+                && sam.getCreatedDate().compareTo(beginning) < 0))
         .count();
   }
   
@@ -473,7 +495,10 @@ public class OctaneCountsReport extends TableReport {
   @Override
   protected List<ColumnDefinition> getColumns() {
     return Arrays.asList(
-        new ColumnDefinition(String.format("CASE NUMBERS (%s - %s) for %s", start, end,
+        new ColumnDefinition(String.format("CASE NUMBERS (%s - %s) %s%s",
+            (start == null ? "All Time" : start),
+            (end == null ? "Now" : end),
+            (sitePrefix == null ? "" : String.format(" site %s for ", sitePrefix)),
             (userIds.isEmpty() ? "all users" : " users " + getUserNames(userIds)))),
         new ColumnDefinition("")
     );
@@ -498,7 +523,9 @@ public class OctaneCountsReport extends TableReport {
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      return makeHeadingRow(String.format("SAMPLE NUMBERS (%s - %s)", start, end));
+      return makeHeadingRow(String.format("SAMPLE NUMBERS (%s - %s)",
+          (start == null ? "All Time" : start),
+          (end == null ? "Now" : end)));
     }
     rowNum -= 2;
     if (rowNum < sampleNumbers.size()) {

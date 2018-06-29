@@ -10,7 +10,8 @@ Lists several case, sample, and inventory counts for OCTANE. Likely to be adapte
 |--------|----------|-------------|---------|
 | after | yes | count new cases and samples created after (and including) this date (yyyy-MM-dd) | --after=2017-06-01 |
 | before | yes | count new cases and samples created before (and not including) this date (yyyy-MM-dd) | --before=2017-07-01 |
-| users | no | filter certain counts by creator ID | --users=25,84,35
+| users | no | filter certain counts by creator ID | --users=25,84,35 |
+| sitePrefix | no | filter where sample name begins with sitePrefix | --sitePrefix=OCT_01 |
 
 Note: Inventory counts are for the point in time when the report is generated, and are not affected by the above options.
 
@@ -19,7 +20,7 @@ Note: Inventory counts are for the point in time when the report is generated, a
 Example: Generate in csv format
 
 ```
-java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r octane -f csv -o report.csv --after=2017-10-01 --before=2017-11-01 --users=35,45,27,40,83,1
+java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r octane -f csv -o report.csv --after=2017-10-01 --before=2017-11-01 --users=35,45,27,40,83,1 --sitePrefix=OCT_01
 ```
 
 ## Example
