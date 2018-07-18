@@ -188,7 +188,7 @@ public class GazpachoProjectStatusReport extends TableReport {
         return "";
       }
       long daysSinceReceived = Duration.between(receivedByLab.toInstant(), reportingEnd).toDays();
-      if (runs.isEmpty() || !runs.stream().filter(run -> "Running".equals(run.getState())).collect(Collectors.toList()).isEmpty()) {
+      if (runs.isEmpty() || !runs.stream().filter(run -> RUN_RUNNING.equals(run.getState())).collect(Collectors.toList()).isEmpty()) {
         return Long.toString(daysSinceReceived);
       } else {
         RunDto mostRecent = runs.stream().max(Comparator.comparing(RunDto::getCompletionDate)).orElse(null);
@@ -416,8 +416,9 @@ public class GazpachoProjectStatusReport extends TableReport {
         filter(entry -> {
           boolean stagnant = false;
           try {
-            String lanesCompleted = entry.getValue().getNumLanes("Completed", null);
-            stagnant = "".equals(lanesCompleted)
+            String lanesActive = entry.getValue().getNumLanes(RUN_COMPLETED, null);
+            if ("".equals(lanesActive)) lanesActive = entry.getValue().getNumLanes(RUN_RUNNING, null);
+            stagnant = "".equals(lanesActive)
                 && !dnaRecentList.contains(entry)
                 && !rnaRecentList.contains(entry)
                 && getDateTimeFormat().parse(entry.getValue().getStock().getCreatedDate()).toInstant().isAfter(SIX_MONTHS_AGO);
@@ -525,7 +526,8 @@ public class GazpachoProjectStatusReport extends TableReport {
           + dnaStagnantList.size()
           + 3
           + dnaAllList.size();
-    } else if (ALL.equals(analyte) || RNA.equals(analyte)) {
+    }
+    if (ALL.equals(analyte) || RNA.equals(analyte)) {
       count += rnaRecentList.size()
           + 3
           + rnaStagnantList.size()
@@ -650,12 +652,12 @@ public class GazpachoProjectStatusReport extends TableReport {
     row[++i] = info.getWaitingLibraries(); // libraries waiting
     row[++i] = info.getLibraries().isEmpty() ? "" : Integer.toString(info.getLibraries().size());// libraries created
     row[++i] = info.getWaitingSequencing(); // sequencing waiting
-    row[++i] = info.getNumLanes("Running", MISEQ); // MiSeq lanes running
-    row[++i] = info.getNumLanes("Completed", MISEQ); // MiSeq lanes completed
-    row[++i] = info.getNumLanes("Running", HISEQ); // HiSeq lanes running
-    row[++i] = info.getNumLanes("Completed", HISEQ); // HiSeq lanes completed
-    row[++i] = info.getNumLanes("Running", NOVASEQ); // NovaSeq lanes running
-    row[++i] = info.getNumLanes("Completed", NOVASEQ); // NovaSeq lanes completed
+    row[++i] = info.getNumLanes(RUN_RUNNING, MISEQ); // MiSeq lanes running
+    row[++i] = info.getNumLanes(RUN_COMPLETED, MISEQ); // MiSeq lanes completed
+    row[++i] = info.getNumLanes(RUN_RUNNING, HISEQ); // HiSeq lanes running
+    row[++i] = info.getNumLanes(RUN_COMPLETED, HISEQ); // HiSeq lanes completed
+    row[++i] = info.getNumLanes(RUN_RUNNING, NOVASEQ); // NovaSeq lanes running
+    row[++i] = info.getNumLanes(RUN_COMPLETED, NOVASEQ); // NovaSeq lanes completed
     row[++i] = info.getDaysInLab(end); // days in genomics
     // analysis completed is always left blank because lab fills it out
     return row;
