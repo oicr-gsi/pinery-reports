@@ -270,8 +270,6 @@ public class GazpachoProjectStatusReport extends TableReport {
   List<Map.Entry<String, ReportItem>> rnaStagnantList;
   List<Map.Entry<String, ReportItem>> dnaAllList;
   List<Map.Entry<String, ReportItem>> rnaAllList;
-  private Map<Integer, InstrumentDto> instrumentsById;
-  private Map<Integer, InstrumentModelDto> instrumentModelsById;
 
   @Override
   public String getReportName() {
@@ -328,9 +326,9 @@ public class GazpachoProjectStatusReport extends TableReport {
     List<SampleDto> allProjectSamples = allSamples.stream().filter(byProject(project)).collect(Collectors.toList());
     Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples); // separate since hierarchy may include multiple projects
     List<RunDto> allRuns = pinery.getSequencerRun().all();
-    instrumentsById = pinery.getInstrument().all().stream()
+    Map<Integer, InstrumentDto> instrumentsById = pinery.getInstrument().all().stream()
         .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
-    instrumentModelsById = pinery.getInstrumentModel().all().stream()
+    Map<Integer, InstrumentModelDto> instrumentModelsById = pinery.getInstrumentModel().all().stream()
         .collect(Collectors.toMap(InstrumentModelDto::getId, dto -> dto));
     // Filtering now helps with pulling data from a historic point in time
     allProjectSamples = allProjectSamples.stream().filter(byCreatedBetween(null, end)).collect(Collectors.toList());
@@ -699,12 +697,6 @@ public class GazpachoProjectStatusReport extends TableReport {
     row[++i] = getNumLanes(info, RUN_RUNNING, NOVASEQ); // NovaSeq lanes running
     row[++i] = getNumLanes(info, RUN_COMPLETED, NOVASEQ); // NovaSeq lanes completed
     row[++i] = info.getDaysInLab(end); // days in genomics
-    if (info.getStock().getName().equals("PCSI_0748_Lv_M_nn_5-1_D_S1")) {
-      System.out.println("Run count: " + info.getRuns().size());
-      for (ModifiedRunDto r : info.getRuns()) {
-        System.out.println("In the count: Run " + r.getRunId() + ", lanes " + r.getLanes().toString());
-      }
-    }
     // analysis completed is always left blank because lab fills it out
     return row;
   }
