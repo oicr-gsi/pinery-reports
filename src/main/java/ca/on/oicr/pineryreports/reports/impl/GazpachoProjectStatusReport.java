@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +43,47 @@ import ca.on.oicr.ws.dto.SampleDto;
 
 public class GazpachoProjectStatusReport extends TableReport {
 
+  private static class ModifiedRunDto {
+    private final String completionDate;
+    private final String instrumentModel;
+    private final List<Integer> lanes;
+    private final Integer runId;
+    private final String status;
+
+    public ModifiedRunDto(RunDto run, String instrumentModel, List<Integer> lanes) {
+      this.runId = run.getId();
+      this.status = run.getState();
+      this.completionDate = run.getCompletionDate();
+      this.lanes = lanes;
+      this.instrumentModel = instrumentModel;
+    }
+
+    public String getCompletionDate() {
+      return completionDate;
+    }
+
+    public List<Integer> getLanes() {
+      return lanes;
+    }
+
+    public void addLane(Integer lane) {
+      lanes.add(lane);
+    }
+
+    public Integer getRunId() {
+      return runId;
+    }
+
+    public String getStatus() {
+      return status;
+    }
+
+    public String getInstrumentModel() {
+      return instrumentModel;
+    }
+
+  }
+
   private static class ReportItem implements Comparable<ReportItem> {
 
     private final SampleDto stock;
@@ -51,8 +91,7 @@ public class GazpachoProjectStatusReport extends TableReport {
     private final Set<String> groupIds = new HashSet<>();
     private final Set<SampleDto> aliquots = new HashSet<>();
     private final Set<SampleDto> libraries = new HashSet<>();
-    private final Set<RunDto> runs = new HashSet<>();
-    private final Map<Integer, List<Integer>> lanesForRun = new HashMap<>();
+    private final Set<ModifiedRunDto> runs = new HashSet<>();
 
     public ReportItem(SampleDto stock, String externalName) {
       this.stock = stock;
@@ -68,16 +107,18 @@ public class GazpachoProjectStatusReport extends TableReport {
       if (groupId != null) groupIds.add(groupId);
     }
 
-    public void addRunLane(RunDto run, RunDtoPosition lane) {
-      this.runs.add(run);
-      List<Integer> lanesForCurrentRun = lanesForRun.get(run.getId());
-      if (lanesForCurrentRun == null) {
-        List<Integer> lanes = new ArrayList<>();
-        lanes.add(lane.getPosition());
-        lanesForRun.put(run.getId(), lanes);
-      } else {
-        lanesForRun.get(run.getId()).add(lane.getPosition());
+    public void addRunLane(RunDto run, RunDtoPosition lane, String instrumentModel) {
+      boolean match = false;
+      for (ModifiedRunDto r : runs) {
+        if (r.getRunId() == run.getId()) {
+          match = true;
+          r.addLane(lane.getPosition());
+        }
       }
+      if (match) return;
+      List<Integer> lanes = new ArrayList<>();
+      lanes.add(lane.getPosition());
+      runs.add(new ModifiedRunDto(run, instrumentModel, lanes));
     }
 
     public SampleDto getStock() {
@@ -156,20 +197,8 @@ public class GazpachoProjectStatusReport extends TableReport {
       }
     }
 
-    public String getNumLanes(String runStatus, String instrumentModel) {
-      // instrumentModel may be null
-      Predicate<RunDto> predicates = dto -> runStatus.equals(dto.getState());
-      if (instrumentModel != null && !"".equals(instrumentModel)) {
-        predicates = predicates.and(dto -> isRunOnInstrumentModel(dto, instrumentModel));
-      }
-      Set<RunDto> matching = runs.stream().filter(predicates).collect(Collectors.toSet());
-      Integer matchingLanes = 0;
-      for (Entry<Integer, List<Integer>> entry : lanesForRun.entrySet()) {
-        if (matching.stream().map(RunDto::getId).collect(Collectors.toSet()).contains(entry.getKey())) {
-          matchingLanes += entry.getValue().size();
-        }
-      }
-      return matchingLanes.equals(0) ? "" : matchingLanes.toString();
+    public Set<ModifiedRunDto> getRuns() {
+      return runs;
     }
 
     public String getDaysInLab(String end) {
@@ -188,15 +217,15 @@ public class GazpachoProjectStatusReport extends TableReport {
         return "";
       }
       long daysSinceReceived = Duration.between(receivedByLab.toInstant(), reportingEnd).toDays();
-      if (runs.isEmpty() || !runs.stream().filter(run -> RUN_RUNNING.equals(run.getState())).collect(Collectors.toList()).isEmpty()) {
+      if (runs.isEmpty() || !runs.stream().filter(run -> RUN_RUNNING.equals(run.getStatus())).collect(Collectors.toList()).isEmpty()) {
         return Long.toString(daysSinceReceived);
       } else {
-        RunDto mostRecent = runs.stream().max(Comparator.comparing(RunDto::getCompletionDate)).orElse(null);
+        ModifiedRunDto mostRecent = runs.stream().max(Comparator.comparing(ModifiedRunDto::getCompletionDate)).orElse(null);
         if (mostRecent == null) return Long.toString(daysSinceReceived);
         try {
           runCompleted = getDateTimeFormat().parse(mostRecent.getCompletionDate());
         } catch (java.text.ParseException e) {
-          System.out.println("Error parsing completion date for run " + mostRecent.getId());
+          System.out.println("Error parsing completion date for run " + mostRecent.getRunId());
           return "";
         }
         long daysReceivedToCompleted = Duration.between(receivedByLab.toInstant(), runCompleted.toInstant()).toDays();
@@ -241,8 +270,8 @@ public class GazpachoProjectStatusReport extends TableReport {
   List<Map.Entry<String, ReportItem>> rnaStagnantList;
   List<Map.Entry<String, ReportItem>> dnaAllList;
   List<Map.Entry<String, ReportItem>> rnaAllList;
-  private static Map<Integer, InstrumentDto> instrumentsById;
-  private static Map<Integer, InstrumentModelDto> instrumentModelsById;
+  private Map<Integer, InstrumentDto> instrumentsById;
+  private Map<Integer, InstrumentModelDto> instrumentModelsById;
 
   @Override
   public String getReportName() {
@@ -380,12 +409,12 @@ public class GazpachoProjectStatusReport extends TableReport {
             ReportItem match;
             if (hasDnaAnalyteName(stock)) {
               match = allDna.get(stock.getId());
-              match.addRunLane(run, lane);
+              match.addRunLane(run, lane, getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById));
               classifyIfActiveThisMonth(run, stock, match, dnaThisMonth);
               allDna.put(stock.getId(), match);
             } else {
               match = allRna.get(stock.getId());
-              match.addRunLane(run, lane);
+              match.addRunLane(run, lane, getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById));
               classifyIfActiveThisMonth(run, stock, match, rnaThisMonth);
               allRna.put(stock.getId(), match);
             }
@@ -416,8 +445,9 @@ public class GazpachoProjectStatusReport extends TableReport {
         filter(entry -> {
           boolean stagnant = false;
           try {
-            String lanesActive = entry.getValue().getNumLanes(RUN_COMPLETED, null);
-            if ("".equals(lanesActive)) lanesActive = entry.getValue().getNumLanes(RUN_RUNNING, null);
+            String lanesActive = getNumLanes(entry.getValue(), RUN_COMPLETED, null);
+            if ("".equals(lanesActive))
+              lanesActive = getNumLanes(entry.getValue(), RUN_RUNNING, null);
             stagnant = "".equals(lanesActive)
                 && !dnaRecentList.contains(entry)
                 && !rnaRecentList.contains(entry)
@@ -467,9 +497,19 @@ public class GazpachoProjectStatusReport extends TableReport {
     }
   }
 
-  private final static boolean isRunOnInstrumentModel(RunDto run, String targetModel) {
-    String runInstrumentModel = getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById);
-    return runInstrumentModel.contains(targetModel);
+  public static String getNumLanes(ReportItem item, String runStatus, String instrumentModel) {
+    // instrumentModel may be null
+    Predicate<ModifiedRunDto> predicates = dto -> runStatus.equals(dto.getStatus());
+    if (instrumentModel != null && !"".equals(instrumentModel)) {
+      predicates = predicates.and(dto -> dto.getInstrumentModel().contains(instrumentModel));
+    }
+    Set<ModifiedRunDto> matching = item.getRuns().stream().filter(predicates).collect(Collectors.toSet());
+    Integer matchingLanes = 0;
+    for (ModifiedRunDto run : matching) {
+      List<Integer> lanesForRun = run.getLanes();
+      matchingLanes += lanesForRun.size();
+    }
+    return matchingLanes.equals(0) ? "" : matchingLanes.toString();
   }
 
   private static final List<Map.Entry<String, ReportItem>> listifyMap(Map<String, ReportItem> map) {
@@ -652,13 +692,19 @@ public class GazpachoProjectStatusReport extends TableReport {
     row[++i] = info.getWaitingLibraries(); // libraries waiting
     row[++i] = info.getLibraries().isEmpty() ? "" : Integer.toString(info.getLibraries().size());// libraries created
     row[++i] = info.getWaitingSequencing(); // sequencing waiting
-    row[++i] = info.getNumLanes(RUN_RUNNING, MISEQ); // MiSeq lanes running
-    row[++i] = info.getNumLanes(RUN_COMPLETED, MISEQ); // MiSeq lanes completed
-    row[++i] = info.getNumLanes(RUN_RUNNING, HISEQ); // HiSeq lanes running
-    row[++i] = info.getNumLanes(RUN_COMPLETED, HISEQ); // HiSeq lanes completed
-    row[++i] = info.getNumLanes(RUN_RUNNING, NOVASEQ); // NovaSeq lanes running
-    row[++i] = info.getNumLanes(RUN_COMPLETED, NOVASEQ); // NovaSeq lanes completed
+    row[++i] = getNumLanes(info, RUN_RUNNING, MISEQ); // MiSeq lanes running
+    row[++i] = getNumLanes(info, RUN_COMPLETED, MISEQ); // MiSeq lanes completed
+    row[++i] = getNumLanes(info, RUN_RUNNING, HISEQ); // HiSeq lanes running
+    row[++i] = getNumLanes(info, RUN_COMPLETED, HISEQ); // HiSeq lanes completed
+    row[++i] = getNumLanes(info, RUN_RUNNING, NOVASEQ); // NovaSeq lanes running
+    row[++i] = getNumLanes(info, RUN_COMPLETED, NOVASEQ); // NovaSeq lanes completed
     row[++i] = info.getDaysInLab(end); // days in genomics
+    if (info.getStock().getName().equals("PCSI_0748_Lv_M_nn_5-1_D_S1")) {
+      System.out.println("Run count: " + info.getRuns().size());
+      for (ModifiedRunDto r : info.getRuns()) {
+        System.out.println("In the count: Run " + r.getRunId() + ", lanes " + r.getLanes().toString());
+      }
+    }
     // analysis completed is always left blank because lab fills it out
     return row;
   }
