@@ -6,24 +6,31 @@ This report is for a single project. It outputs a list of stocks, and provides n
 
 In this file, "sample" means "anything descended from the listed stock".
 
-This report will list at least two tables: "Recent" and "All".
+This report will list at least three tables: "Recent", "Stagnant", and "All".
 "Recent" samples are those which had activity (sample created, library created, run running or completed) within the past month. These samples are ordered by stock name.
-The "all" samples table displays everything for the given project, in reverse name order.
+"Stagnant" samples are those which were created within the past six months but have had no recent activity within the past month.
+The "All" samples table displays everything for the given project, in reverse name order.
 The report can be run for just DNA, just RNA, or both together.
 
 | Column Name | Meaning |
 |-------------|---------|
-| Stock       | Stock alias |
+| Stock       | Stock alias. All stocks which are created in the given project will be listed here, as it is assumed that they are all transferred to Genomics. |
+| Subproject  | Name of the subproject associated with the stock |
 | Ext. Name   | External name on the identity attached to the stock |
-| Group ID    | Comma-separated list of Group IDs attached to samples. For each library that is derived from the stock, the nearest Group ID is found and added to the list. Note that duplicates are removed from the list. |
-| Samples     | Number of stocks received. Note that since each report item is a stock that is received, this will always be "1". |
-| Aliq Waiting | Is "1" if it has been two days since a stock was received or created and an aliquot is not yet made. |
-| Libs Waiting | Is "1" if it has been two days since an aliquot was received or created and a library is not yet made. |
-| Libs         | Number of libraries created. |
-| Seq Waiting  | Is "1" if it has been two days since a library was created and a run containing a sample has not yet started. |
-| Seq Running | Number of lanes containing a sample on a run that has status "Running". |
-| Seq Done    | Number of lanes containing a sample on a run that has status "Completed". |
+| Group IDs    | Comma-separated list of Group IDs attached to samples. For each library that is derived from the stock, the nearest Group ID is found and added to the list. Note that duplicates are removed from the list. |
+| Transferred to GT | Number of stocks created. Note that since each report item is a stock that is received, this will always be "1", and that the report assumes that all stocks created are also transferred to Genomics. |
+| In Samples   | Is "1" if it has been two days since a stock was received or created and an aliquot is not yet made. |
+| In Lib Prep  | Is "1" if it has been two days since an aliquot was received or created and a library is not yet made. |
+| # Libs       | Number of libraries created. |
+| In Seq       | Is "1" if it has been two days since a library was created and a run containing a sample has not yet started. |
+| # MiSeq Lanes Running | Number of lanes containing a sample on a MiSeq run that has status "Running". |
+| # MiSeq Lanes Done    | Number of lanes containing a sample on a MiSeq run that has status "Completed". |
+| # HiSeq Lanes Running | Number of lanes containing a sample on a HiSeq run that has status "Running". |
+| # HiSeq Lanes Done    | Number of lanes containing a sample on a HiSeq run that has status "Completed". |
+| # NovaSeq Lanes Running | Number of lanes containing a sample on a NovaSeq run that has status "Running". |
+| # NovaSeq Lanes Done    | Number of lanes containing a sample on a NovaSeq run that has status "Completed". |
 | Days in Genomics | Number of days between the stock's creation date and the date the most recent run finished OR (the report end date (for the Recent table) or the date the report was generated (for the All table))* |
+| Analysis      | (Column is left blank for recipient to fill out) | 
 
 * Note that the Days in Genomics number may differ between the Recent and All tables. This is because the All table is not affected by date restrictions, so the All table may report on stocks which were created after the report end date (in cases when reporting on historical data). 
 
@@ -45,14 +52,18 @@ java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r 
 ```
 
 ## Example
-|TEST: DNA Recent (2018-06-01 - 2018-07-01)| | | | | | | | | | | |
-|------------------------------------------|-|-|-|-|-|-|-|-|-|-|-|
-|Stock|Ext. Name|Froup ID|Samples|Aliq Waiting|Libs Waiting|Libs|Seq Waiting|Seq Running| Seq Done| Days in Genomics|Analysis|
-|TEST_0005_Ly_R_nn_1-1_D_S2|2234||1|1||||||16||
-|TEST_0006_Px_P_nn_1-1_D_S1|1234||1|||2|||2|23||
-|||||||||||||
-|TEST: DNA (All Time - 2018-07-03)||||||||||||
-|Stock|Ext. Name|Froup ID|Samples|Aliq Waiting|Libs Waiting|Libs|Seq Waiting|Seq Running| Seq Done| Days in Genomics|Analysis|
-|TEST_0006_Px_P_nn_1-1_D_S1|1234||1|||2|||2|25||
-|TEST_0005_Ly_R_nn_1-1_D_S2|2234||1|1||||||18||
-|TEST_0004_Ly_R_nn_1-1_D_S1|3234||1|1||||||36||
+|TEST: DNA Recent (2018-06-01 - 2018-07-01)| | | | | | | | | | | | | | | | |
+|------------------------------------------|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
+|Stock|Subproject|Ext. Name|Group IDs|Transferred to GT|In Samples|In Lib Prep|# Libs|In Seq|# MiSeq Lanes Running|# MiSeq Lanes Done|# HiSeq Lanes Running|# HiSeq Lanes Done|# NovaSeq Lanes Running|# NovaSeq Lanes Done|Days in Genomics|Analysis|
+|TEST_0005_Ly_R_nn_1-1_D_S2|SubP1|2234||1|1||||||||||18||
+|TEST_0006_Px_P_nn_1-1_D_S1|SubP2|1234||1|||2|||||||2|25||
+||||||||||||||||||
+|TEST: DNA Stagnant (6 months ago - Today)|||||||||||||||||
+|Stock|Subproject|Ext. Name|Group IDs|Transferred to GT|In Samples|In Lib Prep|# Libs|In Seq|# MiSeq Lanes Running|# MiSeq Lanes Done|# HiSeq Lanes Running|# HiSeq Lanes Done|# NovaSeq Lanes Running|# NovaSeq Lanes Done|Days in Genomics|Analysis|
+|TEST_0004_Ly_R_nn_1-1_D_S1|SubP1|3234||1|1||||||||||33||
+||||||||||||||||||
+|TEST: DNA (All Time - 2018-07-03)|||||||||||||||||
+|Stock|Subproject|Ext. Name|Group IDs|Transferred to GT|In Samples|In Lib Prep|# Libs|In Seq|# MiSeq Lanes Running|# MiSeq Lanes Done|# HiSeq Lanes Running|# HiSeq Lanes Done|# NovaSeq Lanes Running|# NovaSeq Lanes Done|Days in Genomics|Analysis|
+|TEST_0006_Px_P_nn_1-1_D_S1|SubP2|1234||1|||2|||||||2|25||
+|TEST_0005_Ly_R_nn_1-1_D_S2|SubP1|2234||1|1||||||||||18||
+|TEST_0004_Ly_R_nn_1-1_D_S1|SubP1|3234||1|1||||||||||33||
