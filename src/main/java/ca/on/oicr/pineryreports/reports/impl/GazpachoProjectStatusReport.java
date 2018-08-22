@@ -256,7 +256,7 @@ public class GazpachoProjectStatusReport extends TableReport {
   private String project;
   private String start;
   private String end;
-  private String analyte;
+  private String analyte = "ALL"; // defaults to displaying both DNA and RNA in the same report
   private final String todate = removeTime(TODAY.toString());
 
   private static final Option OPT_PROJECT = CommonOptions.project(true);

@@ -50,7 +50,7 @@ public class CommonOptions {
         .hasArg()
         .argName("analyte")
         .required(required)
-        .desc("DNA or RNA" + (required ? " (required)" : ""))
+        .desc("DNA or RNA or ALL" + (required ? " (required)" : ""))
         .build();
   }
 

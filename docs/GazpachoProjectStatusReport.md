@@ -41,7 +41,7 @@ The report can be run for just DNA, just RNA, or both together.
 | after  | yes | report separately on samples active after (and including) this date (yyyy-MM-dd) | --after=2018-06-01 |
 | before | yes | report separately on samples active before (and not including) this date (yyyy-MM-dd) | --before=2018-07-01 |
 | project | yes | the code/short name of the project to report on | --project=TEST |
-| analyte | yes | "DNA" or "RNA" if these should be reported separately; "ALL" if reported together | --analyte=DNA |
+| analyte | no | "DNA" or "RNA" if these should be reported separately; "ALL" if reported together (default) | --analyte=DNA |
 
 Note: "all" samples report are for the point in time when the report is generated, and are not affected by the above date-filtering options.
 
