@@ -20,6 +20,7 @@ import ca.on.oicr.pineryreports.reports.Report;
 import ca.on.oicr.pineryreports.reports.impl.BisqueProjectsStatusReport;
 import ca.on.oicr.pineryreports.reports.impl.DysReport;
 import ca.on.oicr.pineryreports.reports.impl.GazpachoProjectStatusReport;
+import ca.on.oicr.pineryreports.reports.impl.GeccoDonorReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
@@ -111,6 +112,7 @@ public class Main {
             "Report to generate {"
                 + "stock, "
                 + "gecco, "
+                + "gecco-donor, "
                 + "sequencing, "
                 + "octane, "
                 + "receipt-missing, "
@@ -145,6 +147,8 @@ public class Main {
       return new StockReport();
     case GeccoReport.REPORT_NAME:
       return new GeccoReport();
+    case GeccoDonorReport.REPORT_NAME:
+      return new GeccoDonorReport();
     case ProjectSequencingReport.REPORT_NAME:
       return new ProjectSequencingReport();
     case OctaneCountsReport.REPORT_NAME:
