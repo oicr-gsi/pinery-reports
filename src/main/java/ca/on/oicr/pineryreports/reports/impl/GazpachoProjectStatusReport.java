@@ -87,15 +87,17 @@ public class GazpachoProjectStatusReport extends TableReport {
   private static class ReportItem implements Comparable<ReportItem> {
 
     private final SampleDto stock;
+    private final String subproject;
     private final String externalName;
     private final Set<String> groupIds = new HashSet<>();
     private final Set<SampleDto> aliquots = new HashSet<>();
     private final Set<SampleDto> libraries = new HashSet<>();
     private final Set<ModifiedRunDto> runs = new HashSet<>();
 
-    public ReportItem(SampleDto stock, String externalName) {
+    public ReportItem(SampleDto stock, String externalName, String subproject) {
       this.stock = stock;
       this.externalName = externalName;
+      this.subproject = subproject;
     }
 
     public void addAliquot(SampleDto aliquot) {
@@ -163,6 +165,10 @@ public class GazpachoProjectStatusReport extends TableReport {
 
     public String getExternalName() {
       return externalName;
+    }
+
+    public String getSubproject() {
+      return (subproject == null ? "" : subproject);
     }
 
     public String getGroupIds() {
@@ -250,7 +256,7 @@ public class GazpachoProjectStatusReport extends TableReport {
   private String project;
   private String start;
   private String end;
-  private String analyte;
+  private String analyte = "ALL"; // defaults to displaying both DNA and RNA in the same report
   private final String todate = removeTime(TODAY.toString());
 
   private static final Option OPT_PROJECT = CommonOptions.project(true);
@@ -350,17 +356,20 @@ public class GazpachoProjectStatusReport extends TableReport {
       if (SAMPLE_CATEGORY_STOCK.equals(getAttribute(ATTR_CATEGORY, stock))) {
         SampleDto identity = getParent(stock, SAMPLE_CATEGORY_IDENTITY, allSamplesById);
         String externalName = getAttribute(ATTR_EXTERNAL_NAME, identity);
+        String subproject = getAttribute(ATTR_SUBPROJECT, stock);
+        if (subproject == null)
+          subproject = getUpstreamAttribute(ATTR_SUBPROJECT, stock, allSamplesById);
         if (hasDnaAnalyteName(stock)) {
           ReportItem stockItem = allDna.get(stock.getId());
           if (stockItem == null) {
-            stockItem = new ReportItem(stock, externalName);
+            stockItem = new ReportItem(stock, externalName, subproject);
           }
           if (aliquot != null) stockItem.addAliquot(aliquot);
           addReportItem(stockItem, dnaThisMonth, allDna);
         } else {
           ReportItem stockItem = allRna.get(stock.getId());
           if (stockItem == null) {
-            stockItem = new ReportItem(stock, externalName);
+            stockItem = new ReportItem(stock, externalName, subproject);
           }
           if (aliquot != null) stockItem.addAliquot(aliquot);
           addReportItem(stockItem, rnaThisMonth, allRna);
@@ -476,7 +485,10 @@ public class GazpachoProjectStatusReport extends TableReport {
       // SIGH. some test projects use aliquots from different projects
       SampleDto identity = getParent(stock, SAMPLE_CATEGORY_IDENTITY, allSamples);
       String externalName = getAttribute(ATTR_EXTERNAL_NAME, identity);
-      ReportItem deNovo = new ReportItem(stock, externalName);
+      String subproject = getAttribute(ATTR_SUBPROJECT, stock);
+      if (subproject == null)
+        subproject = getUpstreamAttribute(ATTR_SUBPROJECT, stock, allSamples);
+      ReportItem deNovo = new ReportItem(stock, externalName, subproject);
       match = deNovo;
     }
     match.addLibrary(lib, groupId);
@@ -682,7 +694,7 @@ public class GazpachoProjectStatusReport extends TableReport {
     ReportItem info = sample.getValue();
     int i = -1;
     row[++i] = info.getStock().getName(); // stock name
-    row[++i] = ""; // placeholder for subproject, to be filled in by Jessica at this time
+    row[++i] = info.getSubproject();
     row[++i] = info.getExternalName();
     row[++i] = info.getGroupIds();
     row[++i] = "1"; // received samples
