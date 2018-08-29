@@ -237,7 +237,7 @@ public class SampleUtils {
   public static Set<String> getChildAttributes(String attributeName, SampleDto sample, List<SampleDto> possibleChildren) {
     Set<String> foundAttributes = new HashSet<>();
     for (SampleDto child : possibleChildren) {
-      if (!getParentId(child).equals(sample.getId())) continue;
+      if (getParentId(child) == null || !getParentId(child).equals(sample.getId())) continue;
       String childAttribute = getAttribute(attributeName, child);
       if (childAttribute != null) {
         foundAttributes.add(childAttribute);
