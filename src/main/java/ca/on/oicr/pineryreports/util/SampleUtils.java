@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -225,6 +226,26 @@ public class SampleUtils {
 	return null;
   }
   
+  /**
+   * Get an attribute from lower in the hierarchy. Will never return an attribute found directly on sample.
+   * 
+   * @param attributeName
+   * @param sample find the attribute in this sample's children
+   * @param possibleChildren set of potential children to this sample
+   * @return the attribute value set from the children which have the attribute, or empty set if not found
+   */
+  public static Set<String> getChildAttributes(String attributeName, SampleDto sample, List<SampleDto> possibleChildren) {
+    Set<String> foundAttributes = new HashSet<>();
+    for (SampleDto child : possibleChildren) {
+      if (getParentId(child) == null || !getParentId(child).equals(sample.getId())) continue;
+      String childAttribute = getAttribute(attributeName, child);
+      if (childAttribute != null) {
+        foundAttributes.add(childAttribute);
+      }
+    }
+    return foundAttributes;
+  }
+
   /**
    * Get the direct parent of sample
    * 
