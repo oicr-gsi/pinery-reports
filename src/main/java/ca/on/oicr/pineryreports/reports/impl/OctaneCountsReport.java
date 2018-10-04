@@ -457,11 +457,14 @@ public class OctaneCountsReport extends TableReport {
    */
   private long countNewCases(Collection<SampleDto> newSamples, Collection<SampleDto> potentialOldSamples,
       Map<String, SampleDto> potentialParents) {
-    String beginning = (start == null ? new Date().toString() : start);
+    if (start == null) {
+      // return all the old samples, since we want all samples ever created
+      return getUniqueIdentities(newSamples, potentialParents).stream().count();
+    }
     return getUniqueIdentities(newSamples, potentialParents).stream()
         .filter(identity -> potentialOldSamples.stream()
-        .noneMatch(sam -> identity.getId().equals(getParent(sam, "Identity", potentialParents).getId())
-                && sam.getCreatedDate().compareTo(beginning) < 0))
+            .noneMatch(sam -> identity.getId().equals(getParent(sam, "Identity", potentialParents).getId())
+                && sam.getCreatedDate().compareTo(start) < 0))
         .count();
   }
   
