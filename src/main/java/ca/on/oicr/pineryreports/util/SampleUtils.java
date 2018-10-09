@@ -158,6 +158,24 @@ public class SampleUtils {
     return dto -> isNonIlluminaLibrary(dto);
   }
 
+  public static final Predicate<SampleDto> withSlidesRemaining = slide -> {
+    Integer slides = getIntAttribute(ATTR_SLIDES, slide);
+    Integer discards = getIntAttribute(ATTR_DISCARDS, slide);
+    if (slides == null) {
+      throw new IllegalArgumentException("Sample does not seem to be a slide");
+    }
+    if (discards == null) {
+      return slides > 0;
+    }
+    return slides > discards;
+  };
+
+  public static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples) {
+    return samples.stream()
+        .filter(sample -> !"EMPTY".equals(sample.getStorageLocation()))
+        .collect(Collectors.toList());
+  }
+
   /**
    * Return attribute value that exists for the given attribute name on the given sample.
    * 
