@@ -155,7 +155,7 @@ public class SampleUtils {
   }
 
   public static Predicate<SampleDto> byNonIlluminaLibrary() {
-    return dto -> isNonIlluminaLibrary(dto);
+    return SampleUtils::isNonIlluminaLibrary;
   }
 
   public static final Predicate<SampleDto> withSlidesRemaining = slide -> {

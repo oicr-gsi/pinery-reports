@@ -116,9 +116,7 @@ public class PreciseReport extends TableReport {
     }
 
     public static Predicate<SampleDto> predicate(Site site) {
-      return sample -> {
-        return sample.getName().startsWith("PRE_" + site.siteId);
-      };
+      return sample -> sample.getName().startsWith("PRE_" + site.siteId);
     }
   }
 
@@ -149,9 +147,7 @@ public class PreciseReport extends TableReport {
      * Should hopefully be a safe assumption since this is a biobanking project where tracking tissue origin is critical.
      */
     public static Predicate<SampleDto> predicate(TimePoint timePoint) {
-      return sample -> {
-        return sample.getName().contains("_nn_" + timePoint.timePointCode);
-      };
+      return sample -> sample.getName().contains("_nn_" + timePoint.timePointCode);
     }
   }
 
@@ -376,8 +372,8 @@ public class PreciseReport extends TableReport {
     List<String> sampleCasesList = new ArrayList<>();
     sampleCasesList.add("Site");
     for (int i = 0; i < labelList.size(); i++) {
-      sampleCasesList.add("# Samples");
-      sampleCasesList.add("# Cases");
+      sampleCasesList.add(NUM_SAMPLES);
+      sampleCasesList.add(NUM_CASES);
     }
     return sampleCasesList;
   }
@@ -435,28 +431,28 @@ public class PreciseReport extends TableReport {
   protected String[] getRow(int rowNum) {
     String[] row = null;
     row = maybeInList(TimePoint.RANDOMIZATION.getKey(), labelListLong, toDateRandom, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (toDateRandom.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList(TimePoint.SIX.getKey(), labelListShort, toDateSix, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (toDateSix.size() + 4); // list + (blank, 2 headers, total). This step is here because Java passes by value, so subtracting
                                       // rowNum at the end of the method does nothing
 
     row = maybeInList(TimePoint.TWELVE.getKey(), labelListLong, toDateTwelve, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (toDateTwelve.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList(TimePoint.EIGHTEEN.getKey(), labelListShort, toDateEighteen, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (toDateEighteen.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList(TimePoint.TWENTY_FOUR.getKey(), labelListLong, toDateTwentyFour, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (toDateTwentyFour.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList("Tissue", labelListSlides, toDateSlides, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (toDateSlides.size() + 4); // list + (blank, 2 headers, total)
 
     if (rowNum == 0) {
@@ -467,27 +463,27 @@ public class PreciseReport extends TableReport {
     rowNum -= 2;
 
     row = maybeInList(TimePoint.RANDOMIZATION.getKey(), labelListLong, thisMonthRandom, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (thisMonthRandom.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList(TimePoint.SIX.getKey(), labelListShort, thisMonthSix, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (thisMonthSix.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList(TimePoint.TWELVE.getKey(), labelListLong, thisMonthTwelve, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (thisMonthTwelve.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList(TimePoint.EIGHTEEN.getKey(), labelListShort, thisMonthEighteen, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (thisMonthEighteen.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList(TimePoint.TWENTY_FOUR.getKey(), labelListLong, thisMonthTwentyFour, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (thisMonthTwentyFour.size() + 4); // list + (blank, 2 headers, total)
 
     row = maybeInList("Tissue", labelListSlides, thisMonthSlides, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (thisMonthSlides.size() + 4); // list + (blank, 2 headers, total)
 
     if (rowNum == 0) {
@@ -498,7 +494,7 @@ public class PreciseReport extends TableReport {
     rowNum -= 2;
 
     row = maybeInList("Total in Inventory", labelListInventory, inventoryAvailable, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= (inventoryAvailable.size() + 4); // list + (blank, 2 headers, total)
 
     if (rowNum == 0) {
@@ -510,7 +506,7 @@ public class PreciseReport extends TableReport {
     }
 
     row = maybeSampleAlias(barcodeAndNameCodingMismatch, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= barcodeAndNameCodingMismatch.size();
 
     if (rowNum == 0) {
@@ -522,7 +518,7 @@ public class PreciseReport extends TableReport {
     }
 
     row = maybeSampleAlias(slidesWithoutSlideTimepoint, rowNum);
-    if (row != null) return row;
+    if (row.length != 0) return row;
     rowNum -= slidesWithoutSlideTimepoint.size();
 
     return makeBlankRow();
@@ -542,7 +538,7 @@ public class PreciseReport extends TableReport {
     } else if (rowNum == list.size()) {
       return generateTotalsRow(list, labels);
     }
-    return null;
+    return new String[0];
     // do our subtraction of the list + totals outside this method, because changes here won't affect rowNum outside the method
   }
 
@@ -553,7 +549,7 @@ public class PreciseReport extends TableReport {
       row[1] = sample.getTubeBarcode();
       return row;
     }
-    return null;
+    return new String[0];
   }
 
   private String[] generateRow(List<String> received) {
