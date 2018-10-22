@@ -39,9 +39,11 @@ public class SampleUtils {
   public static final String ATTR_REMAINING = "Remaining";
   public static final String ATTR_STAIN = "Stain";
   public static final String ATTR_RECEIVE_DATE = "Receive Date";
+  public static final String ATTR_CREATION_DATE = "In-lab Creation Date";
   public static final String ATTR_SOURCE_TEMPLATE_TYPE = "Source Template Type";
   public static final String ATTR_GROUP_ID = "Group ID";
   public static final String ATTR_SUBPROJECT = "Sub-project";
+  public static final String ATTR_SYNTHETIC = "Synthetic";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
