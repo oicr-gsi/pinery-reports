@@ -100,12 +100,14 @@ public class ReceiptMissingReport extends TableReport {
     
     rows = new ArrayList<>();
     slidesByTissue.forEach((tissue, slides) -> {
-      if (getAttribute(ATTR_RECEIVE_DATE, tissue) == null) {
+      if (getAttribute(ATTR_RECEIVE_DATE, tissue) == null && getAttribute(ATTR_CREATION_DATE, tissue) == null
+          && getAttribute(ATTR_SYNTHETIC, tissue) == null) {
         if (slides.isEmpty()) {
           rows.add(new ReportObject(tissue, null));
         } else {
           slides.forEach(slide -> {
-            if (getAttribute(ATTR_RECEIVE_DATE, slide) == null) {
+            if (getAttribute(ATTR_RECEIVE_DATE, slide) == null && getAttribute(ATTR_CREATION_DATE, slide) == null
+                && getAttribute(ATTR_SYNTHETIC, slide) == null) {
               rows.add(new ReportObject(tissue, slide));
             }
           });
