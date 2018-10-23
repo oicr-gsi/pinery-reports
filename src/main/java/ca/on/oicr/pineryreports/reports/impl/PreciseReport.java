@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -40,8 +38,8 @@ public class PreciseReport extends TableReport {
   private String start;
   private String end;
 
-  private static final Option OPT_AFTER = CommonOptions.after(false);
-  private static final Option OPT_BEFORE = CommonOptions.before(false);
+  private static final Option OPT_AFTER = CommonOptions.after(true);
+  private static final Option OPT_BEFORE = CommonOptions.before(true);
 
   private enum SampleLabel {
     // Coded by the trailing digits on the identification barcode: P0001.*##*
@@ -82,10 +80,10 @@ public class PreciseReport extends TableReport {
         // Biopsy Slides and RP Slides are a hybrid between SampleLabel and TimePoint: they have the same SampleLabel numbers and should be
         // treated as sample labels in how they're displayed in tables, but they differ by their Times Received number (which is time point
         // coding) so we need to check them differently here
-        if (BIOPSY_SLIDES.getKey().equals(key)) {
-          return fullMatch && sample.getName().contains("_nn_6");
-        } else if (RP_SLIDES.getKey().equals(key)) {
-          return fullMatch && sample.getName().contains("_nn_7");
+        if (this == BIOPSY_SLIDES) {
+          return fullMatch && TimePoint.BIOPSY.predicate().test(sample);
+        } else if (this == RP_SLIDES) {
+          return fullMatch && TimePoint.RADICAL.predicate().test(sample);
         } else {
           return fullMatch;
         }
@@ -115,8 +113,8 @@ public class PreciseReport extends TableReport {
       return key;
     }
 
-    public static Predicate<SampleDto> predicate(Site site) {
-      return sample -> sample.getName().startsWith("PRE_" + site.siteId);
+    public Predicate<SampleDto> predicate() {
+      return sample -> sample.getName().startsWith("PRE_" + siteId);
     }
   }
 
@@ -146,23 +144,23 @@ public class PreciseReport extends TableReport {
      * Assumes that PRECISE samples will always have _nn_ in the name, and that Tissue Origin will never be "nn".
      * Should hopefully be a safe assumption since this is a biobanking project where tracking tissue origin is critical.
      */
-    public static Predicate<SampleDto> predicate(TimePoint timePoint) {
-      return sample -> sample.getName().contains("_nn_" + timePoint.timePointCode);
+    public Predicate<SampleDto> predicate() { 
+      return sample -> {
+        if (SAMPLE_CATEGORY_IDENTITY.equals(sample.getSampleType())) return false;
+        return timePointCode == getTimesReceived(sample.getName());
+      };
     }
-  }
+  };
 
   private static final String NUM_SAMPLES = "# Samples";
   private static final String NUM_CASES = "# Cases";
-  private static final List<Site> SITE_ORDER = Arrays.asList(Site.SUNNYBROOK, Site.UHN, Site.LONDON, Site.MONTREAL, Site.VANCOUVER);
   private final List<SampleLabel> labelListLong = Arrays.asList(SampleLabel.SERUM, SampleLabel.MITOMIC, SampleLabel.PLASMA,
       SampleLabel.BUFFY, SampleLabel.MIR, SampleLabel.PRE_US, SampleLabel.PRE_UP, SampleLabel.MDX, SampleLabel.POST_US,
       SampleLabel.POST_UP);
   private final List<SampleLabel> labelListShort = Arrays.asList(SampleLabel.SERUM, SampleLabel.MITOMIC, SampleLabel.PLASMA,
       SampleLabel.BUFFY);
   private final List<SampleLabel> labelListSlides = Arrays.asList(SampleLabel.BIOPSY_SLIDES, SampleLabel.RP_SLIDES);
-  private final List<SampleLabel> labelListInventory = Arrays.asList(SampleLabel.SERUM, SampleLabel.MITOMIC, SampleLabel.PLASMA,
-      SampleLabel.BUFFY, SampleLabel.MIR, SampleLabel.PRE_US, SampleLabel.PRE_UP, SampleLabel.MDX, SampleLabel.POST_US,
-      SampleLabel.POST_UP, SampleLabel.BIOPSY_SLIDES, SampleLabel.RP_SLIDES);
+  private final List<SampleLabel> labelListInventory = Arrays.asList(SampleLabel.values());
 
   private List<List<String>> toDateRandom;
   private List<List<String>> toDateSix;
@@ -224,39 +222,42 @@ public class PreciseReport extends TableReport {
       labelList.put(label, filter(allPreciseSamples, label.predicate()));
     }
 
-    toDateRandom = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong, TimePoint.predicate(TimePoint.RANDOMIZATION),
+    toDateRandom = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong, TimePoint.RANDOMIZATION.predicate(),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    toDateSix = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort, TimePoint.predicate(TimePoint.SIX),
+    toDateSix = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort, TimePoint.SIX.predicate(),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    toDateTwelve = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong, TimePoint.predicate(TimePoint.TWELVE),
+    toDateTwelve = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong, TimePoint.TWELVE.predicate(),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    toDateEighteen = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort, TimePoint.predicate(TimePoint.EIGHTEEN),
+    toDateEighteen = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort, TimePoint.EIGHTEEN.predicate(),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    toDateTwentyFour = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong, TimePoint.predicate(TimePoint.TWENTY_FOUR),
+    toDateTwentyFour = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong, TimePoint.TWENTY_FOUR.predicate(),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    toDateSlides = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides,
+    toDateSlides = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides,
         bySampleCategory(SAMPLE_CATEGORY_TISSUE_PROCESSING));
 
-    thisMonthRandom = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
-        TimePoint.predicate(TimePoint.RANDOMIZATION), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    thisMonthSix = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort,
-        TimePoint.predicate(TimePoint.SIX), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    thisMonthTwelve = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
-        TimePoint.predicate(TimePoint.TWELVE), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    thisMonthEighteen = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort,
-        TimePoint.predicate(TimePoint.EIGHTEEN), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    thisMonthTwentyFour = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
-        TimePoint.predicate(TimePoint.TWENTY_FOUR), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    thisMonthSlides = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides, byCreatedBetween(start, end),
+    thisMonthRandom = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
+        TimePoint.RANDOMIZATION.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthSix = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort,
+        TimePoint.SIX.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthTwelve = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
+        TimePoint.TWELVE.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthEighteen = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort,
+        TimePoint.EIGHTEEN.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthTwentyFour = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
+        TimePoint.TWENTY_FOUR.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthSlides = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides, byCreatedBetween(start, end),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE_PROCESSING));
 
-    inventoryAvailable = getSingleTable(allPreciseSamples, allPreciseSamplesById, labelListInventory, byNotEmpty);
+    inventoryAvailable = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListInventory, byNotEmpty);
 
     barcodeAndNameCodingMismatch = filter(allPreciseSamples, byBarcodeTimesReceivedMismatch);
     slidesWithoutSlideTimepoint = filter(allPreciseSamples, byTimePointCodingMismatch);
 
   }
 
+  /**
+   * Check if the numbers of the tube barcode (SampleLabel code) differ from the tube number part of the sample alias.
+   */
   private final Predicate<SampleDto> byBarcodeTimesReceivedMismatch = dto -> {
     // check only tissues and slides with non-null barcodes
     if ((!bySampleCategory(SAMPLE_CATEGORY_TISSUE).test(dto) && !bySampleCategory(SAMPLE_CATEGORY_TISSUE_PROCESSING).test(dto))
@@ -264,36 +265,27 @@ public class PreciseReport extends TableReport {
       return false;
     }
 
+    // Tube barcode pattern: P1234.003 (the relevant part is the number after the period)
     String barcodeString = dto.getTubeBarcode().split("\\.")[1].replaceFirst("^0", "");
-    String timesReceived = "";
-    if (bySampleCategory(SAMPLE_CATEGORY_TISSUE).test(dto)) {
-      timesReceived = dto.getName().split("-")[dto.getName().split("-").length - 1];
-    } else if (getAttribute(ATTR_SLIDES, dto) != null) {
-      // quick and dirty check for Slides
-      Matcher m = Pattern.compile(".*(\\d{1,5}-\\d{1,5}).*").matcher(dto.getName());
-      if (!m.matches()) throw new IllegalArgumentException("Sample with alias " + dto.getName() + " is malformed.");
-      timesReceived = m.group(1).split("-")[1];
-    } else {
-      return false;
-    }
-    return Integer.valueOf(barcodeString) != Integer.valueOf(timesReceived);
+    Integer tubeNumber = getTubeNumber(dto.getName());
+    return Integer.valueOf(barcodeString) != tubeNumber;
   };
 
+  /**
+   * Slides should have TimePoint code of 6 or 7, as slides are not collected at other timepoints.
+   */
   private final Predicate<SampleDto> byTimePointCodingMismatch = dto -> {
     // finds slides that are not coded as biopsy (6) or radical prostatectomy (7) in the sample alias
     if (getAttribute(ATTR_SLIDES, dto) == null) return false; // quick and dirty check for slides
-    Matcher m = Pattern.compile(".*(\\d{1,5}-\\d{1,5}).*").matcher(dto.getName());
-    if (!m.matches()) throw new IllegalArgumentException("Sample with alias " + dto.getName() + " is malformed.");
-    String timePoint = m.group(1).split("-")[0];
-    return Integer.valueOf(timePoint) < 6;
+    Integer timePointCode = getTimesReceived(dto.getName());
+    return timePointCode < 6;
   };
 
   private final Predicate<SampleDto> byNotEmpty = sample -> {
-    if (sample.getSampleType() == null)
-      throw new IllegalArgumentException(String.format("Got very weird sample type for sample %s", sample.getName()));
-    if (sample.getSampleType().contains("Illumina") || "Unknown".equals(sample.getSampleType())) return false;
-    switch (sample.getSampleType()) {
-    case SAMPLE_CLASS_SLIDE:
+    if (sample.getSampleType() == null || sample.getSampleType().contains("Illumina") || "Unknown".equals(sample.getSampleType())) {
+      return false;
+    }
+    if (SAMPLE_CLASS_SLIDE.equals(sample.getSampleType())) {
       // slides remaining
       Integer slides = getIntAttribute(ATTR_SLIDES, sample);
       Integer discards = getIntAttribute(ATTR_DISCARDS, sample);
@@ -301,13 +293,23 @@ public class PreciseReport extends TableReport {
         return slides > 0;
       }
       return slides > discards;
-    default:
+    } else {
       return sample.getStorageLocation() != null && sample.getStorageLocation() != "" && sample.getStorageLocation() != "EMPTY";
     }
   };
 
+  /**
+   * Handles generating all of the rows for a single table that reports on the given parameters.
+   * One row at a time is returned, and that row is determined by
+   * 
+   * @param possibleSamples
+   * @param allSamplesById
+   * @param labelList
+   * @param filters
+   * @return
+   */
   @SafeVarargs
-  private final List<List<String>> getSingleTable(List<SampleDto> possibleSamples, Map<String, SampleDto> allSamplesById,
+  private final List<List<String>> getDataForSingleTable(List<SampleDto> possibleSamples, Map<String, SampleDto> allSamplesById,
       List<SampleLabel> labelList, Predicate<SampleDto>... filters) {
     List<Predicate<SampleDto>> inputFilters = Arrays.asList(filters);
     List<SampleDto> filtered = filter(possibleSamples, inputFilters);
@@ -316,10 +318,10 @@ public class PreciseReport extends TableReport {
       return Collections.emptyList();
     }
 
-    return SITE_ORDER.stream()
+    return Arrays.asList(Site.values()).stream()
         .map(site -> {
           List<Predicate<SampleDto>> allFilters = new ArrayList<>();
-          allFilters.add(Site.predicate(site));
+          allFilters.add(site.predicate());
           allFilters.addAll(inputFilters);
 
           List<SampleDto> sams = filter(possibleSamples, allFilters);
@@ -331,33 +333,53 @@ public class PreciseReport extends TableReport {
         .collect(Collectors.toList());
   }
 
+  /**
+   * Returns a list of sample counts and identity counts for each label, in the same order as the labels list
+   * 
+   * @param samples
+   * @param samplesById all samples mapped by ID
+   * @param labels the sample labels to
+   * @return
+   */
   private List<String> getCounts(List<SampleDto> samples, Map<String, SampleDto> samplesById, List<SampleLabel> labels) {
     return labels.stream()
-        .map(label -> {
-          Map<String, Long> labelled = getSampleAndCaseCounts(samples, Arrays.asList(label.predicate()), samplesById);
-          return Arrays.asList(labelled.get(NUM_SAMPLES), labelled.get(NUM_CASES));
-        })
+        .map(label -> getSampleAndCaseCounts(samples, Arrays.asList(label.predicate()), samplesById))
         .flatMap(Collection::stream)
         .map(num -> num == null ? "0" : String.valueOf(num))
         .collect(Collectors.toList());
   }
 
-  private Map<String, Long> getSampleAndCaseCounts(List<SampleDto> samples, Collection<Predicate<SampleDto>> predicates,
+  /**
+   * This filters the input samples and counts how many meet each condition.
+   * 
+   * @param samples to be assessed
+   * @param predicates list to filter by
+   * @param allSamples list (in order to get parent identities/cases for the filtered samples)
+   * @return a list of alternating "num samples" and "num cases" counts
+   */
+  private List<Integer> getSampleAndCaseCounts(List<SampleDto> samples, Collection<Predicate<SampleDto>> predicates,
       Map<String, SampleDto> allSamples) {
     List<SampleDto> filteredSamples = filter(samples, predicates);
     List<SampleDto> cases = filteredSamples.stream()
         .map(sam -> getParent(sam, SAMPLE_CATEGORY_IDENTITY, allSamples))
         .distinct().collect(Collectors.toList());
 
-    Map<String, Long> counts = new TreeMap<>();
-    counts.put(NUM_SAMPLES, Long.valueOf(filteredSamples.size()));
-    counts.put(NUM_CASES, Long.valueOf(cases.size()));
+    List<Integer> counts = new ArrayList<>();
+    counts.add(filteredSamples.size());
+    counts.add(cases.size());
     return counts;
   }
 
+  /**
+   * In every table, each label in the label list will display counts of both the number of samples and the number of cases.
+   * This returns a list of pairs of "sample label" and "", in the same order as the labelList, as each sample label will have two sets of
+   * counts reported in the row below this one (number of samples, and number of cases).
+   * 
+   * @param header time point code
+   * @param labelList sample labels to be reported on
+   * @return list of time point code + sample label/"" pairs
+   */
   private List<String> labelListHeader(String header, List<SampleLabel> labelList) {
-    // needs to have one column for the time point, then two columns for each sampleLabel
-    // which are for the "Samples" and "Cases" columns in the {#samplesCasesHeader} method
     List<String> list = new ArrayList<>();
     list.add(header);
     for (SampleLabel label : labelList) {
@@ -367,6 +389,11 @@ public class PreciseReport extends TableReport {
     return list;
   }
 
+  /**
+   * Generates a list of paired "# Samples" and "# Cases" items, with one pair for each item in the labelList
+   * @param labelList list of sample labels
+   * @return a list with paired headers for each sample label
+   */
   private List<String> sampleCasesHeader(List<SampleLabel> labelList) {
     // first column is "Site", then a pair of "Samples" + "Cases" columns for each sampleLabel in the list
     List<String> sampleCasesList = new ArrayList<>();
@@ -430,82 +457,80 @@ public class PreciseReport extends TableReport {
   @Override
   protected String[] getRow(int rowNum) {
     String[] row = null;
-    row = maybeInList(TimePoint.RANDOMIZATION.getKey(), labelListLong, toDateRandom, rowNum);
+    row = getRowsForSection(TimePoint.RANDOMIZATION.getKey(), labelListLong, toDateRandom, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateRandom.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList(TimePoint.SIX.getKey(), labelListShort, toDateSix, rowNum);
+    row = getRowsForSection(TimePoint.SIX.getKey(), labelListShort, toDateSix, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateSix.size() + 4); // list + (blank, 2 headers, total). This step is here because Java passes by value, so subtracting
                                       // rowNum at the end of the method does nothing
 
-    row = maybeInList(TimePoint.TWELVE.getKey(), labelListLong, toDateTwelve, rowNum);
+    row = getRowsForSection(TimePoint.TWELVE.getKey(), labelListLong, toDateTwelve, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateTwelve.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList(TimePoint.EIGHTEEN.getKey(), labelListShort, toDateEighteen, rowNum);
+    row = getRowsForSection(TimePoint.EIGHTEEN.getKey(), labelListShort, toDateEighteen, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateEighteen.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList(TimePoint.TWENTY_FOUR.getKey(), labelListLong, toDateTwentyFour, rowNum);
+    row = getRowsForSection(TimePoint.TWENTY_FOUR.getKey(), labelListLong, toDateTwentyFour, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateTwentyFour.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList("Tissue", labelListSlides, toDateSlides, rowNum);
+    row = getRowsForSection("Tissue", labelListSlides, toDateSlides, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateSlides.size() + 4); // list + (blank, 2 headers, total)
 
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      return makeAlmostBlankRow(String.format("Samples Received This Month (%s - %s)", start, end));
+      return makeSectionTitleRow(String.format("Samples Received This Month (%s - %s)", start, end));
     }
     rowNum -= 2;
 
-    row = maybeInList(TimePoint.RANDOMIZATION.getKey(), labelListLong, thisMonthRandom, rowNum);
+    row = getRowsForSection(TimePoint.RANDOMIZATION.getKey(), labelListLong, thisMonthRandom, rowNum);
     if (row.length != 0) return row;
     rowNum -= (thisMonthRandom.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList(TimePoint.SIX.getKey(), labelListShort, thisMonthSix, rowNum);
+    row = getRowsForSection(TimePoint.SIX.getKey(), labelListShort, thisMonthSix, rowNum);
     if (row.length != 0) return row;
     rowNum -= (thisMonthSix.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList(TimePoint.TWELVE.getKey(), labelListLong, thisMonthTwelve, rowNum);
+    row = getRowsForSection(TimePoint.TWELVE.getKey(), labelListLong, thisMonthTwelve, rowNum);
     if (row.length != 0) return row;
     rowNum -= (thisMonthTwelve.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList(TimePoint.EIGHTEEN.getKey(), labelListShort, thisMonthEighteen, rowNum);
+    row = getRowsForSection(TimePoint.EIGHTEEN.getKey(), labelListShort, thisMonthEighteen, rowNum);
     if (row.length != 0) return row;
     rowNum -= (thisMonthEighteen.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList(TimePoint.TWENTY_FOUR.getKey(), labelListLong, thisMonthTwentyFour, rowNum);
+    row = getRowsForSection(TimePoint.TWENTY_FOUR.getKey(), labelListLong, thisMonthTwentyFour, rowNum);
     if (row.length != 0) return row;
     rowNum -= (thisMonthTwentyFour.size() + 4); // list + (blank, 2 headers, total)
 
-    row = maybeInList("Tissue", labelListSlides, thisMonthSlides, rowNum);
+    row = getRowsForSection("Tissue", labelListSlides, thisMonthSlides, rowNum);
     if (row.length != 0) return row;
     rowNum -= (thisMonthSlides.size() + 4); // list + (blank, 2 headers, total)
 
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      return makeAlmostBlankRow(String.format("Total Inventory Available (%s)", new SimpleDateFormat(DATE_FORMAT).format(new Date())));
+      return makeSectionTitleRow(String.format("Total Inventory Available (%s)", new SimpleDateFormat(DATE_FORMAT).format(new Date())));
     }
     rowNum -= 2;
 
-    row = maybeInList("Total in Inventory", labelListInventory, inventoryAvailable, rowNum);
+    row = getRowsForSection("Total in Inventory", labelListInventory, inventoryAvailable, rowNum);
     if (row.length != 0) return row;
     rowNum -= (inventoryAvailable.size() + 4); // list + (blank, 2 headers, total)
 
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      String[] blank = makeBlankRow();
-      blank[0] = "Samples with mismatched alias and cryovial/slide number";
-      return blank;
+      return makeSectionTitleRow("Samples with mismatched alias and cryovial/slide number");
     }
 
-    row = maybeSampleAlias(barcodeAndNameCodingMismatch, rowNum);
+    row = getRowOfAliasAndBarcode(barcodeAndNameCodingMismatch, rowNum);
     if (row.length != 0) return row;
     rowNum -= barcodeAndNameCodingMismatch.size();
 
@@ -517,14 +542,14 @@ public class PreciseReport extends TableReport {
       return blank;
     }
 
-    row = maybeSampleAlias(slidesWithoutSlideTimepoint, rowNum);
+    row = getRowOfAliasAndBarcode(slidesWithoutSlideTimepoint, rowNum);
     if (row.length != 0) return row;
     rowNum -= slidesWithoutSlideTimepoint.size();
 
     return makeBlankRow();
   }
 
-  private String[] maybeInList(String category, List<SampleLabel> labels, List<List<String>> list, int rowNum) {
+  private String[] getRowsForSection(String category, List<SampleLabel> labels, List<List<String>> list, int rowNum) {
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
@@ -542,10 +567,10 @@ public class PreciseReport extends TableReport {
     // do our subtraction of the list + totals outside this method, because changes here won't affect rowNum outside the method
   }
 
-  private String[] maybeSampleAlias(List<SampleDto> samples, int rowNum) {
+  private String[] getRowOfAliasAndBarcode(List<SampleDto> samples, int rowNum) {
     if (rowNum < samples.size()) {
       SampleDto sample = samples.get(rowNum);
-      String[] row = makeAlmostBlankRow(sample.getName());
+      String[] row = makeSectionTitleRow(sample.getName());
       row[1] = sample.getTubeBarcode();
       return row;
     }
@@ -561,9 +586,9 @@ public class PreciseReport extends TableReport {
   }
 
   private String[] generateZerosRow(String firstColumn, List<SampleLabel> labels) {
-    String[] zeros = makeAlmostBlankRow(firstColumn);
-    for (int i = 1; i < zeros.length; i++) {
-      zeros[i] = i <= 2 * labels.size() ? "0" : "";
+    String[] zeros = makeSectionTitleRow(firstColumn);
+    for (int i = 1; i <= 2 * labels.size(); i++) {
+      zeros[i] = "0";
     }
     return zeros;
   }
@@ -595,7 +620,7 @@ public class PreciseReport extends TableReport {
     return row;
   }
 
-  private String[] makeAlmostBlankRow(String firstCell) {
+  private String[] makeSectionTitleRow(String firstCell) {
     String[] blank = makeBlankRow();
     blank[0] = firstCell;
     return blank;
