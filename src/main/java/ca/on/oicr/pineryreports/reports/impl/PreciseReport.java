@@ -150,7 +150,7 @@ public class PreciseReport extends TableReport {
         return timePointCode == getTimesReceived(sample.getName());
       };
     }
-  };
+  }
 
   private static final String NUM_SAMPLES = "# Samples";
   private static final String NUM_CASES = "# Cases";
@@ -327,7 +327,7 @@ public class PreciseReport extends TableReport {
           List<SampleDto> sams = filter(possibleSamples, allFilters);
           List<String> row = new ArrayList<>();
           row.add(site.getKey());
-          row.addAll(getCounts(sams, allSamplesById, labelList));
+          row.addAll(getSampleAndCaseCountsForLabels(sams, allSamplesById, labelList));
           return row;
         })
         .collect(Collectors.toList());
@@ -341,7 +341,7 @@ public class PreciseReport extends TableReport {
    * @param labels the sample labels to
    * @return
    */
-  private List<String> getCounts(List<SampleDto> samples, Map<String, SampleDto> samplesById, List<SampleLabel> labels) {
+  private List<String> getSampleAndCaseCountsForLabels(List<SampleDto> samples, Map<String, SampleDto> samplesById, List<SampleLabel> labels) {
     return labels.stream()
         .map(label -> getSampleAndCaseCounts(samples, Arrays.asList(label.predicate()), samplesById))
         .flatMap(Collection::stream)
