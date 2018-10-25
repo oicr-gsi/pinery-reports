@@ -26,6 +26,7 @@ import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
+import ca.on.oicr.pineryreports.reports.impl.PreciseReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.SlideReport;
@@ -115,6 +116,7 @@ public class Main {
                 + "donor, "
                 + "sequencing, "
                 + "octane, "
+                + "precise, "
                 + "receipt-missing, "
                 + "slide, "
                 + "libraries-billing, "
@@ -171,6 +173,8 @@ public class Main {
       return new BisqueProjectsStatusReport();
     case GazpachoProjectStatusReport.REPORT_NAME:
       return new GazpachoProjectStatusReport();
+    case PreciseReport.REPORT_NAME:
+      return new PreciseReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }

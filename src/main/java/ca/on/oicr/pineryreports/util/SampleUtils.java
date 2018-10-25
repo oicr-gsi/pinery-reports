@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
@@ -157,7 +159,25 @@ public class SampleUtils {
   }
 
   public static Predicate<SampleDto> byNonIlluminaLibrary() {
-    return dto -> isNonIlluminaLibrary(dto);
+    return SampleUtils::isNonIlluminaLibrary;
+  }
+
+  public static final Predicate<SampleDto> withSlidesRemaining = slide -> {
+    Integer slides = getIntAttribute(ATTR_SLIDES, slide);
+    Integer discards = getIntAttribute(ATTR_DISCARDS, slide);
+    if (slides == null) {
+      throw new IllegalArgumentException("Sample does not seem to be a slide");
+    }
+    if (discards == null) {
+      return slides > 0;
+    }
+    return slides > discards;
+  };
+
+  public static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples) {
+    return samples.stream()
+        .filter(sample -> !"EMPTY".equals(sample.getStorageLocation()))
+        .collect(Collectors.toList());
   }
 
   /**
@@ -391,4 +411,17 @@ public class SampleUtils {
     return library.getPreparationKit().getName().contains("10X");
   }
 
+  public static Integer getTimesReceived(String sampleName) {
+    Matcher m = Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_(\\d+)-\\d+.*$").matcher(sampleName);
+    if (!m.matches() || m.group(1) == null) throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
+    return Integer.valueOf(m.group(1));
+  }
+
+  public static Integer getTubeNumber(String sampleName) {
+    Matcher m = Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_\\d+-(\\d+).*$").matcher(sampleName);
+    if (!m.matches() || m.group(1) == null) throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
+    return Integer.valueOf(m.group(1));
+  }
+
+  private static final String NAME_SEGMENT_IDENTITY = "^[A-Z0-9]{3,5}_\\d+";
 }

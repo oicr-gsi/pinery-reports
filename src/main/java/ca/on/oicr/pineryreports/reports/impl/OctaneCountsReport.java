@@ -424,25 +424,7 @@ public class OctaneCountsReport extends TableReport {
   private static Predicate<SampleDto> byStain(String stain) {
     return slide -> stain == null ? getAttribute(ATTR_STAIN, slide) == null : stain.equals(getAttribute(ATTR_STAIN, slide));
   }
-  
-  private static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples) {
-    return samples.stream()
-        .filter(sample -> !"EMPTY".equals(sample.getStorageLocation()))
-        .collect(Collectors.toList());
-  }
-  
-  private final Predicate<SampleDto> withSlidesRemaining = slide -> {
-    Integer slides = getIntAttribute(ATTR_SLIDES, slide);
-    Integer discards = getIntAttribute(ATTR_DISCARDS, slide);
-    if (slides == null) {
-      throw new IllegalArgumentException("Sample does not seem to be a slide");
-    }
-    if (discards == null) {
-      return slides > 0;
-    }
-    return slides > discards;
-  };
-  
+
   /**
    * Find the number of unique identities amongst a set of new samples, excluding those with descendants created before the
    * report start date in another set of samples. For example, this can be used to find the number of Identities for which slides
