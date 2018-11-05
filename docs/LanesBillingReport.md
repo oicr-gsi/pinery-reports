@@ -1,6 +1,15 @@
 # Billing Lanes Report
 
-Originally written to provide a count of the projects run on each lane within the past month.
+Originally written to provide a count of the projects run by Genomics on each lane within the past month.
+
+This report makes a few assumptions:
+* It assumes that all TGL libraries run on NextSeq instruments don't need to be reported (these are run by TGL for TGL)
+* It assumes that all TGL libraries run on HiSeq/MiSeq instruments fall under the "TGL" project (a catch-all project, as 
+  these libraries are run by Genomics for TGL)
+* It assumes that all lanes that a) have no project, and b) have `UHN_HiSeqs` in the run path, fall under the "UHN" project
+  (a catch-all project to define lanes that Genomics runs for UHN, but has no knowledge of any sample details) 
+* It assumes that all lanes for which there is no sample information (`UHN` or `NoProject` lanes) are DNA lanes
+
 This report provides four sections:
 * Completed runs: 
     * Number (and type) of lanes run per project & sequencer model & read lengths

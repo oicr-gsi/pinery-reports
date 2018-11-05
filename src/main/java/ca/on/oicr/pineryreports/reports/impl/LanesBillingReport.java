@@ -230,12 +230,12 @@ public class LanesBillingReport extends TableReport {
         if (lane.getSamples() == null) {
           // some NextSeq lanes will be listed as empty because the flowcell outputs 4 lanes
           // but it's only possible to add one pool, so the lab only enters the first lane into LIMS.
-          if ("NextSeq 550".equals(instrumentModel) && laneNumber != 1) continue;
+          if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1) continue;
 
           // some lanes without libraries come from sequencing done at UHN, and are rsynced into a folder called "UHN_HiSeqs".
           // we want to distinguish them from the "NoProject" lanes because we know why the UHN lanes have no libraries
           if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
-            DetailedObject uhn = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "UHN_HiSeqs",
+            DetailedObject uhn = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "UHN",
                 BigDecimal.ONE, DNA_LANE);
             detailedData.add(uhn);
             addSummaryData(summaryData, uhn);
@@ -252,17 +252,20 @@ public class LanesBillingReport extends TableReport {
         }
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = samplesById.get(sam.getId());
+          // reject if it's a TGL dilution on a NextSeq ("TGL for TGL")
+          if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL)) continue;
+
           if (isRnaLibrary(dilution, samplesById)) {
             rnaInLane = true;
           } else {
             dnaInLane = true;
           }
-          if (projectsInLane.containsKey(dilution.getProjectName())) {
+          if (projectsInLane.containsKey(processProjectName(dilution.getProjectName()))) {
             // increment project libraries
-            projectsInLane.merge(dilution.getProjectName(), 1, Integer::sum);
+            projectsInLane.merge(processProjectName(dilution.getProjectName()), 1, Integer::sum);
           } else {
             // add project with library to map
-            projectsInLane.put(dilution.getProjectName(), 1);
+            projectsInLane.put(processProjectName(dilution.getProjectName()), 1);
           }
         }
         String laneContents = dnaInLane 
@@ -281,6 +284,16 @@ public class LanesBillingReport extends TableReport {
     return new ReportObject(detailedData, summaryData);
   }
   
+  private static final String TGL = "TGL";
+
+  /**
+   * Some project names need to be processed (like the TGL projects, which should all be reported as one project)
+   */
+  private String processProjectName(String projectName) {
+    if (projectName.startsWith(TGL)) return TGL;
+    return projectName;
+  }
+
   private void addSummaryData(Map<String, Map<String, BigDecimal>> summary, DetailedObject newReport) {
     String summaryKey = getSummaryKey(newReport);
     if (summary.containsKey(summaryKey)) {
@@ -355,12 +368,12 @@ public class LanesBillingReport extends TableReport {
   @Override
   protected int getRowCount() {
     return completed.getDetailedData().size()
-        + (completed.getSummaryAsList().isEmpty() ? 0 : 2)
+        + 3 // blank, "Detailed List (Lanes Completed)", headers
         + completed.getSummaryAsList().size()
-        + (failed.getDetailedData().isEmpty() ? 0 : 2)
-        + failed.getDetailedData().size()
-        + (failed.getSummaryAsList().isEmpty() ? 0 : 2)
-        + failed.getSummaryAsList().size();
+        + 3 // blank, "Summary (Lanes Failed)", headers
+        + failed.getSummaryAsList().size()
+        + 3 // blank, "Detailed List (Lanes Failed)", headers
+        + failed.getDetailedData().size();
   }
 
   @Override
@@ -371,6 +384,11 @@ public class LanesBillingReport extends TableReport {
     }
     rowNum -= completed.getSummaryAsList().size();
     
+    if (rowNum == 0) {
+      return makeHeadingRow(Arrays.asList("Detailed Breakdown (Completed Lanes)"));
+    }
+    rowNum -= 1;
+
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
@@ -384,17 +402,26 @@ public class LanesBillingReport extends TableReport {
     rowNum -= completed.getDetailedData().size();
     
     if (rowNum == 0) {
+      return makeHeadingRow(Arrays.asList("Summary (Failed Lanes)"));
+    }
+    rowNum -= 1;
+
+    if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
       return makeHeadingRow(getColumns().stream().map(ColumnDefinition::getHeading).collect(Collectors.toList()));
     }
     rowNum -= 2;
-    
     if (rowNum < failed.getSummaryAsList().size()) {
       Map.Entry<String, Map<String, BigDecimal>> failedSummary = failed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(failedSummary);
     }
     rowNum -= failed.getSummaryAsList().size();
+    
+    if (rowNum == 0) {
+      return makeHeadingRow(Arrays.asList("Detailed Breakdown (Failed Lanes)"));
+    }
+    rowNum -= 1;
     
     if (rowNum == 0) {
       return makeBlankRow();
