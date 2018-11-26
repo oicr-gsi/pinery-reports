@@ -273,6 +273,7 @@ public class BisqueProjectsStatusReport extends TableReport {
           // want only completed libraries for now
           if (RUN_FAILED.equals(run.getState())) continue;
           SampleDto dilution = allSamplesById.get(sam.getId());
+          SampleDto library = getParent(dilution, allSamplesById);
           if (isNonIlluminaLibrary(dilution)) {
             seqdLibsByCategory.get(COUNT_CATEGORY_NON_ILL_SEQD).get("All").add(dilution);
             continue;
@@ -280,7 +281,7 @@ public class BisqueProjectsStatusReport extends TableReport {
           String code = getUpstreamAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dilution, allSamplesById);
           if (code == null) throw new IllegalArgumentException("Dilution " + dilution.getName() + " has no library design code in hierarchy");
           if (isRnaLibrary(dilution, allSamplesById)) {
-            if (is10XLibrary(dilution, allSamplesById)) {
+            if (is10XLibrary(library, allSamplesById)) {
               // RNA, 10X
               assignLibraryByTissueType(dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_RNA_10X_SEQD));
             } else {
@@ -288,7 +289,7 @@ public class BisqueProjectsStatusReport extends TableReport {
               assignLibraryByTissueType(dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_RNA_SEQD));
             }
           } else {
-            if (is10XLibrary(dilution, allSamplesById)) {
+            if (is10XLibrary(library, allSamplesById)) {
               // DNA, 10X
               assignLibraryByTissueType(dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_DNA_10X_SEQD));
             } else if (LIBRARY_DESIGN_WG.equals(code)) {
