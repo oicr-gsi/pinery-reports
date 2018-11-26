@@ -236,16 +236,16 @@ public class PreciseReport extends TableReport {
         bySampleCategory(SAMPLE_CATEGORY_TISSUE_PROCESSING));
 
     thisMonthRandom = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
-        TimePoint.RANDOMIZATION.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+        TimePoint.RANDOMIZATION.predicate(), byReceivedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     thisMonthSix = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort,
-        TimePoint.SIX.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+        TimePoint.SIX.predicate(), byReceivedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     thisMonthTwelve = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
-        TimePoint.TWELVE.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+        TimePoint.TWELVE.predicate(), byReceivedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     thisMonthEighteen = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListShort,
-        TimePoint.EIGHTEEN.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+        TimePoint.EIGHTEEN.predicate(), byReceivedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     thisMonthTwentyFour = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
-        TimePoint.TWENTY_FOUR.predicate(), byCreatedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
-    thisMonthSlides = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides, byCreatedBetween(start, end),
+        TimePoint.TWENTY_FOUR.predicate(), byReceivedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthSlides = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides, byReceivedBetween(start, end),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE_PROCESSING));
 
     inventoryAvailable = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListInventory, byNotEmpty);
