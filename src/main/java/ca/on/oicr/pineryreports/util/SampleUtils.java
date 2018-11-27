@@ -68,6 +68,7 @@ public class SampleUtils {
   public static final String LIBRARY_DESIGN_CH = "CH";
   public static final String LIBRARY_DESIGN_AS = "AS";
   public static final String LIBRARY_DESIGN_BS = "BS";
+  public static final String LIBRARY_DESIGN_SC = "SC";
   // RNA Library design codes
   public static final String LIBRARY_DESIGN_MR = "MR";
   public static final String LIBRARY_DESIGN_SM = "SM";
@@ -375,7 +376,7 @@ public class SampleUtils {
       throw new IllegalArgumentException("Provided sample " + library.getName() + " is not a library");
     }
     for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
-      if (current.getSampleType().contains(LIBRARY) && !current.getSampleType().contains("Seq")) {
+      if (current.getSampleType().contains(LIBRARY) && current.getSampleType().contains("Seq")) {
         continue;
       }
       String libraryDesignCode = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, current);
