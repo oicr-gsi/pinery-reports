@@ -46,7 +46,7 @@ public class LanesBillingReport extends TableReport {
     private final String runEndDate;
     private final String runName;
     private final String runStatus;
-    private final String readLengths;
+    private final String sequencingParameters;
     
     public DetailedObject(RunDto run, String instrumentName, String instrumentModel, String laneNumber, String project,
         BigDecimal libsPercent, String laneContents) {
@@ -59,7 +59,7 @@ public class LanesBillingReport extends TableReport {
       this.projLibsPercent = libsPercent;
       this.runStatus = run.getState();
       this.laneContents = laneContents;
-      this.readLengths = formatReadLengths(run.getRunBasesMask());
+      this.sequencingParameters = extractSequencingParameters(run);
     }
 
     public String getInstrumentModel() {
@@ -102,18 +102,30 @@ public class LanesBillingReport extends TableReport {
       return runStatus;
     }
     
-    public String getReadLengths() {
-      return readLengths;
+    public String getSequencingParameters() {
+      return sequencingParameters;
     }
 
-    private String formatReadLengths(String runBasesMask) {
-      // format: y#,I#?,y#
-      // We only care about the y# parts; the I# parts are optional and indicate indices
-      if (runBasesMask == null || "".equals(runBasesMask)) return "";
-      return Arrays.stream(runBasesMask.split(","))
-          .filter(read -> read.startsWith("y"))
-          .map(read -> read.substring(1))
-          .collect(Collectors.joining("_"));
+    private static String extractSequencingParameters(RunDto run) {
+      if (run.getSequencingParameters() == null || run.getSequencingParameters().startsWith("Custom")) {
+        // use runBasesMask
+        // format: y#,I#?,y#
+        // We only care about the y# pars; the I# parts are optional and indicate indices
+        if (run.getRunBasesMask() == null || "".equals(run.getRunBasesMask())) return "";
+        List<String> reads = Arrays.stream(run.getRunBasesMask().split(","))
+            .filter(read -> read.startsWith("y")) // get only reads
+            .map(read -> read.substring(1)) // strip the "y"
+            .collect(Collectors.toList());
+        if (reads.size() == 1 || reads.size() == 2 && reads.get(0).equals(reads.get(1))) {
+          return String.format("%dx%s", reads.size(), reads.get(0));
+        } else if (reads.size() == 2) {
+          return String.format("%s-%s", reads.get(0), reads.get(1));
+        } else {
+          return "unknown";
+        }
+      } else {
+        return run.getSequencingParameters().replace("×", "x");
+      }
     }
 
     private static final Comparator<DetailedObject> detailedComparator = (DetailedObject o1, DetailedObject o2) -> {
@@ -230,12 +242,12 @@ public class LanesBillingReport extends TableReport {
         if (lane.getSamples() == null) {
           // some NextSeq lanes will be listed as empty because the flowcell outputs 4 lanes
           // but it's only possible to add one pool, so the lab only enters the first lane into LIMS.
-          if ("NextSeq 550".equals(instrumentModel) && laneNumber != 1) continue;
+          if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1) continue;
 
           // some lanes without libraries come from sequencing done at UHN, and are rsynced into a folder called "UHN_HiSeqs".
           // we want to distinguish them from the "NoProject" lanes because we know why the UHN lanes have no libraries
           if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
-            DetailedObject uhn = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "UHN_HiSeqs",
+            DetailedObject uhn = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "UHN",
                 BigDecimal.ONE, DNA_LANE);
             detailedData.add(uhn);
             addSummaryData(summaryData, uhn);
@@ -252,6 +264,9 @@ public class LanesBillingReport extends TableReport {
         }
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = samplesById.get(sam.getId());
+          // reject if it's a TGL dilution on a NextSeq ("TGL for TGL")
+          if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL)) continue;
+
           if (isRnaLibrary(dilution, samplesById)) {
             rnaInLane = true;
           } else {
@@ -281,10 +296,20 @@ public class LanesBillingReport extends TableReport {
     return new ReportObject(detailedData, summaryData);
   }
   
+  private static final String TGL = "TGL";
+
+  /**
+   * Some project names need to be processed (like the TGL projects, which should all be reported as one project)
+   */
+  private String processProjectName(String projectName) {
+    if (projectName.startsWith(TGL)) return TGL;
+    return projectName;
+  }
+
   private void addSummaryData(Map<String, Map<String, BigDecimal>> summary, DetailedObject newReport) {
     String summaryKey = getSummaryKey(newReport);
     if (summary.containsKey(summaryKey)) {
-      // increment lane number+type for this project+instrument+readLengths
+      // increment lane number+type for this project+instrument+sequencing parameters
       addSummaryLanes(summary.get(summaryKey), newReport.getLaneContents(), newReport.getProjLibsPercent());
     } else {
       // add new project+instrument and lane number+type
@@ -298,7 +323,7 @@ public class LanesBillingReport extends TableReport {
   }
 
   private String getSummaryKey(DetailedObject row) {
-    return row.getProject() + ":" + row.getInstrumentModel() + ":" + row.getReadLengths();
+    return processProjectName(row.getProject()) + "!" + row.getInstrumentModel() + "!" + row.getSequencingParameters();
   }
   
   private Map<String, BigDecimal> makeNewSummaryLanes(String laneType, BigDecimal laneCount) {
@@ -324,7 +349,7 @@ public class LanesBillingReport extends TableReport {
     return Arrays.asList(
         new ColumnDefinition("Project"),
         new ColumnDefinition("Instrument Model"),
-        new ColumnDefinition("Read Lengths"),
+        new ColumnDefinition("Sequencing Parameters"),
         new ColumnDefinition(DNA_LANE),
         new ColumnDefinition(RNA_LANE),
         new ColumnDefinition(MIXED_LANE),
@@ -341,7 +366,7 @@ public class LanesBillingReport extends TableReport {
         "Project",
         "Instrument Name",
         "Instrument Model",
-        "Read Lengths",
+        "Sequencing Parameters",
         "Run Status",
         "Run End Date",
         "Run Name",
@@ -355,12 +380,12 @@ public class LanesBillingReport extends TableReport {
   @Override
   protected int getRowCount() {
     return completed.getDetailedData().size()
-        + (completed.getSummaryAsList().isEmpty() ? 0 : 2)
+        + 3 // blank, "Detailed List (Lanes Completed)", headers
         + completed.getSummaryAsList().size()
-        + (failed.getDetailedData().isEmpty() ? 0 : 2)
-        + failed.getDetailedData().size()
-        + (failed.getSummaryAsList().isEmpty() ? 0 : 2)
-        + failed.getSummaryAsList().size();
+        + 3 // blank, "Summary (Lanes Failed)", headers
+        + failed.getSummaryAsList().size()
+        + 3 // blank, "Detailed List (Lanes Failed)", headers
+        + failed.getDetailedData().size();
   }
 
   @Override
@@ -374,9 +399,14 @@ public class LanesBillingReport extends TableReport {
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      return makeHeadingRow(getDetailedHeadings());
+      return makeHeadingRow(Arrays.asList("Detailed List (Completed Lanes)"));
     }
     rowNum -= 2;
+
+    if (rowNum == 0) {
+      return makeHeadingRow(getDetailedHeadings());
+    }
+    rowNum -= 1;
 
     if (rowNum < completed.getDetailedData().size()) {
       return makeDetailedRow(completed.getDetailedData().get(rowNum));
@@ -386,10 +416,14 @@ public class LanesBillingReport extends TableReport {
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      return makeHeadingRow(getColumns().stream().map(ColumnDefinition::getHeading).collect(Collectors.toList()));
+      return makeHeadingRow(Arrays.asList("Summary (Failed Lanes)"));
     }
     rowNum -= 2;
-    
+
+    if (rowNum == 0) {
+      return makeHeadingRow(getColumns().stream().map(ColumnDefinition::getHeading).collect(Collectors.toList()));
+    }
+    rowNum -= 1;
     if (rowNum < failed.getSummaryAsList().size()) {
       Map.Entry<String, Map<String, BigDecimal>> failedSummary = failed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(failedSummary);
@@ -399,9 +433,14 @@ public class LanesBillingReport extends TableReport {
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      return makeHeadingRow(getDetailedHeadings());
+      return makeHeadingRow(Arrays.asList("Detailed List (Failed Lanes)"));
     }
     rowNum -= 2;
+    
+    if (rowNum == 0) {
+      return makeHeadingRow(getDetailedHeadings());
+    }
+    rowNum -= 1;
     
     return makeDetailedRow(failed.getDetailedData().get(rowNum));
   }
@@ -411,12 +450,12 @@ public class LanesBillingReport extends TableReport {
     int i = -1;
     String summaryKey = obj.getKey();
 
-    String[] key = summaryKey.split(":");
+    String[] key = summaryKey.split("!");
     // Project
     row[++i] = key[0];
     // Instrument Model
     row[++i] = key[1];
-    // Read Lengths
+    // Sequencing Parameters
     row[++i] = key.length > 2 ? key[2] : "";
     // DNA Lanes
     row[++i] = obj.getValue().get(DNA_LANE).toPlainString();
@@ -455,8 +494,8 @@ public class LanesBillingReport extends TableReport {
     row[++i] = obj.getInstrumentName();
     // Instrument Model
     row[++i] = obj.getInstrumentModel();
-    // Read Lengths
-    row[++i] = obj.getReadLengths();
+    // Sequencing Parameters
+    row[++i] = obj.getSequencingParameters();
     // Run Status
     row[++i] = obj.getRunStatus();
     // Run End Date
