@@ -48,6 +48,9 @@ public class LanesBillingReport extends TableReport {
     private final String runStatus;
     private final String sequencingParameters;
     
+    /**
+     * novaSeqLanesCount should be 0 for non-NovaSeq runs, since there are no NovaSeq lanes
+     */
     public DetailedObject(RunDto run, String instrumentName, String instrumentModel, int novaSeqLanesCount, String laneNumber,
         String project,
         BigDecimal libsPercent, String laneContents) {
