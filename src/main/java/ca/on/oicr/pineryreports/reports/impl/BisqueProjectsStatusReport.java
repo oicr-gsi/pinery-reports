@@ -3,7 +3,11 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +27,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import com.google.common.collect.Sets;
 
@@ -177,8 +183,11 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   protected int columnCount = 0;
 
-  private static final Option OPT_PROJECT = CommonOptions.project(true);
+  private static final Option OPT_PROJECT = CommonOptions.project(false);
   public static final String REPORT_NAME = "projects-status";
+
+  // right now this needs to be the live version, as the flatfile version doesn't have the active attribute on projects
+  private static final String PINERY_PROJECTS_ADDRESS = "http://seqbio-pinery-prod-www.hpc.oicr.on.ca:8080/pinery-ws-miso-live/sample/projects";
 
   private List<Map.Entry<String, Map<String, List<Count>>>> countsByProjectAsList; // String project, List<Count> all counts
 
@@ -194,8 +203,57 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
-    this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
+    if (cmd.hasOption(OPT_PROJECT.getLongOpt())) {
+      List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
+      this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
+    } else {
+      try {
+        this.projects = getActiveProjectsFromPinery();
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Failed to retrieve active projects list from Pinery");
+      }
+    }
+  }
+
+  private Set<String> getActiveProjectsFromPinery() throws IOException {
+    try {
+      String response = getProjectsFromPinery();
+      JSONArray json = new JSONArray(response);
+      Set<String> activeProjects = new HashSet<>();
+      for (int i = 0; i < json.length(); i++) {
+        JSONObject project = json.getJSONObject(i);
+        if (project.getBoolean("active")) {
+          activeProjects.add(project.getString("name"));
+        }
+      }
+      return activeProjects;
+    } catch (IOException e) {
+      throw new IOException("Error getting Pinery projects endpoint", e);
+    }
+  }
+
+  private String getProjectsFromPinery() throws IOException {
+    URL pineryUrl = new URL(PINERY_PROJECTS_ADDRESS);
+    HttpURLConnection connection = (HttpURLConnection) pineryUrl.openConnection();
+    connection.setConnectTimeout(15000);
+    connection.setReadTimeout(15000);
+
+    int status = connection.getResponseCode();
+    if (status != 200) {
+      throw new IllegalStateException(String.format("Got unexpected HTTP status %d when requesting Pinery projects", status));
+    }
+    BufferedReader in = new BufferedReader(
+        new InputStreamReader(connection.getInputStream()));
+    String inputLine;
+    StringBuffer response = new StringBuffer();
+
+    while ((inputLine = in.readLine()) != null) {
+      response.append(inputLine);
+    }
+    in.close();
+    connection.disconnect();
+
+    return response.toString();
   }
 
   @Override
