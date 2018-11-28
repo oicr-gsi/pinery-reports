@@ -48,7 +48,11 @@ public class LanesBillingReport extends TableReport {
     private final String runStatus;
     private final String sequencingParameters;
     
-    public DetailedObject(RunDto run, String instrumentName, String instrumentModel, String laneNumber, String project,
+    /**
+     * novaSeqLanesCount should be 0 for non-NovaSeq runs, since there are no NovaSeq lanes
+     */
+    public DetailedObject(RunDto run, String instrumentName, String instrumentModel, int novaSeqLanesCount, String laneNumber,
+        String project,
         BigDecimal libsPercent, String laneContents) {
       this.runEndDate = removeTime(run.getCompletionDate());
       this.instrumentName = instrumentName;
@@ -59,7 +63,7 @@ public class LanesBillingReport extends TableReport {
       this.projLibsPercent = libsPercent;
       this.runStatus = run.getState();
       this.laneContents = laneContents;
-      this.sequencingParameters = extractSequencingParameters(run);
+      this.sequencingParameters = extractSequencingParameters(run, novaSeqLanesCount);
     }
 
     public String getInstrumentModel() {
@@ -106,7 +110,8 @@ public class LanesBillingReport extends TableReport {
       return sequencingParameters;
     }
 
-    private static String extractSequencingParameters(RunDto run) {
+    private static String extractSequencingParameters(RunDto run, int novaSeqLanesCount) {
+      String maybeNovaSeqFlowcell = (novaSeqLanesCount > 0 ? String.format("S%d ", novaSeqLanesCount) : "");
       if (run.getSequencingParameters() == null || run.getSequencingParameters().startsWith("Custom")) {
         // use runBasesMask
         // format: y#,I#?,y#
@@ -117,9 +122,9 @@ public class LanesBillingReport extends TableReport {
             .map(read -> read.substring(1)) // strip the "y"
             .collect(Collectors.toList());
         if (reads.size() == 1 || reads.size() == 2 && reads.get(0).equals(reads.get(1))) {
-          return String.format("%dx%s", reads.size(), reads.get(0));
+          return String.format("%s%dx%s", maybeNovaSeqFlowcell, reads.size(), reads.get(0));
         } else if (reads.size() == 2) {
-          return String.format("%s-%s", reads.get(0), reads.get(1));
+          return String.format("%s%s-%s", maybeNovaSeqFlowcell, reads.get(0), reads.get(1));
         } else {
           return "unknown";
         }
@@ -233,6 +238,8 @@ public class LanesBillingReport extends TableReport {
       String instrumentName = getInstrumentName(run.getInstrumentId(), instrumentsById);
       String instrumentModel = getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById);
       if (run.getPositions() == null) continue;
+      int novaSeqLanesCount = 0;
+      if (NOVASEQ.equals(instrumentModel)) novaSeqLanesCount = run.getPositions().size();
       for (RunDtoPosition lane : run.getPositions()) {
         int laneNumber = lane.getPosition();
         int samplesInLane = lane.getSamples() == null ? 0 : lane.getSamples().size();
@@ -247,7 +254,8 @@ public class LanesBillingReport extends TableReport {
           // some lanes without libraries come from sequencing done at UHN, and are rsynced into a folder called "UHN_HiSeqs".
           // we want to distinguish them from the "NoProject" lanes because we know why the UHN lanes have no libraries
           if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
-            DetailedObject uhn = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "UHN",
+            DetailedObject uhn = new DetailedObject(run, instrumentName, instrumentModel, novaSeqLanesCount, Integer.toString(laneNumber),
+                "UHN",
                 BigDecimal.ONE, DNA_LANE);
             detailedData.add(uhn);
             addSummaryData(summaryData, uhn);
@@ -256,7 +264,8 @@ public class LanesBillingReport extends TableReport {
 
           // legitimately empty lanes should still be reported for billing purposes (may be run as Sequencing as a service)
           // reported as DNA by default, though Pinery has no knowledge of the actual contents
-          DetailedObject noProject = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), "NoProject",
+          DetailedObject noProject = new DetailedObject(run, instrumentName, instrumentModel, novaSeqLanesCount,
+              Integer.toString(laneNumber), "NoProject",
               BigDecimal.ONE, DNA_LANE);
           detailedData.add(noProject);
           addSummaryData(summaryData, noProject);
@@ -286,7 +295,8 @@ public class LanesBillingReport extends TableReport {
         
         for (Map.Entry<String, Integer> entry : projectsInLane.entrySet()) {
           BigDecimal projectPercent = getPercentProjectInLane(entry.getValue(), samplesInLane);
-          DetailedObject newReport = new DetailedObject(run, instrumentName, instrumentModel, Integer.toString(laneNumber), entry.getKey(),
+          DetailedObject newReport = new DetailedObject(run, instrumentName, instrumentModel, novaSeqLanesCount,
+              Integer.toString(laneNumber), entry.getKey(),
               projectPercent, laneContents);
           detailedData.add(newReport);
           addSummaryData(summaryData, newReport);

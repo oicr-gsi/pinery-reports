@@ -81,6 +81,7 @@ public class SampleUtils {
   public static final String LIBRARY_DESIGN_NN = "NN";
 
   public static final String NEXTSEQ = "NextSeq 550";
+  public static final String NOVASEQ = "Illumina NovaSeq 6000";
 
   public static Map<String, SampleDto> mapSamplesById(Collection<SampleDto> samples) {
     return samples.stream()
