@@ -3,11 +3,7 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,10 +24,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Sets;
 
 import ca.on.oicr.pinery.client.HttpResponseException;
@@ -43,6 +35,7 @@ import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
+import ca.on.oicr.ws.dto.SampleProjectDto;
 
 public class BisqueProjectsStatusReport extends TableReport {
 
@@ -188,9 +181,6 @@ public class BisqueProjectsStatusReport extends TableReport {
   private static final Option OPT_PROJECT = CommonOptions.project(false);
   public static final String REPORT_NAME = "projects-status";
 
-  // right now this needs to be the live version, as the flatfile version doesn't have the active attribute on projects
-  private static final String PINERY_PROJECTS_ADDRESS = "http://seqbio-pinery-prod-www.hpc.oicr.on.ca:8080/pinery-ws-miso-live/sample/projects";
-
   private List<Map.Entry<String, Map<String, List<Count>>>> countsByProjectAsList; // String project, List<Count> all counts
 
   @Override
@@ -208,57 +198,7 @@ public class BisqueProjectsStatusReport extends TableReport {
     if (cmd.hasOption(OPT_PROJECT.getLongOpt())) {
       List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
       this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
-    } else {
-      try {
-        this.projects = getActiveProjectsFromPinery();
-      } catch (IOException e) {
-        throw new IllegalArgumentException("Failed to retrieve active projects list from Pinery");
-      }
     }
-  }
-
-  private Set<String> getActiveProjectsFromPinery() throws IOException {
-    try {
-      String response = getProjectsFromPinery();
-      ObjectMapper mapper = new ObjectMapper();
-      JsonNode json = mapper.readTree(response);
-      ArrayNode array = (ArrayNode) json;
-      // JSONArray json = new JSONArray(response);
-      Set<String> activeProjects = new HashSet<>();
-      for (int i = 0; i < array.size(); i++) {
-        ObjectNode project = (ObjectNode) array.get(i);
-        if (project.get("active").asBoolean()) {
-          activeProjects.add(project.get("name").asText());
-        }
-      }
-      return activeProjects;
-    } catch (IOException e) {
-      throw new IOException("Error getting Pinery projects endpoint", e);
-    }
-  }
-
-  private String getProjectsFromPinery() throws IOException {
-    URL pineryUrl = new URL(PINERY_PROJECTS_ADDRESS);
-    HttpURLConnection connection = (HttpURLConnection) pineryUrl.openConnection();
-    connection.setConnectTimeout(15000);
-    connection.setReadTimeout(15000);
-
-    int status = connection.getResponseCode();
-    if (status != 200) {
-      throw new IllegalStateException(String.format("Got unexpected HTTP status %d when requesting Pinery projects", status));
-    }
-    BufferedReader in = new BufferedReader(
-        new InputStreamReader(connection.getInputStream()));
-    String inputLine;
-    StringBuffer response = new StringBuffer();
-
-    while ((inputLine = in.readLine()) != null) {
-      response.append(inputLine);
-    }
-    in.close();
-    connection.disconnect();
-
-    return response.toString();
   }
 
   @Override
@@ -268,6 +208,17 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
+    if (projects.isEmpty()) {
+      List<SampleProjectDto> projectDtos = pinery.getSampleProject().all();
+      projects = projectDtos.stream()
+          .filter(project -> project.isActive())
+          .map(project -> project.getName())
+          .collect(Collectors.toSet());
+      if (projects.isEmpty()) {
+        throw new IllegalArgumentException(
+            "Could not get list of projects: couldn't get from Pinery, and no list of projects was provided");
+      }
+    }
     List<SampleDto> allSamples = pinery.getSample().all();
     Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples);
     List<RunDto> allRuns = pinery.getSequencerRun().all();
