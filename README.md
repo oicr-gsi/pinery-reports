@@ -2,11 +2,12 @@
 
 [![Build Status](https://travis-ci.org/oicr-gsi/pinery-reports.svg)](https://travis-ci.org/oicr-gsi/pinery-reports)
 
-A Java app for generating regular reports based on Pinery data
+A Java app for generating regular reports based on [Pinery](https://github.com/oicr-gsi/pinery) data
 
 ## Build
 
 ```
+git checkout develop
 mvn clean install
 ```
 
@@ -27,7 +28,7 @@ java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r 
 
 ## Reports
 
-See report pages for additional options and examples:
+See [report pages](docs) for additional options and examples:
 
 * [GECCO Report](docs/GeccoReport.md)
 * [Stock Report](docs/StockReport.md)
