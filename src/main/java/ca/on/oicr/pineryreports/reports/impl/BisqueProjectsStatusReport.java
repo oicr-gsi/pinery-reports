@@ -27,9 +27,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Sets;
 
 import ca.on.oicr.pinery.client.HttpResponseException;
@@ -218,12 +220,15 @@ public class BisqueProjectsStatusReport extends TableReport {
   private Set<String> getActiveProjectsFromPinery() throws IOException {
     try {
       String response = getProjectsFromPinery();
-      JSONArray json = new JSONArray(response);
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode json = mapper.readTree(response);
+      ArrayNode array = (ArrayNode) json;
+      // JSONArray json = new JSONArray(response);
       Set<String> activeProjects = new HashSet<>();
-      for (int i = 0; i < json.length(); i++) {
-        JSONObject project = json.getJSONObject(i);
-        if (project.getBoolean("active")) {
-          activeProjects.add(project.getString("name"));
+      for (int i = 0; i < array.size(); i++) {
+        ObjectNode project = (ObjectNode) array.get(i);
+        if (project.get("active").asBoolean()) {
+          activeProjects.add(project.get("name").asText());
         }
       }
       return activeProjects;
