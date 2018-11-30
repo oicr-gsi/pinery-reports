@@ -5,7 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
-## [0.0.14]  2018-10-25
+### [1.0.0]  2018-11-30
+### Added:
+  * add release script
+  * add changelog
+### Changed:
+  * updated to Pinery 2.3.0
+  * `bisque`: get active projects from Pinery
+  * `lanes-billing`: show flowcell type for NovaSeq runs
+  * `lanes-billing`: display sequencing parameters
+### Fixed:
+  * `bisque`: fix categorizing libraries and dilutions
+  * `precise`: report on received (instead of created) this month
+
+# [0.0.14]  2018-10-25
 ### Added:
   * `precise`
   * `donor` (intended for GECCO project, but can be used for any project)
