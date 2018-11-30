@@ -20,6 +20,7 @@ import ca.on.oicr.pineryreports.reports.Report;
 import ca.on.oicr.pineryreports.reports.impl.BisqueProjectsStatusReport;
 import ca.on.oicr.pineryreports.reports.impl.DonorReport;
 import ca.on.oicr.pineryreports.reports.impl.DysReport;
+import ca.on.oicr.pineryreports.reports.impl.FnsLibrariesAndSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.GazpachoProjectStatusReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
@@ -111,20 +112,21 @@ public class Main {
         .argName("name")
         .desc(
             "Report to generate {"
-                + "stock, "
-                + "gecco, "
                 + "donor, "
-                + "sequencing, "
+                + "dys, "
+                + "fns, "
+                + "gecco, "
+                + "lanes-billing, "
+                + "libraries-billing, "
+                + "location-missing, "
                 + "octane, "
                 + "precise, "
+                + "projects-status, "
                 + "receipt-missing, "
+                + "sequencing, "
                 + "slide, "
-                + "libraries-billing, "
-                + "lanes-billing, "
-                + "dys, "
-                + "tgl-libraries-run, "
-                + "location-missing, "
-                + "projects-status"
+                + "stock, "
+                + "tgl-libraries-run"
                 + "}")
         .build());
     opts.addOption(Option.builder("f")
@@ -175,6 +177,8 @@ public class Main {
       return new GazpachoProjectStatusReport();
     case PreciseReport.REPORT_NAME:
       return new PreciseReport();
+    case FnsLibrariesAndSequencingReport.REPORT_NAME:
+      return new FnsLibrariesAndSequencingReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }
