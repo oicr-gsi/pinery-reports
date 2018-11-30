@@ -15,7 +15,8 @@ This reports on the total numbers of samples and libraries across projects broke
 
 ## Options
 
-This report requires a comma-separated list of projects (short names) to report on.
+This report may accept a comma-separated list of projects (short names) to report on. 
+If no list of projects is provided, the report will query Pinery (live) for a list of active projects, and will report on these.
 
 ## Generate
 

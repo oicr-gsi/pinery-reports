@@ -35,6 +35,7 @@ import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
+import ca.on.oicr.ws.dto.SampleProjectDto;
 
 public class BisqueProjectsStatusReport extends TableReport {
 
@@ -177,7 +178,7 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   protected int columnCount = 0;
 
-  private static final Option OPT_PROJECT = CommonOptions.project(true);
+  private static final Option OPT_PROJECT = CommonOptions.project(false);
   public static final String REPORT_NAME = "projects-status";
 
   private List<Map.Entry<String, Map<String, List<Count>>>> countsByProjectAsList; // String project, List<Count> all counts
@@ -194,8 +195,10 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
-    this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
+    if (cmd.hasOption(OPT_PROJECT.getLongOpt())) {
+      List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
+      this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
+    }
   }
 
   @Override
@@ -205,6 +208,17 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
+    if (projects.isEmpty()) {
+      List<SampleProjectDto> projectDtos = pinery.getSampleProject().all();
+      projects = projectDtos.stream()
+          .filter(project -> project.isActive())
+          .map(project -> project.getName())
+          .collect(Collectors.toSet());
+      if (projects.isEmpty()) {
+        throw new IllegalArgumentException(
+            "Could not get list of projects: couldn't get from Pinery, and no list of projects was provided");
+      }
+    }
     List<SampleDto> allSamples = pinery.getSample().all();
     Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples);
     List<RunDto> allRuns = pinery.getSequencerRun().all();
