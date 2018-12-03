@@ -23,14 +23,15 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
 
-public class FnsLibrariesAndSequencingReport extends TableReport {
+public class LibrariesSequencingReport extends TableReport {
   
-  private static class FnsReportObject {
+  private static class ReportObject {
     private final String libraryName;
     private final String libraryType;
     private final String receivedDate;
@@ -38,7 +39,7 @@ public class FnsLibrariesAndSequencingReport extends TableReport {
     private final String externalName;
     private final Set<RunDto> runs = new HashSet<>();
     
-    public FnsReportObject(SampleDto library, SampleDto identity) {
+    public ReportObject(SampleDto library, SampleDto identity) {
       this.libraryName = library.getName();
       this.libraryType = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, library);
       this.receivedDate = getAttribute(ATTR_RECEIVE_DATE, library) == null ? getAttribute(ATTR_CREATION_DATE, library)
@@ -76,7 +77,8 @@ public class FnsLibrariesAndSequencingReport extends TableReport {
     }
   }
   
-  public static final String REPORT_NAME = "fns";
+  public static final String REPORT_NAME = "libraries-sequencing";
+  private static final Option OPT_PROJECT = CommonOptions.project(true);
 
   @Override
   public String getReportName() {
@@ -85,21 +87,22 @@ public class FnsLibrariesAndSequencingReport extends TableReport {
   
   @Override
   public Collection<Option> getOptions() {
-    return Sets.newHashSet();
+    return Sets.newHashSet(OPT_PROJECT);
   }
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-
+    this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
   }
 
   @Override
   public String getTitle() {
-    return "FNS Report";
+    return project + " Libraries Sequencing Report";
   }
   
-  private final Map<String, FnsReportObject> detailedData = new TreeMap<>();
-  private List<Map.Entry<String, FnsReportObject>> detailedList;
+  private final Map<String, ReportObject> detailedData = new TreeMap<>();
+  private List<Map.Entry<String, ReportObject>> detailedList;
+  private String project;
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {
@@ -122,13 +125,13 @@ public class FnsLibrariesAndSequencingReport extends TableReport {
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = samplesById.get(sam.getId());
           SampleDto library = getParent(dilution, samplesById);
-          if (!library.getProjectName().equals("FNS")) {
+          if (!library.getProjectName().equals(project)) {
             continue;
           }
           SampleDto identity = getParent(library, SAMPLE_CATEGORY_IDENTITY, samplesById);
-          FnsReportObject lib;
+          ReportObject lib;
           if (detailedData.get(library.getName()) == null) {
-            lib = new FnsReportObject(library, identity);
+            lib = new ReportObject(library, identity);
           } else {
             lib = detailedData.get(library.getName());
           }
@@ -139,7 +142,7 @@ public class FnsLibrariesAndSequencingReport extends TableReport {
     }
   }
   
-  static final List<Map.Entry<String, FnsReportObject>> listify(Map<String, FnsReportObject> detailed) {
+  static final List<Map.Entry<String, ReportObject>> listify(Map<String, ReportObject> detailed) {
     // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet have one of those
     return new ArrayList<>(detailed.entrySet());
   }
@@ -164,7 +167,7 @@ public class FnsLibrariesAndSequencingReport extends TableReport {
   @Override
   protected String[] getRow(int rowNum) {
     String[] row = new String[getColumns().size()];
-    FnsReportObject obj = detailedList.get(rowNum).getValue();
+    ReportObject obj = detailedList.get(rowNum).getValue();
 
     int i = -1;
     row[++i] = obj.getLibraryName();

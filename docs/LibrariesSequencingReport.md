@@ -1,15 +1,18 @@
-# FNS Libraries And Sequencing Report
+# Libraries Sequencing Report
 
 Written to give Karen a summary of all sequencing runs done on FNS libraries: https://jira.oicr.on.ca/browse/GR-681
+Note that failed runs are not included.
 
 ## Options
 
-(none)
+| Option | Required | Description | Example |
+|--------|----------|-------------|---------|
+| project | yes | project to report on | --project=FNS |
 
 ## Generate
 
 ```
-java -jar target/pinery-reports-0.0.15-SNAPSHOT-jar-with-dependencies.jar -s http://seqbio-pinery-prod-www.hpc.oicr.on.ca:8080/pinery-ws-miso -r fns
+java -jar target/pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r libraries-sequencing -o <output-filename> --project=FNS
 ```
 
 ## Example

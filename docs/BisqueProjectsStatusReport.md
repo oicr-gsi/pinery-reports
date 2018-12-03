@@ -21,6 +21,7 @@ If no list of projects is provided, the report will query Pinery (live) for a li
 ## Generate
 
 CSV (default format):
+
 ```
 java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r projects-status -o <output-filename> --project=<list,of,projects>
 ```

@@ -20,11 +20,11 @@ import ca.on.oicr.pineryreports.reports.Report;
 import ca.on.oicr.pineryreports.reports.impl.BisqueProjectsStatusReport;
 import ca.on.oicr.pineryreports.reports.impl.DonorReport;
 import ca.on.oicr.pineryreports.reports.impl.DysReport;
-import ca.on.oicr.pineryreports.reports.impl.FnsLibrariesAndSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.GazpachoProjectStatusReport;
 import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
 import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
 import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
+import ca.on.oicr.pineryreports.reports.impl.LibrariesSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.PreciseReport;
@@ -114,10 +114,10 @@ public class Main {
             "Report to generate {"
                 + "donor, "
                 + "dys, "
-                + "fns, "
                 + "gecco, "
                 + "lanes-billing, "
                 + "libraries-billing, "
+                + "libraries-sequencing, "
                 + "location-missing, "
                 + "octane, "
                 + "precise, "
@@ -177,8 +177,8 @@ public class Main {
       return new GazpachoProjectStatusReport();
     case PreciseReport.REPORT_NAME:
       return new PreciseReport();
-    case FnsLibrariesAndSequencingReport.REPORT_NAME:
-      return new FnsLibrariesAndSequencingReport();
+    case LibrariesSequencingReport.REPORT_NAME:
+      return new LibrariesSequencingReport();
     default:
       throw new ParseException("Invalid report requested: " + reportName);
     }
