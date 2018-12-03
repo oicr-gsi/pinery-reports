@@ -160,6 +160,8 @@ public class PreciseReport extends TableReport {
   private final List<SampleLabel> labelListShort = Arrays.asList(SampleLabel.SERUM, SampleLabel.MITOMIC, SampleLabel.PLASMA,
       SampleLabel.BUFFY);
   private final List<SampleLabel> labelListSlides = Arrays.asList(SampleLabel.BIOPSY_SLIDES, SampleLabel.RP_SLIDES);
+  private final List<SampleLabel> labelListDistributed = Arrays.asList(SampleLabel.MITOMIC, SampleLabel.MIR, SampleLabel.MDX,
+      SampleLabel.BIOPSY_SLIDES, SampleLabel.RP_SLIDES);
   private final List<SampleLabel> labelListInventory = Arrays.asList(SampleLabel.values());
 
   private List<List<String>> toDateRandom;
@@ -174,6 +176,8 @@ public class PreciseReport extends TableReport {
   private List<List<String>> thisMonthEighteen;
   private List<List<String>> thisMonthTwentyFour;
   private List<List<String>> thisMonthSlides;
+  private List<List<String>> toDateDistributed;
+  private List<List<String>> thisMonthDistributed;
   private List<List<String>> inventoryAvailable;
   private List<SampleDto> barcodeAndNameCodingMismatch;
   private List<SampleDto> slidesWithoutSlideTimepoint;
@@ -234,6 +238,7 @@ public class PreciseReport extends TableReport {
         bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     toDateSlides = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides,
         bySampleCategory(SAMPLE_CATEGORY_TISSUE_PROCESSING));
+    toDateDistributed = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListDistributed, byDistributed());
 
     thisMonthRandom = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListLong,
         TimePoint.RANDOMIZATION.predicate(), byReceivedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
@@ -247,12 +252,13 @@ public class PreciseReport extends TableReport {
         TimePoint.TWENTY_FOUR.predicate(), byReceivedBetween(start, end), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     thisMonthSlides = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListSlides, byReceivedBetween(start, end),
         bySampleCategory(SAMPLE_CATEGORY_TISSUE_PROCESSING));
+    thisMonthDistributed = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListDistributed,
+        byDistributedBetween(start, end));
 
     inventoryAvailable = getDataForSingleTable(allPreciseSamples, allPreciseSamplesById, labelListInventory, byNotEmpty);
 
     barcodeAndNameCodingMismatch = filter(allPreciseSamples, byBarcodeTimesReceivedMismatch);
     slidesWithoutSlideTimepoint = filter(allPreciseSamples, byTimePointCodingMismatch);
-
   }
 
   /**
@@ -432,6 +438,8 @@ public class PreciseReport extends TableReport {
         + toDateTwentyFour.size()
         + 4 // total, blank, headers
         + toDateSlides.size()
+        + 4 // total, blank, headers
+        + toDateDistributed.size()
         + 5 // total, blank, this-month, headers
         + thisMonthRandom.size()
         + 4 // total, blank, headers
@@ -444,14 +452,15 @@ public class PreciseReport extends TableReport {
         + thisMonthTwentyFour.size()
         + 4 // total, blank, headers
         + thisMonthSlides.size()
+        + 4 // total, blank, headers
+        + thisMonthDistributed.size()
         + 5 // total, blank, inventory, headers
         + inventoryAvailable.size()
         + 4 // inventory total plus extra rows between headings (To Date, This Month, Inventory)
         + 2 // blank, header
         + barcodeAndNameCodingMismatch.size()
         + 2 // blank, header
-        + slidesWithoutSlideTimepoint.size()
-    ;
+        + slidesWithoutSlideTimepoint.size();
   }
 
   @Override
@@ -481,6 +490,10 @@ public class PreciseReport extends TableReport {
     row = getRowsForSection("Tissue", labelListSlides, toDateSlides, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateSlides.size() + 4); // list + (blank, 2 headers, total)
+
+    row = getRowsForSection("Distributed", labelListDistributed, toDateDistributed, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (toDateDistributed.size() + 4);
 
     if (rowNum == 0) {
       return makeBlankRow();
@@ -513,6 +526,10 @@ public class PreciseReport extends TableReport {
     if (row.length != 0) return row;
     rowNum -= (thisMonthSlides.size() + 4); // list + (blank, 2 headers, total)
 
+    row = getRowsForSection("Distributed", labelListDistributed, thisMonthDistributed, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (thisMonthDistributed.size() + 4);
+
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
@@ -529,6 +546,7 @@ public class PreciseReport extends TableReport {
     } else if (rowNum == 1) {
       return makeSectionTitleRow("Samples with mismatched alias and cryovial/slide number");
     }
+    rowNum -= 2;
 
     row = getRowOfAliasAndBarcode(barcodeAndNameCodingMismatch, rowNum);
     if (row.length != 0) return row;
@@ -537,10 +555,9 @@ public class PreciseReport extends TableReport {
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
-      String[] blank = makeBlankRow();
-      blank[0] = "Slides with non-slide timepoint in alias";
-      return blank;
+      return makeSectionTitleRow("Slides with non-slide timepoint in alias");
     }
+    rowNum -= 2;
 
     row = getRowOfAliasAndBarcode(slidesWithoutSlideTimepoint, rowNum);
     if (row.length != 0) return row;
