@@ -23,10 +23,8 @@ mvn clean install
 mvn versions:set -DnewVersion=${REPORTS_VERSION} -DgenerateBackupPoms=false
 git commit -a -m "Pinery Reports ${REPORTS_VERSION} release"
 git tag v${REPORTS_VERSION}
-mvn deploy
 mvn versions:set -DnewVersion=${REPORTS_VERSION_NEXT} -DgenerateBackupPoms=false
 git commit -a -m "prepare for next development iteration"
-git push origin v${REPORTS_VERSION} --follow-tags
 git push -u origin v${REPORTS_VERSION_NEXT}_pr
 set +x
 
