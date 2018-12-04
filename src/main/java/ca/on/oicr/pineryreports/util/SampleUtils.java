@@ -154,7 +154,7 @@ public class SampleUtils {
     return dto -> {
       String distributionDate = getAttribute(ATTR_DISTRIBUTION_DATE, dto);
       return distributionDate != null
-          && (startDate == null || distributionDate.compareTo(startDate) > 0)
+          && (startDate == null || distributionDate.compareTo(startDate) >= 0)
           && (endDate == null || distributionDate.compareTo(endDate) < 0);
     };
   }
