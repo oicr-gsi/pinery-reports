@@ -246,7 +246,7 @@ public class LanesBillingReport extends TableReport {
         boolean dnaInLane = false;
         boolean rnaInLane = false;
         Map<String, Integer> projectsInLane = new HashMap<>();
-        if (lane.getSamples() == null) {
+        if (lane.getSamples() == null && !NOVASEQ.equals(instrumentModel)) {
           // some NextSeq lanes will be listed as empty because the flowcell outputs 4 lanes
           // but it's only possible to add one pool, so the lab only enters the first lane into LIMS.
           if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1) continue;
@@ -270,6 +270,23 @@ public class LanesBillingReport extends TableReport {
           detailedData.add(noProject);
           addSummaryData(summaryData, noProject);
           continue;
+        } else if (lane.getSamples() == null && NOVASEQ.equals(instrumentModel) && laneNumber != 1) {
+          // some NovaSeq lanes are joined, so the pool is only added to the first lane, but is present in all the other lanes.
+          // report the same data as for the first lane.
+          lane = run.getPositions().stream().filter(l -> l.getPosition() == 1).findFirst().orElse(null);
+
+          if (lane == null) {
+            // couldn't find a lane 1, so report this as NoProject
+            DetailedObject noProject = new DetailedObject(run, instrumentName, instrumentModel, novaSeqLanesCount,
+                Integer.toString(laneNumber), "NoProject",
+                BigDecimal.ONE, DNA_LANE);
+            detailedData.add(noProject);
+            addSummaryData(summaryData, noProject);
+            continue;
+          } else {
+            // set the samples in lane count as well
+            samplesInLane = lane.getSamples().size();
+          }
         }
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = samplesById.get(sam.getId());
