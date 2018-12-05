@@ -46,6 +46,8 @@ public class SampleUtils {
   public static final String ATTR_GROUP_ID = "Group ID";
   public static final String ATTR_SUBPROJECT = "Sub-project";
   public static final String ATTR_SYNTHETIC = "Synthetic";
+  public static final String ATTR_DISTRIBUTED = "Distributed";
+  public static final String ATTR_DISTRIBUTION_DATE = "Distribution Date";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
@@ -142,6 +144,19 @@ public class SampleUtils {
 
   public static Predicate<SampleDto> byPropagated() {
     return dto -> getAttribute(ATTR_RECEIVE_DATE, dto) == null;
+  }
+
+  public static Predicate<SampleDto> byDistributed() {
+    return byDistributedBetween(null, null);
+  }
+
+  public static Predicate<SampleDto> byDistributedBetween(String startDate, String endDate) {
+    return dto -> {
+      String distributionDate = getAttribute(ATTR_DISTRIBUTION_DATE, dto);
+      return distributionDate != null
+          && (startDate == null || distributionDate.compareTo(startDate) >= 0)
+          && (endDate == null || distributionDate.compareTo(endDate) < 0);
+    };
   }
 
   public static Predicate<SampleDto> byDnaLibrary() {
