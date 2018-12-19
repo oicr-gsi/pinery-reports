@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
-### [1.0.0]  2018-11-30
+### [1.1.0]  2018-12-19
+### Added:
+  * `libraries-sequencing` report
+### Changed:
+  * `lanes-billing`: report on joined NovaSeq lanes
+  * `precise`: add distribution tables
+  * update release procedure to deploy after PR approval
+### Fixed:
+  * `precise`: handle spaces in barcodes
+
+## [1.0.0]  2018-11-30
 ### Added:
   * add release script
   * add changelog
