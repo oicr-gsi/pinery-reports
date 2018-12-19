@@ -3,7 +3,7 @@ WORKDIR /maven-dir
 COPY . /maven-dir/
 RUN mvn -q clean package
 
-FROM openjdk:8-jre
+FROM openjdk:8-jre-alpine
 WORKDIR /app
 RUN mkdir /output
 COPY --from=0 /maven-dir/target/pinery-reports-*-jar-with-dependencies.jar /app/pinery-reports.jar
