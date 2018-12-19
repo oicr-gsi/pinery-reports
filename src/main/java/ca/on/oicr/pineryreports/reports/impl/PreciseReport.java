@@ -71,7 +71,7 @@ public class PreciseReport extends TableReport {
     public Predicate<SampleDto> predicate() {
       return sample -> {
         if (sample.getTubeBarcode() == null) return false;
-        String barcodeString = sample.getTubeBarcode().split("\\.")[1].replaceFirst("^0", "");
+        String barcodeString = sample.getTubeBarcode().split("\\.")[1].replaceFirst("^0", "").trim();
         if (barcodeString == null) throw new IllegalArgumentException(String
             .format("Could not detect a number after the '.' for barcode %s on sample %s; got %s", sample.getTubeBarcode(),
                 sample.getName(), sample.getTubeBarcode().split("\\.")[1]));
@@ -272,7 +272,7 @@ public class PreciseReport extends TableReport {
     }
 
     // Tube barcode pattern: P1234.003 (the relevant part is the number after the period)
-    String barcodeString = dto.getTubeBarcode().split("\\.")[1].replaceFirst("^0", "");
+    String barcodeString = dto.getTubeBarcode().split("\\.")[1].replaceFirst("^0", "").trim();
     Integer tubeNumber = getTubeNumber(dto.getName());
     return Integer.valueOf(barcodeString) != tubeNumber;
   };
