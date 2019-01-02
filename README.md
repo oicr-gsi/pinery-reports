@@ -47,7 +47,7 @@ docker build -t pinery-reports .
 
 Generating the reports can be done by running a Docker container with the report-specific parameters.
   * the container saves the report with the name you give it to its `/output` directory.
-	* to save the file back to the host machine, use the `-v` option to link any host machine directory to the `/output`
+    * to save the file back to the host machine, use the `-v` option to link any host machine directory to the `/output`
 	  directory in the Docker container.
     * doing so will cause the file to have the same permissions as the user who ran the Docker container
   * to use the host's network (to access an intranet-accessible Pinery, for instance), run the container with the option `--network host`.

@@ -4,7 +4,7 @@ set -eu
 
 if [ ! -f "$JAR_FILE" ]; then
   echo "JAR_FILE ( $JAR_FILE ) does not exist";
-	exit 1
+  exit 1
 fi
 
 echo Pinery: $PINERY_URL
