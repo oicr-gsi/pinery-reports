@@ -5,10 +5,10 @@ RUN mvn -q clean package
 
 FROM openjdk:8-jre-alpine
 WORKDIR /app
-RUN mkdir /output
 COPY --from=0 /maven-dir/target/pinery-reports-*-jar-with-dependencies.jar /app/pinery-reports.jar
 COPY --from=0 /maven-dir/entrypoint.sh /
-RUN chmod +x /entrypoint.sh
+RUN mkdir /output && \
+    chmod +x /entrypoint.sh
 
 ENV JAR_FILE "pinery-reports.jar"
 
