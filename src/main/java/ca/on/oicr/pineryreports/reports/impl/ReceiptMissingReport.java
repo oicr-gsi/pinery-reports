@@ -48,6 +48,7 @@ public class ReceiptMissingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "receipt-missing";
+  public static final String CATEGORY = "qc";
   
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("Tissue ID"),
@@ -75,6 +76,12 @@ public class ReceiptMissingReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

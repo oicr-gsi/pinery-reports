@@ -109,6 +109,7 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   public static final String REPORT_NAME = "libraries-billing";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
 
@@ -142,6 +143,12 @@ public class LibrariesBillingReport extends TableReport {
       }
       this.end = before;
     }
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override
@@ -166,7 +173,7 @@ public class LibrariesBillingReport extends TableReport {
     List<SampleDto> newLibraries = allLibraries.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
 
     for (SampleDto lib : newLibraries) {
-      String kitName = lib.getPreparationKit().getName();
+      String kitName = (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName());
       String project = lib.getProjectName();
 
       // update summary
@@ -191,7 +198,7 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   private DetailedObject makeDetailedRow(SampleDto lib) {
-    return new DetailedObject(lib.getProjectName(), lib.getPreparationKit().getName(),
+    return new DetailedObject(lib.getProjectName(), (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName()),
         lib.getCreatedDate(), lib.getName(), getAttribute(LIBRARY_DESIGN_CODE, lib));
   }
 
@@ -200,7 +207,7 @@ public class LibrariesBillingReport extends TableReport {
     return Arrays.asList(
         new ColumnDefinition("Study Title"),
         new ColumnDefinition("Library Kit"),
-        new ColumnDefinition(String.format("Count (%s - %s)", start, end)),
+        new ColumnDefinition(String.format("Count (%s - %s)", (start == null ? "Any Time" : start), (end == null ? "Now" : end))),
         new ColumnDefinition(""),
         new ColumnDefinition(""));
   }

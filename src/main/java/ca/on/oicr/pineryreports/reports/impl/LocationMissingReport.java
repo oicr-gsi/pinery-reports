@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.REPORT_CATEGORY_QC;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import ca.on.oicr.ws.dto.SampleDto;
 public class LocationMissingReport extends TableReport {
 
   public static final String REPORT_NAME = "location-missing";
+  public static final String CATEGORY = REPORT_CATEGORY_QC;
   private List<SampleDto> locationMissing = new ArrayList<>();
 
   private static final Option OPT_AFTER = CommonOptions.after(false);
@@ -89,6 +91,12 @@ public class LocationMissingReport extends TableReport {
         }
       }
     }
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

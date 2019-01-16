@@ -1,6 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.removeTime;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class DysReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "dys";
-  
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   public static final String GSLE_USER = "Geospiza";
 
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
@@ -90,13 +90,19 @@ public class DysReport extends TableReport {
   }
 
   @Override
+  public String getCategory() {
+    return CATEGORY;
+  }
+
+  @Override
   public Collection<Option> getOptions() {
     return Collections.emptySet();
   }
   
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-	    // No options (could be expanded to report for any project, etc)
+    recordOptionsUsed(cmd);
+    // No options (could be expanded to report for any project, etc)
   }
 
   @Override

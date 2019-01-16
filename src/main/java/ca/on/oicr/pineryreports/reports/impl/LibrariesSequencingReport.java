@@ -1,6 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.RUN_FAILED;
+import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.ArrayList;
@@ -78,6 +78,7 @@ public class LibrariesSequencingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "libraries-sequencing";
+  public static final String CATEGORY = REPORT_CATEGORY_INVENTORY;
   private static final Option OPT_PROJECT = CommonOptions.project(true);
 
   @Override
@@ -93,6 +94,12 @@ public class LibrariesSequencingReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

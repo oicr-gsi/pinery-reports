@@ -264,6 +264,7 @@ public class GazpachoProjectStatusReport extends TableReport {
   private static final Option OPT_BEFORE = CommonOptions.before(true);
   private static final Option OPT_ANALYTE = CommonOptions.analyte(false);
   public static final String REPORT_NAME = "project-status";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
 
   // keep track of the base stock name for all samples/libraries/runs active this month
   Map<String, ReportItem> dnaThisMonth = Maps.newTreeMap();
@@ -285,6 +286,11 @@ public class GazpachoProjectStatusReport extends TableReport {
   @Override
   public Collection<Option> getOptions() {
     return Sets.newHashSet(OPT_PROJECT, OPT_AFTER, OPT_BEFORE, OPT_ANALYTE);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override
@@ -313,6 +319,7 @@ public class GazpachoProjectStatusReport extends TableReport {
     }
 
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
+    recordOptionsUsed(cmd);
   }
 
   @Override

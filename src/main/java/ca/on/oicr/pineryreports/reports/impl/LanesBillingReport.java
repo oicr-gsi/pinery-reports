@@ -144,6 +144,7 @@ public class LanesBillingReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "lanes-billing";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final String DNA_LANE = "DNA";
@@ -181,6 +182,12 @@ public class LanesBillingReport extends TableReport {
       }
       this.end = before;
     }
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

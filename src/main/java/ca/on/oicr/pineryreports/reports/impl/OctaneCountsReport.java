@@ -93,6 +93,7 @@ public class OctaneCountsReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "octane";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
@@ -162,6 +163,12 @@ public class OctaneCountsReport extends TableReport {
     if (cmd.hasOption(OPT_SITE_PREFIX.getLongOpt())) {
       sitePrefix = cmd.getOptionValue(OPT_SITE_PREFIX.getLongOpt());
     }
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

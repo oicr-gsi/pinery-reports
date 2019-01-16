@@ -23,6 +23,7 @@ public class GeneralUtils {
   public static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
   public static final String DATE_FORMAT = "yyyy-MM-dd";
   public static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm";
+  public static final String DATETIMEZONE_FORMAT = "yyyy-MM-dd HH:mm:ssX";
 
   public static final String RUN_FAILED = "Failed";
   public static final String RUN_COMPLETED = "Completed";
@@ -73,5 +74,11 @@ public class GeneralUtils {
   public static DateFormat getDateTimeFormat() {
     return new SimpleDateFormat(DATE_FORMAT);
   }
+
+  // report categories
+  public static final String REPORT_CATEGORY_COUNTS = "counts";
+  public static final String REPORT_CATEGORY_INTEGRITY = "integrity";
+  public static final String REPORT_CATEGORY_INVENTORY = "inventory";
+  public static final String REPORT_CATEGORY_QC = "qc";
 
 }

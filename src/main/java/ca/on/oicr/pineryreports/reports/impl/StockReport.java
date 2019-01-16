@@ -32,6 +32,7 @@ import ca.on.oicr.ws.dto.SampleDto;
 public class StockReport extends TableReport {
   
   public static final String REPORT_NAME = "stock";
+  public static final String CATEGORY = REPORT_CATEGORY_INVENTORY;
   
   private static final Option OPT_PROJECT = CommonOptions.project(true);
   private static final Option OPT_AFTER = CommonOptions.after(false);
@@ -61,6 +62,11 @@ public class StockReport extends TableReport {
   }
 
   @Override
+  public String getCategory() {
+    return CATEGORY;
+  }
+
+  @Override
   public Collection<Option> getOptions() {
     return Sets.newHashSet(OPT_PROJECT, OPT_AFTER, OPT_BEFORE);
   }
@@ -84,6 +90,7 @@ public class StockReport extends TableReport {
       }
       this.end = before;
     }
+    recordOptionsUsed(cmd);
   }
   
   @Override
