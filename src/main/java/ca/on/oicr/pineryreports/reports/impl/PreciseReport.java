@@ -35,6 +35,7 @@ import ca.on.oicr.ws.dto.SampleDto;
 public class PreciseReport extends TableReport {
 
   public static final String REPORT_NAME = "precise";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   private String start;
   private String end;
 
@@ -209,6 +210,12 @@ public class PreciseReport extends TableReport {
       }
       this.end = before;
     }
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

@@ -180,6 +180,7 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   private static final Option OPT_PROJECT = CommonOptions.project(false);
   public static final String REPORT_NAME = "projects-status";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
 
   private List<Map.Entry<String, Map<String, List<Count>>>> countsByProjectAsList; // String project, List<Count> all counts
 
@@ -199,6 +200,12 @@ public class BisqueProjectsStatusReport extends TableReport {
       List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
       this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
     }
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

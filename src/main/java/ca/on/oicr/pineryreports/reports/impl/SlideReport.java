@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.REPORT_CATEGORY_INVENTORY;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.text.SimpleDateFormat;
@@ -28,6 +29,7 @@ import ca.on.oicr.ws.dto.SampleDto;
 public class SlideReport extends TableReport {
   
   public static final String REPORT_NAME = "slide";
+  public static final String CATEGORY = REPORT_CATEGORY_INVENTORY;
   
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("Slide ID"),
@@ -56,6 +58,12 @@ public class SlideReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

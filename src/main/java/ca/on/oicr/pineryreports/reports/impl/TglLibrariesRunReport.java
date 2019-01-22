@@ -58,6 +58,7 @@ public class TglLibrariesRunReport extends TableReport {
   }
   
   public static final String REPORT_NAME = "tgl-libraries-run";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   private static final Option OPT_AFTER = CommonOptions.after(false);
   private static final Option OPT_BEFORE = CommonOptions.before(false);
   private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
@@ -105,6 +106,12 @@ public class TglLibrariesRunReport extends TableReport {
       }
       this.end = before;
     }
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

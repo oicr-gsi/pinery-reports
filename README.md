@@ -14,7 +14,7 @@ mvn clean install
 ## Generate
 
 ```
-java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r <report> -f <format> -o <filename> [report-specific-options]
+java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r <report> -f <format> -g <guanyin-url> -o <filename> [report-specific-options]
 ```
 
 ## Options
@@ -22,8 +22,9 @@ java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r 
 | Option | Required | Description | Example |
 |--------|----------|-------------|---------|
 | -s <pinery-url> | YES | Source Pinery URL | -s http://localhost:8080/pinery-miso |
-| -r <report-name> | YES | Report to generate See Reports below | -r stock |
+| -r <report-name> | YES | Report to generate. See Reports below | -r stock |
 | -f <format> | no | Output format. Can be csv or pdf. Some formats may not be available for all reports. Default varies by report. See Reports below | -f pdf |
+| -g <guanyin-url> | no | Guanyin URL. If provided, when a report is run it will make sure it is registered with Guanyin, and will create an output file that can be sent to Guanyin to record that the report was run | -g http://guanyin.url:3000 |
 | -o <filename> | no | Output file. Defaults to "report.csv" or "report.pdf" in current working directory | -o ~/reports/PCSI-stocks-2017-06.pdf |
 
 ## Reports
@@ -50,7 +51,10 @@ Generating the reports can be done by running a Docker container with the report
     * to save the file back to the host machine, use the `-v` option to link any host machine directory to the `/output`
 	  directory in the Docker container.
     * doing so will cause the file to have the same permissions as the user who ran the Docker container
-  * to use the host's network (to access an intranet-accessible Pinery, for instance), run the container with the option `--network host`.
+  * to use the host's network (to access an intranet-accessible Pinery or [Guanyin](https://github.com/oicr-gsi/guanyin), for instance),
+      run the container with the option `--network host`.
+  * if the `GUANYIN_URL` option is provided, the report will register itself with Guanyin if no necessary, and will write a file (in
+      the same directory as the report is written to) containing JSON that can be used to create a Guanyin report record. 
 
 ```
 docker run -it --rm \

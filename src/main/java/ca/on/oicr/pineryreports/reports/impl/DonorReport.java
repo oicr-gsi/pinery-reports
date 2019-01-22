@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.REPORT_CATEGORY_COUNTS;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.text.SimpleDateFormat;
@@ -32,6 +33,7 @@ import ca.on.oicr.ws.dto.SampleDto;
 public class DonorReport extends TableReport {
   
   public static final String REPORT_NAME = "donor";
+  public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   private static final Option OPT_PROJECT = CommonOptions.project(true);
   private String project;
   
@@ -60,6 +62,12 @@ public class DonorReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt()).trim();
+    recordOptionsUsed(cmd);
+  }
+
+  @Override
+  public String getCategory() {
+    return CATEGORY;
   }
 
   @Override

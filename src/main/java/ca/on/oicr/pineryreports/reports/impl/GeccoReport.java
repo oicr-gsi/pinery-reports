@@ -1,5 +1,6 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
+import static ca.on.oicr.pineryreports.util.GeneralUtils.REPORT_CATEGORY_INVENTORY;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import ca.on.oicr.ws.dto.SampleReferenceDto;
 public class GeccoReport extends TableReport {
   
   public static final String REPORT_NAME = "gecco";
+  public static final String CATEGORY = REPORT_CATEGORY_INVENTORY;
   
   private final List<ColumnDefinition> columns = Collections.unmodifiableList(Arrays.asList(
       new ColumnDefinition("Oicr Name", 150f, TextAlignment.LEFT),
@@ -64,7 +66,13 @@ public class GeccoReport extends TableReport {
   }
 
   @Override
+  public String getCategory() {
+    return CATEGORY;
+  }
+
+  @Override
   public void processOptions(CommandLine cmd) throws ParseException {
+    recordOptionsUsed(cmd);
     // No options (could be expanded to report for any project, etc)
   }
 

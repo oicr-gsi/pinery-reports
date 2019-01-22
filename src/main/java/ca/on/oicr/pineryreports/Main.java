@@ -40,6 +40,7 @@ public class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
   
   private static final String OPT_SOURCE = "source";
+  private static final String OPT_GUANYIN = "guanyin";
   private static final String OPT_REPORT = "report";
   private static final String OPT_FORMAT = "format";
   private static final String OPT_OUTFILE = "outfile";
@@ -67,15 +68,23 @@ public class Main {
           throw new ParseException(String.format("Output file already exists: %s", outputOpt));
         }
         
+        String guanyinOpt = mainCommand.getOptionValue(OPT_GUANYIN);
+        if (guanyinOpt != null) {
+          guanyinOpt = guanyinOpt.trim().replaceAll("\\/$", ""); // remove trailing slash if present
+          report.registerReportWithGuanyin(guanyinOpt);
+        }
+
         for (Option opt : report.getOptions()) {
           opts.addOption(opt);
         }
         CommandLine reportCommand = getCommandLine(args, opts, true);
         report.processOptions(reportCommand);
         
+
         LOG.info("Options ok. Generating {}...", report.getTitle());
         report.generate(pinery, format, outFile);
         LOG.info("Report generated: {}", outFile.getName());
+        if (guanyinOpt != null) report.writeGuanyinReportRecordParameters(guanyinOpt, outFile);
       }
     } catch (ParseException e) {
       LOG.error(e.getMessage());
@@ -104,6 +113,13 @@ public class Main {
         .hasArg()
         .argName("pinery-url")
         .desc("Pinery base URL")
+        .build());
+    opts.addOption(Option.builder("g")
+        .longOpt(OPT_GUANYIN)
+        .required(false)
+        .hasArg()
+        .argName("guanyin-url")
+        .desc("Guanyin URL")
         .build());
     opts.addOption(Option.builder("r")
         .longOpt(OPT_REPORT)
@@ -187,7 +203,7 @@ public class Main {
   private static void showHelp(Report report) {
     HelpFormatter formatter = new HelpFormatter();
     Options mainOpts = getMainOptions();
-    formatter.printHelp("java -jar pinery-reports.jar -s <pinery-url> -r <report> [-f {pdf|csv}]"
+    formatter.printHelp("java -jar pinery-reports.jar -s <pinery-url> [-g <guanyin-url>] -r <report> [-f {pdf|csv}]"
         + " [-o <filename>] [report-specific options]", mainOpts);
     
     if (report != null) {

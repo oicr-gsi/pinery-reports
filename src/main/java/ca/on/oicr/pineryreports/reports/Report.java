@@ -3,6 +3,7 @@ package ca.on.oicr.pineryreports.reports;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -48,6 +49,11 @@ public interface Report {
   public String getTitle();
   
   /**
+   * Returns the category of this report.
+   */
+  public String getCategory();
+
+  /**
    * Collect data from Pinery, generate the report according to the options, and write it to file. Must not be called
    * before {@link #processOptions(CommandLine)}
    * 
@@ -56,5 +62,13 @@ public interface Report {
    * @param outFile output file
    */
   public void generate(PineryClient pinery, ReportFormat format, File outFile) throws HttpResponseException, IOException;
+
+  public void registerReportWithGuanyin(String guanyinUrl) throws HttpResponseException, IOException;
   
+  public void writeGuanyinReportRecordParameters(String guanyinUrl, File outputFile) throws IOException;
+
+  public Map<String, String> getOptionsUsed();
+
+  public void recordOptionsUsed(CommandLine cmd);
+
 }
