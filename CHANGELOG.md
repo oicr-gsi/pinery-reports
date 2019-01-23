@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
-### [1.1.0]  2018-12-19
+## [1.2.0]  2019-01-23
+### Added:
+  * Enable reports to interact with Guanyin
+  * Add Dockerfile to create executable jar container
+
+## [1.1.0]  2018-12-19
 ### Added:
   * `libraries-sequencing` report
 ### Changed:
