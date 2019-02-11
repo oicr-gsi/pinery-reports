@@ -44,6 +44,7 @@ public class GeccoReport extends TableReport {
       new ColumnDefinition("Person ID"),
       new ColumnDefinition("Sample ID"),
       new ColumnDefinition("Gender"),
+      new ColumnDefinition("Site"),
       new ColumnDefinition("Tissue of Origin", 50f, TextAlignment.LEFT),
       new ColumnDefinition("Tissue Type"),
       new ColumnDefinition("Libraries Created"),
