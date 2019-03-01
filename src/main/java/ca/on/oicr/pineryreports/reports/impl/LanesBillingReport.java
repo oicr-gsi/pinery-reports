@@ -292,25 +292,27 @@ public class LanesBillingReport extends TableReport {
             continue;
           } else {
             // set the samples in lane count as well
-            samplesInLane = lane.getSamples().size();
+            samplesInLane = lane.getSamples() == null ? 0 : lane.getSamples().size();
           }
         }
-        for (RunDtoSample sam : lane.getSamples()) {
-          SampleDto dilution = samplesById.get(sam.getId());
-          // reject if it's a TGL dilution on a NextSeq ("TGL for TGL")
-          if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL)) continue;
+        if (lane.getSamples() != null) {
+          for (RunDtoSample sam : lane.getSamples()) {
+            SampleDto dilution = samplesById.get(sam.getId());
+            // reject if it's a TGL dilution on a NextSeq ("TGL for TGL")
+            if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL)) continue;
 
-          if (isRnaLibrary(dilution, samplesById)) {
-            rnaInLane = true;
-          } else {
-            dnaInLane = true;
-          }
-          if (projectsInLane.containsKey(dilution.getProjectName())) {
-            // increment project libraries
-            projectsInLane.merge(dilution.getProjectName(), 1, Integer::sum);
-          } else {
-            // add project with library to map
-            projectsInLane.put(dilution.getProjectName(), 1);
+            if (isRnaLibrary(dilution, samplesById)) {
+              rnaInLane = true;
+            } else {
+              dnaInLane = true;
+            }
+            if (projectsInLane.containsKey(dilution.getProjectName())) {
+              // increment project libraries
+              projectsInLane.merge(dilution.getProjectName(), 1, Integer::sum);
+            } else {
+              // add project with library to map
+              projectsInLane.put(dilution.getProjectName(), 1);
+            }
           }
         }
         String laneContents = dnaInLane 
