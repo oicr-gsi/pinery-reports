@@ -27,9 +27,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+
+import com.google.common.collect.Sets;
+
 
 public class LanesBillingReport extends TableReport {
 
@@ -325,31 +329,16 @@ public class LanesBillingReport extends TableReport {
           detailedData.add(noProject);
           addSummaryData(summaryData, noProject);
           continue;
-        } else if (lane.getSamples() == null
-            && NOVASEQ.equals(instrumentModel)
-            && laneNumber != 1) {
-          // some NovaSeq lanes are joined, so the pool is only added to the first lane, but is
-          // present in all the other lanes.
+        } else if (lane.getSamples() == null && NOVASEQ.equals(instrumentModel)) {
+          // some NovaSeq lanes are joined, so the pool is only added to the first lane, but is present in all the other lanes.
           // report the same data as for the first lane.
-          lane =
-              run.getPositions()
-                  .stream()
-                  .filter(l -> l.getPosition() == 1)
-                  .findFirst()
-                  .orElse(null);
+          lane = run.getPositions().stream().filter(l -> l.getPosition() == 1).findFirst().orElse(null);
 
-          if (lane == null) {
+          if (lane == null || lane.getSamples() == null) {
             // couldn't find a lane 1, so report this as NoProject
-            DetailedObject noProject =
-                new DetailedObject(
-                    run,
-                    instrumentName,
-                    instrumentModel,
-                    novaSeqLanesCount,
-                    Integer.toString(laneNumber),
-                    "NoProject",
-                    BigDecimal.ONE,
-                    DNA_LANE);
+            DetailedObject noProject = new DetailedObject(run, instrumentName, instrumentModel, novaSeqLanesCount,
+                Integer.toString(laneNumber), "NoProject",
+                BigDecimal.ONE, DNA_LANE);
             detailedData.add(noProject);
             addSummaryData(summaryData, noProject);
             continue;
@@ -361,8 +350,7 @@ public class LanesBillingReport extends TableReport {
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = samplesById.get(sam.getId());
           // reject if it's a TGL dilution on a NextSeq ("TGL for TGL")
-          if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL))
-            continue;
+          if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL)) continue;
 
           if (isRnaLibrary(dilution, samplesById)) {
             rnaInLane = true;
@@ -377,21 +365,15 @@ public class LanesBillingReport extends TableReport {
             projectsInLane.put(dilution.getProjectName(), 1);
           }
         }
-
-        String laneContents = dnaInLane ? (rnaInLane ? MIXED_LANE : DNA_LANE) : RNA_LANE;
-
+        String laneContents = dnaInLane 
+            ? (rnaInLane ? MIXED_LANE : DNA_LANE) 
+            : RNA_LANE;
+        
         for (Map.Entry<String, Integer> entry : projectsInLane.entrySet()) {
           BigDecimal projectPercent = getPercentProjectInLane(entry.getValue(), samplesInLane);
-          DetailedObject newReport =
-              new DetailedObject(
-                  run,
-                  instrumentName,
-                  instrumentModel,
-                  novaSeqLanesCount,
-                  Integer.toString(laneNumber),
-                  entry.getKey(),
-                  projectPercent,
-                  laneContents);
+          DetailedObject newReport = new DetailedObject(run, instrumentName, instrumentModel, novaSeqLanesCount,
+              Integer.toString(laneNumber), entry.getKey(),
+              projectPercent, laneContents);
           detailedData.add(newReport);
           addSummaryData(summaryData, newReport);
         }
@@ -399,47 +381,37 @@ public class LanesBillingReport extends TableReport {
     }
     return new ReportObject(detailedData, summaryData);
   }
-
+  
   private static final String TGL = "TGL";
 
   /**
-   * Some project names need to be processed (like the TGL projects, which should all be reported as
-   * one project)
+   * Some project names need to be processed (like the TGL projects, which should all be reported as one project)
    */
   private String processProjectName(String projectName) {
     if (projectName.startsWith(TGL)) return TGL;
     return projectName;
   }
 
-  private void addSummaryData(
-      Map<String, Map<String, BigDecimal>> summary, DetailedObject newReport) {
+  private void addSummaryData(Map<String, Map<String, BigDecimal>> summary, DetailedObject newReport) {
     String summaryKey = getSummaryKey(newReport);
     if (summary.containsKey(summaryKey)) {
       // increment lane number+type for this project+instrument+sequencing parameters
-      addSummaryLanes(
-          summary.get(summaryKey), newReport.getLaneContents(), newReport.getProjLibsPercent());
+      addSummaryLanes(summary.get(summaryKey), newReport.getLaneContents(), newReport.getProjLibsPercent());
     } else {
       // add new project+instrument and lane number+type
-      Map<String, BigDecimal> newLanes =
-          makeNewSummaryLanes(newReport.getLaneContents(), newReport.getProjLibsPercent());
+      Map<String, BigDecimal> newLanes = makeNewSummaryLanes(newReport.getLaneContents(), newReport.getProjLibsPercent());
       summary.put(summaryKey, newLanes);
     }
   }
-
-  private BigDecimal getPercentProjectInLane(
-      Integer numProjectLibraries, Integer numLaneLibraries) {
-    return new BigDecimal(numProjectLibraries)
-        .divide(new BigDecimal(numLaneLibraries), 1, RoundingMode.HALF_UP);
+  
+  private BigDecimal getPercentProjectInLane(Integer numProjectLibraries, Integer numLaneLibraries) {
+    return new BigDecimal(numProjectLibraries).divide(new BigDecimal(numLaneLibraries), 1,  RoundingMode.HALF_UP);
   }
 
   private String getSummaryKey(DetailedObject row) {
-    return processProjectName(row.getProject())
-        + "!"
-        + row.getInstrumentModel()
-        + "!"
-        + row.getSequencingParameters();
+    return processProjectName(row.getProject()) + "!" + row.getInstrumentModel() + "!" + row.getSequencingParameters();
   }
-
+  
   private Map<String, BigDecimal> makeNewSummaryLanes(String laneType, BigDecimal laneCount) {
     Map<String, BigDecimal> lanes = new HashMap<>();
     lanes.put(DNA_LANE, BigDecimal.ZERO);
@@ -448,16 +420,13 @@ public class LanesBillingReport extends TableReport {
     addSummaryLanes(lanes, laneType, laneCount);
     return lanes;
   }
-
-  private void addSummaryLanes(
-      Map<String, BigDecimal> lanes, String laneType, BigDecimal laneCount) {
+  
+  private void addSummaryLanes(Map<String, BigDecimal> lanes, String laneType, BigDecimal laneCount) {
     lanes.merge(laneType, laneCount, BigDecimal::add);
   }
-
-  static final List<Map.Entry<String, Map<String, BigDecimal>>> listifySummary(
-      Map<String, Map<String, BigDecimal>> summary) {
-    // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet
-    // have one of those
+  
+  static final List<Map.Entry<String, Map<String, BigDecimal>>> listifySummary(Map<String, Map<String, BigDecimal>> summary) {
+    // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet have one of those
     return new ArrayList<>(summary.entrySet());
   }
 
@@ -474,9 +443,10 @@ public class LanesBillingReport extends TableReport {
         new ColumnDefinition(""),
         new ColumnDefinition(""),
         new ColumnDefinition(""),
-        new ColumnDefinition(""));
+        new ColumnDefinition("")
+    );
   }
-
+  
   private List<String> getDetailedHeadings() {
     return Arrays.asList(
         "Project",
@@ -489,7 +459,8 @@ public class LanesBillingReport extends TableReport {
         "Lane",
         DNA_LANE,
         RNA_LANE,
-        MIXED_LANE);
+        MIXED_LANE
+    );
   }
 
   @Override
@@ -506,12 +477,11 @@ public class LanesBillingReport extends TableReport {
   @Override
   protected String[] getRow(int rowNum) {
     if (rowNum < completed.getSummaryAsList().size()) {
-      Map.Entry<String, Map<String, BigDecimal>> completedSummary =
-          completed.getSummaryAsList().get(rowNum);
+      Map.Entry<String, Map<String, BigDecimal>> completedSummary = completed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(completedSummary);
     }
     rowNum -= completed.getSummaryAsList().size();
-
+    
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
@@ -528,7 +498,7 @@ public class LanesBillingReport extends TableReport {
       return makeDetailedRow(completed.getDetailedData().get(rowNum));
     }
     rowNum -= completed.getDetailedData().size();
-
+    
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
@@ -537,29 +507,27 @@ public class LanesBillingReport extends TableReport {
     rowNum -= 2;
 
     if (rowNum == 0) {
-      return makeHeadingRow(
-          getColumns().stream().map(ColumnDefinition::getHeading).collect(Collectors.toList()));
+      return makeHeadingRow(getColumns().stream().map(ColumnDefinition::getHeading).collect(Collectors.toList()));
     }
     rowNum -= 1;
     if (rowNum < failed.getSummaryAsList().size()) {
-      Map.Entry<String, Map<String, BigDecimal>> failedSummary =
-          failed.getSummaryAsList().get(rowNum);
+      Map.Entry<String, Map<String, BigDecimal>> failedSummary = failed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(failedSummary);
     }
     rowNum -= failed.getSummaryAsList().size();
-
+    
     if (rowNum == 0) {
       return makeBlankRow();
     } else if (rowNum == 1) {
       return makeHeadingRow(Arrays.asList("Detailed List (Failed Lanes)"));
     }
     rowNum -= 2;
-
+    
     if (rowNum == 0) {
       return makeHeadingRow(getDetailedHeadings());
     }
     rowNum -= 1;
-
+    
     return makeDetailedRow(failed.getDetailedData().get(rowNum));
   }
 
@@ -581,13 +549,14 @@ public class LanesBillingReport extends TableReport {
     row[++i] = obj.getValue().get(RNA_LANE).toPlainString();
     // Mixed Lanes
     row[++i] = obj.getValue().get(MIXED_LANE).toPlainString();
-
-    for (int j = i + 1; j < row.length; j++) {
+    
+    
+    for (int j = i+1; j < row.length; j++) {
       row[j] = "";
     }
     return row;
   }
-
+  
   private String[] makeBlankRow() {
     String[] row = new String[getColumns().size()];
     for (int i = 0; i < row.length; i++) {
@@ -595,7 +564,7 @@ public class LanesBillingReport extends TableReport {
     }
     return row;
   }
-
+  
   private String[] makeHeadingRow(List<String> headings) {
     String[] row = new String[headings.size()];
     return headings.toArray(row);
@@ -603,7 +572,7 @@ public class LanesBillingReport extends TableReport {
 
   private String[] makeDetailedRow(DetailedObject obj) {
     String[] row = new String[getColumns().size()];
-
+    
     int i = -1;
     // Project
     row[++i] = obj.getProject();
@@ -627,7 +596,7 @@ public class LanesBillingReport extends TableReport {
     row[++i] = obj.getLaneContents().equals(RNA_LANE) ? obj.getPrintableProjLibsPercent() : "";
     // Mixed Lanes
     row[++i] = obj.getLaneContents().equals(MIXED_LANE) ? obj.getPrintableProjLibsPercent() : "";
-
+    
     return row;
   }
 }
