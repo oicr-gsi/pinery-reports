@@ -10,6 +10,7 @@ and as of version 1.0.0, follows semantic versioning.
   * Code formatter
 ### Fixed:
   * `lanes-billing`: don't error on empty NovaSeq flowcells
+  * `octane`: don't include `Ly_R` samples in Tumor Tissue DNA/RNA Transferred
 
 ## [1.2.0]  2019-01-23
 ### Added:
