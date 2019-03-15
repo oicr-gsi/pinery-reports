@@ -283,54 +283,14 @@ public class LanesBillingReport extends TableReport {
         boolean dnaInLane = false;
         boolean rnaInLane = false;
         Map<String, Integer> projectsInLane = new HashMap<>();
-        if (lane.getSamples() == null && !NOVASEQ.equals(instrumentModel)) {
-          // some NextSeq lanes will be listed as empty because the flowcell outputs 4 lanes
-          // but it's only possible to add one pool, so the lab only enters the first lane into
-          // LIMS.
-          if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1) continue;
-
-          // some lanes without libraries come from sequencing done at UHN, and are rsynced into a
-          // folder called "UHN_HiSeqs".
-          // we want to distinguish them from the "NoProject" lanes because we know why the UHN
-          // lanes have no libraries
-          if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
-            DetailedObject uhn =
-                new DetailedObject(
-                    run,
-                    instrumentName,
-                    instrumentModel,
-                    novaSeqLanesCount,
-                    Integer.toString(laneNumber),
-                    "UHN",
-                    BigDecimal.ONE,
-                    DNA_LANE);
-            detailedData.add(uhn);
-            addSummaryData(summaryData, uhn);
-            continue;
-          }
-
-          // legitimately empty lanes should still be reported for billing purposes (may be run as
-          // Sequencing as a service)
-          // reported as DNA by default, though Pinery has no knowledge of the actual contents
-          DetailedObject noProject =
-              new DetailedObject(
-                  run,
-                  instrumentName,
-                  instrumentModel,
-                  novaSeqLanesCount,
-                  Integer.toString(laneNumber),
-                  "NoProject",
-                  BigDecimal.ONE,
-                  DNA_LANE);
-          detailedData.add(noProject);
-          addSummaryData(summaryData, noProject);
-          continue;
-        } else if (lane.getSamples() == null
-            && NOVASEQ.equals(instrumentModel)
-            && laneNumber != 1) {
-          // some NovaSeq lanes are joined, so the pool is only added to the first lane, but is
-          // present in all the other lanes.
-          // report the same data as for the first lane.
+        if (lane.getSamples() != null) {
+          // Set the samples in lane count, then continue to the `for RunSampleDto :
+          // lane.getSamples()` clause.
+          samplesInLane = lane.getSamples().size();
+        } else if (NOVASEQ.equals(instrumentModel)) {
+          // Some NovaSeq lanes are joined so the pool is only added to the first lane in LIMS, but
+          // is present in all the other lanes.
+          // Report the same data as for the first lane.
           lane =
               run.getPositions()
                   .stream()
@@ -338,7 +298,7 @@ public class LanesBillingReport extends TableReport {
                   .findFirst()
                   .orElse(null);
 
-          if (lane == null) {
+          if (lane == null || lane.getSamples() == null) {
             // couldn't find a lane 1, so report this as NoProject
             DetailedObject noProject =
                 new DetailedObject(
@@ -352,15 +312,55 @@ public class LanesBillingReport extends TableReport {
                     DNA_LANE);
             detailedData.add(noProject);
             addSummaryData(summaryData, noProject);
+            // skip further processing because there are no samples in the lane
             continue;
-          } else {
-            // set the samples in lane count as well
-            samplesInLane = lane.getSamples().size();
           }
+        } else {
+          // NextSeq flowcells are 4 lanes but they can't be split. We report these as single-lane
+          // runs and ignore lanes 2-4.
+          if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1) continue;
+
+          // Sequencing done at UHN is rsynced into a folder called "UHN_HiSeqs". These lanes are
+          // "UHN" instead of "NoProject".
+          if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
+            DetailedObject uhn =
+                new DetailedObject(
+                    run,
+                    instrumentName,
+                    instrumentModel,
+                    novaSeqLanesCount,
+                    Integer.toString(laneNumber),
+                    "UHN",
+                    BigDecimal.ONE,
+                    DNA_LANE);
+            detailedData.add(uhn);
+            addSummaryData(summaryData, uhn);
+            // skip further processing because there are no samples in the lane
+            continue;
+          }
+          // All other empty lanes should still be reported for billing purposes (may be run as
+          // Sequencing as a service).
+          // They are reported as DNA by default, though Pinery has no knowledge of the actual
+          // contents.
+          DetailedObject noProject =
+              new DetailedObject(
+                  run,
+                  instrumentName,
+                  instrumentModel,
+                  novaSeqLanesCount,
+                  Integer.toString(laneNumber),
+                  "NoProject",
+                  BigDecimal.ONE,
+                  DNA_LANE);
+          detailedData.add(noProject);
+          addSummaryData(summaryData, noProject);
+          // skip further processing because there are no samples in the lane
+          continue;
         }
+
         for (RunDtoSample sam : lane.getSamples()) {
           SampleDto dilution = samplesById.get(sam.getId());
-          // reject if it's a TGL dilution on a NextSeq ("TGL for TGL")
+          // Reject if it's a TGL dilution on a NextSeq ("TGL for TGL").
           if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL))
             continue;
 
@@ -377,7 +377,6 @@ public class LanesBillingReport extends TableReport {
             projectsInLane.put(dilution.getProjectName(), 1);
           }
         }
-
         String laneContents = dnaInLane ? (rnaInLane ? MIXED_LANE : DNA_LANE) : RNA_LANE;
 
         for (Map.Entry<String, Integer> entry : projectsInLane.entrySet()) {
