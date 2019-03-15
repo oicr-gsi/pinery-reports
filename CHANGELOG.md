@@ -8,6 +8,7 @@ and as of version 1.0.0, follows semantic versioning.
 ## Unreleased
 ### Added:
   * Code formatter
+  * `donors-for-existing-samples` report
 ### Fixed:
   * `lanes-billing`: don't error on empty NovaSeq flowcells
 
