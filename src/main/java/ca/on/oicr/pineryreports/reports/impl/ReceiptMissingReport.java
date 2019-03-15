@@ -2,21 +2,6 @@ package ca.on.oicr.pineryreports.reports.impl;
 
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
@@ -24,45 +9,57 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 public class ReceiptMissingReport extends TableReport {
 
   private static class ReportObject {
-    
+
     private final SampleDto tissue;
     private final SampleDto slide;
-    
+
     public ReportObject(SampleDto tissue, SampleDto slide) {
       this.tissue = tissue;
       this.slide = slide;
     }
-    
+
     public SampleDto getTissue() {
       return tissue;
     }
-    
+
     public SampleDto getSlide() {
       return slide;
     }
-    
   }
-  
+
   public static final String REPORT_NAME = "receipt-missing";
   public static final String CATEGORY = "qc";
-  
-  private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
-      new ColumnDefinition("Tissue ID"),
-      new ColumnDefinition("Tissue Alias"),
-      new ColumnDefinition("Slide ID"),
-      new ColumnDefinition("Slide Alias")
-  ));
-  
+
+  private static final List<ColumnDefinition> COLUMNS =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              new ColumnDefinition("Tissue ID"),
+              new ColumnDefinition("Tissue Alias"),
+              new ColumnDefinition("Slide ID"),
+              new ColumnDefinition("Slide Alias")));
+
   private static final Option OPT_PROJECT = CommonOptions.project(true);
-  
+
   private String project;
-  
+
   private List<ReportObject> rows;
-  
+
   @Override
   public String getReportName() {
     return REPORT_NAME;
@@ -91,36 +88,49 @@ public class ReceiptMissingReport extends TableReport {
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {
-    List<SampleDto> samples = pinery.getSample().allFiltered(new SamplesFilter().withProjects(Lists.newArrayList(project)));
+    List<SampleDto> samples =
+        pinery
+            .getSample()
+            .allFiltered(new SamplesFilter().withProjects(Lists.newArrayList(project)));
     Map<String, SampleDto> allSamplesById = mapSamplesById(samples);
-    
-    Map<SampleDto, List<SampleDto>> slidesByTissue = samples.stream()
-        .filter(sam -> SAMPLE_CLASS_SLIDE.equals(sam.getSampleType()))
-        .collect(Collectors.groupingBy(slide -> getParent(slide, SAMPLE_CATEGORY_TISSUE, allSamplesById)));
-    samples.stream()
+
+    Map<SampleDto, List<SampleDto>> slidesByTissue =
+        samples
+            .stream()
+            .filter(sam -> SAMPLE_CLASS_SLIDE.equals(sam.getSampleType()))
+            .collect(
+                Collectors.groupingBy(
+                    slide -> getParent(slide, SAMPLE_CATEGORY_TISSUE, allSamplesById)));
+    samples
+        .stream()
         .filter(bySampleCategory(SAMPLE_CATEGORY_TISSUE))
-        .forEach(tissue -> {
-          if (!slidesByTissue.containsKey(tissue)) {
-            slidesByTissue.put(tissue, Lists.newArrayList());
+        .forEach(
+            tissue -> {
+              if (!slidesByTissue.containsKey(tissue)) {
+                slidesByTissue.put(tissue, Lists.newArrayList());
+              }
+            });
+
+    rows = new ArrayList<>();
+    slidesByTissue.forEach(
+        (tissue, slides) -> {
+          if (getAttribute(ATTR_RECEIVE_DATE, tissue) == null
+              && getAttribute(ATTR_CREATION_DATE, tissue) == null
+              && getAttribute(ATTR_SYNTHETIC, tissue) == null) {
+            if (slides.isEmpty()) {
+              rows.add(new ReportObject(tissue, null));
+            } else {
+              slides.forEach(
+                  slide -> {
+                    if (getAttribute(ATTR_RECEIVE_DATE, slide) == null
+                        && getAttribute(ATTR_CREATION_DATE, slide) == null
+                        && getAttribute(ATTR_SYNTHETIC, slide) == null) {
+                      rows.add(new ReportObject(tissue, slide));
+                    }
+                  });
+            }
           }
         });
-    
-    rows = new ArrayList<>();
-    slidesByTissue.forEach((tissue, slides) -> {
-      if (getAttribute(ATTR_RECEIVE_DATE, tissue) == null && getAttribute(ATTR_CREATION_DATE, tissue) == null
-          && getAttribute(ATTR_SYNTHETIC, tissue) == null) {
-        if (slides.isEmpty()) {
-          rows.add(new ReportObject(tissue, null));
-        } else {
-          slides.forEach(slide -> {
-            if (getAttribute(ATTR_RECEIVE_DATE, slide) == null && getAttribute(ATTR_CREATION_DATE, slide) == null
-                && getAttribute(ATTR_SYNTHETIC, slide) == null) {
-              rows.add(new ReportObject(tissue, slide));
-            }
-          });
-        }
-      }
-    });
   }
 
   @Override
@@ -136,16 +146,15 @@ public class ReceiptMissingReport extends TableReport {
   @Override
   protected String[] getRow(int rowNum) {
     String[] row = new String[COLUMNS.size()];
-    
+
     ReportObject data = rows.get(rowNum);
-    
+
     int i = -1;
     row[++i] = data.getTissue().getId();
     row[++i] = data.getTissue().getName();
     row[++i] = data.getSlide() == null ? "-" : data.getSlide().getId();
     row[++i] = data.getSlide() == null ? "-" : data.getSlide().getName();
-    
+
     return row;
   }
-
 }

@@ -3,6 +3,15 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.REPORT_CATEGORY_QC;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
+import ca.on.oicr.pinery.client.HttpResponseException;
+import ca.on.oicr.pinery.client.PineryClient;
+import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
+import ca.on.oicr.pineryreports.data.ColumnDefinition;
+import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
+import ca.on.oicr.ws.dto.SampleDto;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,21 +20,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import ca.on.oicr.pinery.client.HttpResponseException;
-import ca.on.oicr.pinery.client.PineryClient;
-import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
-import ca.on.oicr.pineryreports.data.ColumnDefinition;
-import ca.on.oicr.pineryreports.reports.TableReport;
-import ca.on.oicr.pineryreports.util.CommonOptions;
-import ca.on.oicr.ws.dto.SampleDto;
 
 public class LocationMissingReport extends TableReport {
 
@@ -40,10 +37,12 @@ public class LocationMissingReport extends TableReport {
 
   private static final String DATE_REGEX = "\\d{4}-\\d{2}-\\d{2}";
 
-  private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
-      new ColumnDefinition("Sample ID"),
-      new ColumnDefinition("Sample Alias"),
-      new ColumnDefinition("Sample Barcode")));
+  private static final List<ColumnDefinition> COLUMNS =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              new ColumnDefinition("Sample ID"),
+              new ColumnDefinition("Sample Alias"),
+              new ColumnDefinition("Sample Barcode")));
 
   private String start;
   private String end;
@@ -101,7 +100,9 @@ public class LocationMissingReport extends TableReport {
 
   @Override
   public String getTitle() {
-    return "Samples with no location for " + (project == null ? "all projects" : project) + " Report";
+    return "Samples with no location for "
+        + (project == null ? "all projects" : project)
+        + " Report";
   }
 
   @Override
@@ -110,23 +111,35 @@ public class LocationMissingReport extends TableReport {
     if (project == null) {
       samples = pinery.getSample().all();
     } else {
-      samples = pinery.getSample().allFiltered(new SamplesFilter().withProjects(Lists.newArrayList(project)));
+      samples =
+          pinery
+              .getSample()
+              .allFiltered(new SamplesFilter().withProjects(Lists.newArrayList(project)));
     }
     Map<String, SampleDto> allSamples = mapSamplesById(samples);
 
-    locationMissing = filter(samples, Arrays.asList(byNullLocation(), byCreator(userIds), byReceivedBetween(start, end),
-        byNotIdentity(), byReceivedOrChildOfReceived(allSamples), byNonZeroVolume()));
-    locationMissing.sort(new Comparator<SampleDto>() {
-      @Override
-      public int compare(SampleDto s1, SampleDto s2) {
-        int compare = s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase());
-        if (compare == 0) {
-          return s1.getId().compareTo(s2.getId());
-        } else {
-          return compare;
-        }
-      }
-    });
+    locationMissing =
+        filter(
+            samples,
+            Arrays.asList(
+                byNullLocation(),
+                byCreator(userIds),
+                byReceivedBetween(start, end),
+                byNotIdentity(),
+                byReceivedOrChildOfReceived(allSamples),
+                byNonZeroVolume()));
+    locationMissing.sort(
+        new Comparator<SampleDto>() {
+          @Override
+          public int compare(SampleDto s1, SampleDto s2) {
+            int compare = s1.getName().toUpperCase().compareTo(s2.getName().toUpperCase());
+            if (compare == 0) {
+              return s1.getId().compareTo(s2.getId());
+            } else {
+              return compare;
+            }
+          }
+        });
   }
 
   private static Predicate<SampleDto> byNullLocation() {
@@ -137,7 +150,8 @@ public class LocationMissingReport extends TableReport {
     return bySampleCategory(SAMPLE_CATEGORY_IDENTITY).negate();
   }
 
-  private static Predicate<SampleDto> byReceivedOrChildOfReceived(Map<String, SampleDto> allSamples) {
+  private static Predicate<SampleDto> byReceivedOrChildOfReceived(
+      Map<String, SampleDto> allSamples) {
     return dto -> {
       String receiveDate = getAttribute(ATTR_RECEIVE_DATE, dto);
       if (receiveDate != null) {
@@ -145,7 +159,6 @@ public class LocationMissingReport extends TableReport {
       } else {
         return getUpstreamAttribute(ATTR_RECEIVE_DATE, dto, allSamples) != null;
       }
-
     };
   }
 
@@ -178,5 +191,4 @@ public class LocationMissingReport extends TableReport {
 
     return row;
   }
-
 }

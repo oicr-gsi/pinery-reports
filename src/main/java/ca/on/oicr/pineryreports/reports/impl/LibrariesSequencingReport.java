@@ -3,22 +3,6 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
-import com.google.common.collect.Sets;
-
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
@@ -28,9 +12,22 @@ import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
+import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 public class LibrariesSequencingReport extends TableReport {
-  
+
   private static class ReportObject {
     private final String libraryName;
     private final String libraryType;
@@ -38,12 +35,14 @@ public class LibrariesSequencingReport extends TableReport {
     private final String identityName;
     private final String externalName;
     private final Set<RunDto> runs = new HashSet<>();
-    
+
     public ReportObject(SampleDto library, SampleDto identity) {
       this.libraryName = library.getName();
       this.libraryType = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, library);
-      this.receivedDate = getAttribute(ATTR_RECEIVE_DATE, library) == null ? getAttribute(ATTR_CREATION_DATE, library)
-          : getAttribute(ATTR_RECEIVE_DATE, library);
+      this.receivedDate =
+          getAttribute(ATTR_RECEIVE_DATE, library) == null
+              ? getAttribute(ATTR_CREATION_DATE, library)
+              : getAttribute(ATTR_RECEIVE_DATE, library);
       this.identityName = identity.getName();
       this.externalName = getAttribute(ATTR_EXTERNAL_NAME, identity);
     }
@@ -71,12 +70,12 @@ public class LibrariesSequencingReport extends TableReport {
     public Set<String> getRunNames() {
       return runs.stream().map(run -> run.getName()).collect(Collectors.toSet());
     }
-    
+
     public void addRun(RunDto run) {
       this.runs.add(run);
     }
   }
-  
+
   public static final String REPORT_NAME = "libraries-sequencing";
   public static final String CATEGORY = REPORT_CATEGORY_INVENTORY;
   private static final Option OPT_PROJECT = CommonOptions.project(true);
@@ -85,7 +84,7 @@ public class LibrariesSequencingReport extends TableReport {
   public String getReportName() {
     return REPORT_NAME;
   }
-  
+
   @Override
   public Collection<Option> getOptions() {
     return Sets.newHashSet(OPT_PROJECT);
@@ -106,7 +105,7 @@ public class LibrariesSequencingReport extends TableReport {
   public String getTitle() {
     return project + " Libraries Sequencing Report";
   }
-  
+
   private final Map<String, ReportObject> detailedData = new TreeMap<>();
   private List<Map.Entry<String, ReportObject>> detailedList;
   private String project;
@@ -115,14 +114,19 @@ public class LibrariesSequencingReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     Map<String, SampleDto> samplesById = mapSamplesById(pinery.getSample().all());
     Set<RunDto> newRuns = pinery.getSequencerRun().all().stream().collect(Collectors.toSet());
-    Set<RunDto> failedRuns = newRuns.stream().filter(run -> RUN_FAILED.equals(run.getState())).collect(Collectors.toSet());
+    Set<RunDto> failedRuns =
+        newRuns
+            .stream()
+            .filter(run -> RUN_FAILED.equals(run.getState()))
+            .collect(Collectors.toSet());
     newRuns.removeAll(failedRuns);
-    
+
     getReportAndSummaryData(newRuns, samplesById);
     detailedList = listify(detailedData);
   }
-  
-  private void getReportAndSummaryData(Collection<RunDto> runs, Map<String, SampleDto> samplesById) {
+
+  private void getReportAndSummaryData(
+      Collection<RunDto> runs, Map<String, SampleDto> samplesById) {
     for (RunDto run : runs) {
       if (run.getPositions() == null) continue;
       for (RunDtoPosition lane : run.getPositions()) {
@@ -148,9 +152,10 @@ public class LibrariesSequencingReport extends TableReport {
       }
     }
   }
-  
+
   static final List<Map.Entry<String, ReportObject>> listify(Map<String, ReportObject> detailed) {
-    // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet have one of those
+    // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet
+    // have one of those
     return new ArrayList<>(detailed.entrySet());
   }
 
@@ -162,8 +167,7 @@ public class LibrariesSequencingReport extends TableReport {
         new ColumnDefinition("Identity"),
         new ColumnDefinition("External Identifier"),
         new ColumnDefinition("Received Date"),
-        new ColumnDefinition("Runs")
-    );
+        new ColumnDefinition("Runs"));
   }
 
   @Override
@@ -185,6 +189,4 @@ public class LibrariesSequencingReport extends TableReport {
     row[++i] = String.join(", ", obj.getRunNames());
     return row;
   }
-
-
 }
