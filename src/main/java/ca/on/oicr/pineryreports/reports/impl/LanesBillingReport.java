@@ -287,7 +287,7 @@ public class LanesBillingReport extends TableReport {
           // Set the samples in lane count, then continue to the `for RunSampleDto :
           // lane.getSamples()` clause.
           samplesInLane = lane.getSamples().size();
-        } else if (lane.getSamples() == null && NOVASEQ.equals(instrumentModel)) {
+        } else if (NOVASEQ.equals(instrumentModel)) {
           // Some NovaSeq lanes are joined so the pool is only added to the first lane in LIMS, but
           // is present in all the other lanes.
           // Report the same data as for the first lane.
@@ -315,7 +315,7 @@ public class LanesBillingReport extends TableReport {
             // skip further processing because there are no samples in the lane
             continue;
           }
-        } else if (lane.getSamples() == null && !NOVASEQ.equals(instrumentModel)) {
+        } else {
           // NextSeq flowcells are 4 lanes but they can't be split. We report these as single-lane
           // runs and ignore lanes 2-4.
           if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1) continue;

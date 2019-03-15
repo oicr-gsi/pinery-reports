@@ -8,6 +8,8 @@ and as of version 1.0.0, follows semantic versioning.
 ## Unreleased
 ### Added:
   * Code formatter
+### Fixed:
+  * `lanes-billing`: don't error on empty NovaSeq flowcells
 
 ## [1.2.0]  2019-01-23
 ### Added:
