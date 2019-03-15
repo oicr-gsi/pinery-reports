@@ -7,7 +7,7 @@ public class CommonOptions {
   private CommonOptions() {
     throw new IllegalStateException("Static util class not intended for instantiation");
   }
-  
+
   public static Option project(boolean required) {
     return Option.builder()
         .longOpt("project")
@@ -17,27 +17,30 @@ public class CommonOptions {
         .desc("Project to report on" + (required ? " (required)" : ""))
         .build();
   }
-  
+
   public static Option after(boolean required) {
-    return Option.builder().longOpt("after")
+    return Option.builder()
+        .longOpt("after")
         .hasArg()
         .argName("date")
         .required(required)
         .desc("Report receipt/creation after this date, inclusive (yyyy-mm-dd)")
         .build();
   }
-  
+
   public static Option before(boolean required) {
-    return Option.builder().longOpt("before")
+    return Option.builder()
+        .longOpt("before")
         .hasArg()
         .argName("date")
         .required(required)
         .desc("Report receipt/creation before this date, exclusive (yyyy-mm-dd)")
         .build();
   }
-  
+
   public static Option users(boolean required) {
-    return Option.builder().longOpt("users")
+    return Option.builder()
+        .longOpt("users")
         .hasArg()
         .argName("userIds")
         .required(required)
@@ -46,12 +49,12 @@ public class CommonOptions {
   }
 
   public static Option analyte(boolean required) {
-    return Option.builder().longOpt("analyte")
+    return Option.builder()
+        .longOpt("analyte")
         .hasArg()
         .argName("analyte")
         .required(required)
         .desc("DNA or RNA or ALL" + (required ? " (required)" : ""))
         .build();
   }
-
 }

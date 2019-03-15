@@ -3,23 +3,6 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
-import com.google.common.collect.Sets;
-
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
@@ -30,14 +13,28 @@ import ca.on.oicr.ws.dto.RunDto;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
+import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 public class TglLibrariesRunReport extends TableReport {
-  
+
   private static class ReportObject {
     private final SampleDto library;
     private final RunDto run;
     private final String instrument;
-    
+
     public ReportObject(SampleDto library, RunDto run, String instrument) {
       this.library = library;
       this.run = run;
@@ -56,7 +53,7 @@ public class TglLibrariesRunReport extends TableReport {
       return instrument;
     }
   }
-  
+
   public static final String REPORT_NAME = "tgl-libraries-run";
   public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
   private static final Option OPT_AFTER = CommonOptions.after(false);
@@ -67,14 +64,16 @@ public class TglLibrariesRunReport extends TableReport {
   private String start;
   private String end;
 
-  private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(Arrays.asList(
-      new ColumnDefinition("Library creation date"),
-      new ColumnDefinition("Run completion date"),
-      new ColumnDefinition("Instrument"),
-      new ColumnDefinition("Run name"),
-      new ColumnDefinition("Project"),
-      new ColumnDefinition("Library"),
-      new ColumnDefinition("Seq strategy")));
+  private static final List<ColumnDefinition> COLUMNS =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              new ColumnDefinition("Library creation date"),
+              new ColumnDefinition("Run completion date"),
+              new ColumnDefinition("Instrument"),
+              new ColumnDefinition("Run name"),
+              new ColumnDefinition("Project"),
+              new ColumnDefinition("Library"),
+              new ColumnDefinition("Seq strategy")));
 
   Map<String, SampleDto> allSamplesById;
   List<ReportObject> reportData;
@@ -98,7 +97,7 @@ public class TglLibrariesRunReport extends TableReport {
       }
       this.start = after;
     }
-    
+
     if (cmd.hasOption(OPT_BEFORE.getLongOpt())) {
       String before = cmd.getOptionValue(OPT_BEFORE.getLongOpt());
       if (!before.matches(DATE_REGEX)) {
@@ -125,12 +124,22 @@ public class TglLibrariesRunReport extends TableReport {
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     allSamplesById = mapSamplesById(pinery.getSample().all());
-    Map<Integer, InstrumentDto> instrumentsById = pinery.getInstrument().all().stream()
-        .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
+    Map<Integer, InstrumentDto> instrumentsById =
+        pinery
+            .getInstrument()
+            .all()
+            .stream()
+            .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
     // filter runs within the date range
-    Set<RunDto> newRuns = pinery.getSequencerRun().all().stream().filter(byEndedBetween(start, end)).collect(Collectors.toSet());
+    Set<RunDto> newRuns =
+        pinery
+            .getSequencerRun()
+            .all()
+            .stream()
+            .filter(byEndedBetween(start, end))
+            .collect(Collectors.toSet());
     List<ReportObject> rows = new ArrayList<>();
-    
+
     for (RunDto run : newRuns) {
       String instrumentName = getInstrumentName(run.getInstrumentId(), instrumentsById);
       if (run.getPositions() == null) continue;
@@ -151,14 +160,13 @@ public class TglLibrariesRunReport extends TableReport {
     return tglPattern.matcher(library.getProjectName()).matches();
   }
 
-  /**
-   * Sort descending by library creation date
-   */
-  private final Comparator<ReportObject> byLibraryCreationDate = (o1, o2) -> {
-    String o1Created = o1.getLibrary().getCreatedDate();
-    String o2Created = o2.getLibrary().getCreatedDate();
-    return o1Created.compareTo(o2Created) * -1;
-  };
+  /** Sort descending by library creation date */
+  private final Comparator<ReportObject> byLibraryCreationDate =
+      (o1, o2) -> {
+        String o1Created = o1.getLibrary().getCreatedDate();
+        String o2Created = o2.getLibrary().getCreatedDate();
+        return o1Created.compareTo(o2Created) * -1;
+      };
 
   @Override
   protected List<ColumnDefinition> getColumns() {
@@ -193,5 +201,4 @@ public class TglLibrariesRunReport extends TableReport {
 
     return row;
   }
-
 }

@@ -3,6 +3,19 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
+import ca.on.oicr.pinery.client.HttpResponseException;
+import ca.on.oicr.pinery.client.PineryClient;
+import ca.on.oicr.pineryreports.data.ColumnDefinition;
+import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
+import ca.on.oicr.ws.dto.InstrumentDto;
+import ca.on.oicr.ws.dto.InstrumentModelDto;
+import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.RunDtoPosition;
+import ca.on.oicr.ws.dto.RunDtoSample;
+import ca.on.oicr.ws.dto.SampleDto;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -21,25 +34,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
-
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-
-import ca.on.oicr.pinery.client.HttpResponseException;
-import ca.on.oicr.pinery.client.PineryClient;
-import ca.on.oicr.pineryreports.data.ColumnDefinition;
-import ca.on.oicr.pineryreports.reports.TableReport;
-import ca.on.oicr.pineryreports.util.CommonOptions;
-import ca.on.oicr.ws.dto.InstrumentDto;
-import ca.on.oicr.ws.dto.InstrumentModelDto;
-import ca.on.oicr.ws.dto.RunDto;
-import ca.on.oicr.ws.dto.RunDtoPosition;
-import ca.on.oicr.ws.dto.RunDtoSample;
-import ca.on.oicr.ws.dto.SampleDto;
 
 public class GazpachoProjectStatusReport extends TableReport {
 
@@ -81,7 +78,6 @@ public class GazpachoProjectStatusReport extends TableReport {
     public String getInstrumentModel() {
       return instrumentModel;
     }
-
   }
 
   private static class ReportItem implements Comparable<ReportItem> {
@@ -148,7 +144,8 @@ public class GazpachoProjectStatusReport extends TableReport {
 
     public String getWaitingLibraries() {
       Date receivedByLab;
-      SampleDto mostRecentAliquot = aliquots.stream().max(Comparator.comparing(SampleDto::getCreatedDate)).orElse(null);
+      SampleDto mostRecentAliquot =
+          aliquots.stream().max(Comparator.comparing(SampleDto::getCreatedDate)).orElse(null);
       if (mostRecentAliquot == null) return "";
       try {
         receivedByLab = getDateTimeFormat().parse(mostRecentAliquot.getCreatedDate());
@@ -189,10 +186,14 @@ public class GazpachoProjectStatusReport extends TableReport {
       if (getLibraries().isEmpty()) return "";
       Date maxLibCreated = new Date();
       try {
-        maxLibCreated = getDateTimeFormat().parse(getLibraries().stream()
-            .max(Comparator.comparing(SampleDto::getCreatedDate))
-            .map(SampleDto::getCreatedDate)
-            .orElse(new Date().toString()));
+        maxLibCreated =
+            getDateTimeFormat()
+                .parse(
+                    getLibraries()
+                        .stream()
+                        .max(Comparator.comparing(SampleDto::getCreatedDate))
+                        .map(SampleDto::getCreatedDate)
+                        .orElse(new Date().toString()));
       } catch (java.text.ParseException e) {
         System.out.println("Error parsing created date for libraries for sample " + stock.getId());
       }
@@ -223,10 +224,15 @@ public class GazpachoProjectStatusReport extends TableReport {
         return "";
       }
       long daysSinceReceived = Duration.between(receivedByLab.toInstant(), reportingEnd).toDays();
-      if (runs.isEmpty() || !runs.stream().filter(run -> RUN_RUNNING.equals(run.getStatus())).collect(Collectors.toList()).isEmpty()) {
+      if (runs.isEmpty()
+          || !runs.stream()
+              .filter(run -> RUN_RUNNING.equals(run.getStatus()))
+              .collect(Collectors.toList())
+              .isEmpty()) {
         return Long.toString(daysSinceReceived);
       } else {
-        ModifiedRunDto mostRecent = runs.stream().max(Comparator.comparing(ModifiedRunDto::getCompletionDate)).orElse(null);
+        ModifiedRunDto mostRecent =
+            runs.stream().max(Comparator.comparing(ModifiedRunDto::getCompletionDate)).orElse(null);
         if (mostRecent == null) return Long.toString(daysSinceReceived);
         try {
           runCompleted = getDateTimeFormat().parse(mostRecent.getCompletionDate());
@@ -234,7 +240,8 @@ public class GazpachoProjectStatusReport extends TableReport {
           System.out.println("Error parsing completion date for run " + mostRecent.getRunId());
           return "";
         }
-        long daysReceivedToCompleted = Duration.between(receivedByLab.toInstant(), runCompleted.toInstant()).toDays();
+        long daysReceivedToCompleted =
+            Duration.between(receivedByLab.toInstant(), runCompleted.toInstant()).toDays();
         return Long.toString(daysReceivedToCompleted);
       }
     }
@@ -324,27 +331,40 @@ public class GazpachoProjectStatusReport extends TableReport {
 
   @Override
   public String getTitle() {
-    return "Project Status Report (Gazpacho) for project " + project
+    return "Project Status Report (Gazpacho) for project "
+        + project
         + (ALL.equals(analyte) ? " DNA & RNA" : String.format(" %s", analyte))
         + " for "
         + (start == null ? "Any Time" : start)
         + " - "
         + (end == null ? "Now" : end)
-        + ". Generated " + new SimpleDateFormat(DATE_FORMAT).format(new Date());
+        + ". Generated "
+        + new SimpleDateFormat(DATE_FORMAT).format(new Date());
   }
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
     List<SampleDto> allSamples = pinery.getSample().all();
-    List<SampleDto> allProjectSamples = allSamples.stream().filter(byProject(project)).collect(Collectors.toList());
-    Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples); // separate since hierarchy may include multiple projects
+    List<SampleDto> allProjectSamples =
+        allSamples.stream().filter(byProject(project)).collect(Collectors.toList());
+    Map<String, SampleDto> allSamplesById =
+        mapSamplesById(allSamples); // separate since hierarchy may include multiple projects
     List<RunDto> allRuns = pinery.getSequencerRun().all();
-    Map<Integer, InstrumentDto> instrumentsById = pinery.getInstrument().all().stream()
-        .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
-    Map<Integer, InstrumentModelDto> instrumentModelsById = pinery.getInstrumentModel().all().stream()
-        .collect(Collectors.toMap(InstrumentModelDto::getId, dto -> dto));
+    Map<Integer, InstrumentDto> instrumentsById =
+        pinery
+            .getInstrument()
+            .all()
+            .stream()
+            .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
+    Map<Integer, InstrumentModelDto> instrumentModelsById =
+        pinery
+            .getInstrumentModel()
+            .all()
+            .stream()
+            .collect(Collectors.toMap(InstrumentModelDto::getId, dto -> dto));
     // Filtering now helps with pulling data from a historic point in time
-    allProjectSamples = allProjectSamples.stream().filter(byCreatedBetween(null, end)).collect(Collectors.toList());
+    allProjectSamples =
+        allProjectSamples.stream().filter(byCreatedBetween(null, end)).collect(Collectors.toList());
     allRuns = allRuns.stream().filter(byCreatedBefore(end)).collect(Collectors.toList());
 
     // First, go through and categorize all stocks.
@@ -384,13 +404,14 @@ public class GazpachoProjectStatusReport extends TableReport {
       }
     }
 
-
-
     // Then go through and categorize all libraries
     for (SampleDto library : allProjectSamples) {
       String type = library.getSampleType();
 
-      if (type != null && type.contains(LIBRARY) && !type.contains(" Seq") && project.equals(library.getProjectName())) {
+      if (type != null
+          && type.contains(LIBRARY)
+          && !type.contains(" Seq")
+          && project.equals(library.getProjectName())) {
         SampleDto stock = getParent(library, SAMPLE_CATEGORY_STOCK, allSamplesById);
         ReportItem match;
         if (hasDnaAnalyteName(stock)) {
@@ -423,12 +444,18 @@ public class GazpachoProjectStatusReport extends TableReport {
             ReportItem match;
             if (hasDnaAnalyteName(stock)) {
               match = allDna.get(stock.getId());
-              match.addRunLane(run, lane, getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById));
+              match.addRunLane(
+                  run,
+                  lane,
+                  getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById));
               classifyIfActiveThisMonth(run, stock, match, dnaThisMonth);
               allDna.put(stock.getId(), match);
             } else {
               match = allRna.get(stock.getId());
-              match.addRunLane(run, lane, getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById));
+              match.addRunLane(
+                  run,
+                  lane,
+                  getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById));
               classifyIfActiveThisMonth(run, stock, match, rnaThisMonth);
               allRna.put(stock.getId(), match);
             }
@@ -449,41 +476,56 @@ public class GazpachoProjectStatusReport extends TableReport {
   }
 
   /**
-   * Get all the items created in the past six months which don't have recent activity (within the past month)
-   * 
+   * Get all the items created in the past six months which don't have recent activity (within the
+   * past month)
+   *
    * @param allReportItems list of all report items
    * @return list of report items created in the past six months with no recent activity
    */
-  private List<Entry<String, ReportItem>> getStagnant(List<Entry<String, ReportItem>> allReportItems) {
-    return allReportItems.stream().
-        filter(entry -> {
-          boolean stagnant = false;
-          try {
-            String lanesActive = getNumLanes(entry.getValue(), RUN_COMPLETED, null);
-            if ("".equals(lanesActive))
-              lanesActive = getNumLanes(entry.getValue(), RUN_RUNNING, null);
-            stagnant = "".equals(lanesActive)
-                && !dnaRecentList.contains(entry)
-                && !rnaRecentList.contains(entry)
-                && getDateTimeFormat().parse(entry.getValue().getStock().getCreatedDate()).toInstant().isAfter(SIX_MONTHS_AGO);
-          } catch (java.text.ParseException e) {
-            e.printStackTrace();
-          }
-          return stagnant;
-        }).collect(Collectors.toList());
+  private List<Entry<String, ReportItem>> getStagnant(
+      List<Entry<String, ReportItem>> allReportItems) {
+    return allReportItems
+        .stream()
+        .filter(
+            entry -> {
+              boolean stagnant = false;
+              try {
+                String lanesActive = getNumLanes(entry.getValue(), RUN_COMPLETED, null);
+                if ("".equals(lanesActive))
+                  lanesActive = getNumLanes(entry.getValue(), RUN_RUNNING, null);
+                stagnant =
+                    "".equals(lanesActive)
+                        && !dnaRecentList.contains(entry)
+                        && !rnaRecentList.contains(entry)
+                        && getDateTimeFormat()
+                            .parse(entry.getValue().getStock().getCreatedDate())
+                            .toInstant()
+                            .isAfter(SIX_MONTHS_AGO);
+              } catch (java.text.ParseException e) {
+                e.printStackTrace();
+              }
+              return stagnant;
+            })
+        .collect(Collectors.toList());
   }
 
-  private void addReportItem(ReportItem item, Map<String, ReportItem> recent, Map<String, ReportItem> all) {
-    Set<SampleDto> recentAliquots = item.getAliquots().stream()
-        .filter(aliq -> isCreatedBetween(aliq, start, end))
-        .collect(Collectors.toSet());
+  private void addReportItem(
+      ReportItem item, Map<String, ReportItem> recent, Map<String, ReportItem> all) {
+    Set<SampleDto> recentAliquots =
+        item.getAliquots()
+            .stream()
+            .filter(aliq -> isCreatedBetween(aliq, start, end))
+            .collect(Collectors.toSet());
     if (!recentAliquots.isEmpty() || isCreatedBetween(item.getStock(), start, end)) {
       recent.put(item.getStock().getId(), item);
     }
     all.put(item.getStock().getId(), item);
   }
 
-  private static final ReportItem addLibToReportItem(SampleDto stock, SampleDto lib, Map<String, ReportItem> all,
+  private static final ReportItem addLibToReportItem(
+      SampleDto stock,
+      SampleDto lib,
+      Map<String, ReportItem> all,
       Map<String, SampleDto> allSamples) {
     String groupId = getAttribute(ATTR_GROUP_ID, lib);
     if (groupId == null) groupId = getUpstreamAttribute(ATTR_GROUP_ID, lib, allSamples);
@@ -493,8 +535,7 @@ public class GazpachoProjectStatusReport extends TableReport {
       SampleDto identity = getParent(stock, SAMPLE_CATEGORY_IDENTITY, allSamples);
       String externalName = getAttribute(ATTR_EXTERNAL_NAME, identity);
       String subproject = getAttribute(ATTR_SUBPROJECT, stock);
-      if (subproject == null)
-        subproject = getUpstreamAttribute(ATTR_SUBPROJECT, stock, allSamples);
+      if (subproject == null) subproject = getUpstreamAttribute(ATTR_SUBPROJECT, stock, allSamples);
       ReportItem deNovo = new ReportItem(stock, externalName, subproject);
       match = deNovo;
     }
@@ -502,13 +543,13 @@ public class GazpachoProjectStatusReport extends TableReport {
     return match;
   }
 
-  private final void classifyIfActiveThisMonth(RunDto run, SampleDto stock, ReportItem match, Map<String, ReportItem> thisMonth) {
+  private final void classifyIfActiveThisMonth(
+      RunDto run, SampleDto stock, ReportItem match, Map<String, ReportItem> thisMonth) {
     if ((RUN_COMPLETED.equals(run.getState())
-        && run.getCompletionDate().compareTo(start) > 0
-        && run.getCompletionDate().compareTo(end) < 0)
-        ||
-        (RUN_RUNNING.equals(run.getState()) &&
-            (run.getStartDate().compareTo(start) > 0
+            && run.getCompletionDate().compareTo(start) > 0
+            && run.getCompletionDate().compareTo(end) < 0)
+        || (RUN_RUNNING.equals(run.getState())
+            && (run.getStartDate().compareTo(start) > 0
                 && run.getStartDate().compareTo(end) < 0))) {
       thisMonth.put(stock.getId(), match);
     }
@@ -520,7 +561,8 @@ public class GazpachoProjectStatusReport extends TableReport {
     if (instrumentModel != null && !"".equals(instrumentModel)) {
       predicates = predicates.and(dto -> dto.getInstrumentModel().contains(instrumentModel));
     }
-    Set<ModifiedRunDto> matching = item.getRuns().stream().filter(predicates).collect(Collectors.toSet());
+    Set<ModifiedRunDto> matching =
+        item.getRuns().stream().filter(predicates).collect(Collectors.toSet());
     Integer matchingLanes = 0;
     for (ModifiedRunDto run : matching) {
       List<Integer> lanesForRun = run.getLanes();
@@ -532,12 +574,14 @@ public class GazpachoProjectStatusReport extends TableReport {
   private static final List<Map.Entry<String, ReportItem>> listifyMap(Map<String, ReportItem> map) {
     // need to convert it to a list, because getRow() calls item by index
     ArrayList<Map.Entry<String, ReportItem>> listified = new ArrayList<>(map.entrySet());
-    Collections.sort(listified, new Comparator<Map.Entry<String, ReportItem>>() {
-      @Override
-      public int compare(Map.Entry<String, ReportItem> s1, Map.Entry<String, ReportItem> s2) {
-        return s1.getValue().getStock().getName().compareTo(s2.getValue().getStock().getName());
-      }
-    });
+    Collections.sort(
+        listified,
+        new Comparator<Map.Entry<String, ReportItem>>() {
+          @Override
+          public int compare(Map.Entry<String, ReportItem> s1, Map.Entry<String, ReportItem> s2) {
+            return s1.getValue().getStock().getName().compareTo(s2.getValue().getStock().getName());
+          }
+        });
     return listified;
   }
 
@@ -554,7 +598,8 @@ public class GazpachoProjectStatusReport extends TableReport {
   protected List<ColumnDefinition> getColumns() {
     String analyteHeader = (RNA.equals(analyte) ? RNA : DNA);
     return Arrays.asList(
-        new ColumnDefinition(String.format("%s: %s Recent (%s - %s)", project, analyteHeader, start, end)),
+        new ColumnDefinition(
+            String.format("%s: %s Recent (%s - %s)", project, analyteHeader, start, end)),
         new ColumnDefinition(""),
         new ColumnDefinition(""),
         new ColumnDefinition(""),
@@ -578,18 +623,10 @@ public class GazpachoProjectStatusReport extends TableReport {
   protected int getRowCount() {
     int count = 1;
     if (ALL.equals(analyte) || DNA.equals(analyte)) {
-      count += dnaRecentList.size()
-          + 3
-          + dnaStagnantList.size()
-          + 3
-          + dnaAllList.size();
+      count += dnaRecentList.size() + 3 + dnaStagnantList.size() + 3 + dnaAllList.size();
     }
     if (ALL.equals(analyte) || RNA.equals(analyte)) {
-      count += rnaRecentList.size()
-          + 3
-          + rnaStagnantList.size()
-          + 3
-          + rnaAllList.size();
+      count += rnaRecentList.size() + 3 + rnaStagnantList.size() + 3 + rnaAllList.size();
     }
     return count;
     // the "+1" is to make the getRow() call happy -- adds a blank row at the end since
@@ -612,16 +649,16 @@ public class GazpachoProjectStatusReport extends TableReport {
     }
 
     if (ALL.equals(analyte)) {
-        // add extra headers for DNA & RNA combined report.
-        // if RNA.equals(analyte) then the "RNA Recent" title and heading are already written
-        if (rowNum == 0) {
-          return makeBlankRow();
-        } else if (rowNum == 1) {
-          return makeTitleRow(String.format("%s: %s (%s - %s)", project, "RNA Recent", start, end));
-        } else if (rowNum == 2) {
-          return makeHeadingRow();
-        }
-        rowNum -= 3;
+      // add extra headers for DNA & RNA combined report.
+      // if RNA.equals(analyte) then the "RNA Recent" title and heading are already written
+      if (rowNum == 0) {
+        return makeBlankRow();
+      } else if (rowNum == 1) {
+        return makeTitleRow(String.format("%s: %s (%s - %s)", project, "RNA Recent", start, end));
+      } else if (rowNum == 2) {
+        return makeHeadingRow();
+      }
+      rowNum -= 3;
     }
     if (ALL.equals(analyte) || RNA.equals(analyte)) {
       if (rowNum < rnaRecentList.size()) {
@@ -635,7 +672,8 @@ public class GazpachoProjectStatusReport extends TableReport {
       if (rowNum == 0) {
         return makeBlankRow();
       } else if (rowNum == 1) {
-        return makeTitleRow(String.format("%s: %s (%s - %s)", project, "DNA Stagnant", "6 months ago", "Today"));
+        return makeTitleRow(
+            String.format("%s: %s (%s - %s)", project, "DNA Stagnant", "6 months ago", "Today"));
       } else if (rowNum == 2) {
         return makeHeadingRow();
       }
@@ -651,7 +689,8 @@ public class GazpachoProjectStatusReport extends TableReport {
       if (rowNum == 0) {
         return makeBlankRow();
       } else if (rowNum == 1) {
-        return makeTitleRow(String.format("%s: %s (%s - %s)", project, "RNA Stagnant", "6 months ago", "Today"));
+        return makeTitleRow(
+            String.format("%s: %s (%s - %s)", project, "RNA Stagnant", "6 months ago", "Today"));
       } else if (rowNum == 2) {
         return makeHeadingRow();
       }
@@ -707,7 +746,10 @@ public class GazpachoProjectStatusReport extends TableReport {
     row[++i] = "1"; // received samples
     row[++i] = info.getWaitingAliquots(); // aliquots waiting
     row[++i] = info.getWaitingLibraries(); // libraries waiting
-    row[++i] = info.getLibraries().isEmpty() ? "" : Integer.toString(info.getLibraries().size());// libraries created
+    row[++i] =
+        info.getLibraries().isEmpty()
+            ? ""
+            : Integer.toString(info.getLibraries().size()); // libraries created
     row[++i] = info.getWaitingSequencing(); // sequencing waiting
     row[++i] = getNumLanes(info, RUN_RUNNING, MISEQ); // MiSeq lanes running
     row[++i] = getNumLanes(info, RUN_COMPLETED, MISEQ); // MiSeq lanes completed
@@ -728,23 +770,24 @@ public class GazpachoProjectStatusReport extends TableReport {
 
   private String[] makeHeadingRow() {
     return new String[] { //
-        "Stock", //
-        "Subproject", //
-        "Ext. Name", //
-        "Group IDs", //
-        "Transferred to GT", //
-        "In Samples", //
-        "In Lib Prep", //
-        "# Libs", //
-        "In Seq", //
-        "# MiSeq Lanes Running", //
-        "# MiSeq Lanes Done", //
-        "# HiSeq Lanes Running", //
-        "# HiSeq Lanes Done", //
-        "# NovaSeq Lanes Running", //
-        "# NovaSeq Lanes Done", //
-        "Days in Genomics", //
-        "Analysis" };
+      "Stock", //
+      "Subproject", //
+      "Ext. Name", //
+      "Group IDs", //
+      "Transferred to GT", //
+      "In Samples", //
+      "In Lib Prep", //
+      "# Libs", //
+      "In Seq", //
+      "# MiSeq Lanes Running", //
+      "# MiSeq Lanes Done", //
+      "# HiSeq Lanes Running", //
+      "# HiSeq Lanes Done", //
+      "# NovaSeq Lanes Running", //
+      "# NovaSeq Lanes Done", //
+      "Days in Genomics", //
+      "Analysis"
+    };
   }
 
   private String[] makeBlankRow() {
@@ -752,5 +795,4 @@ public class GazpachoProjectStatusReport extends TableReport {
     Arrays.fill(row, "");
     return row;
   }
-
 }

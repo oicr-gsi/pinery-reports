@@ -3,19 +3,6 @@ package ca.on.oicr.pineryreports.reports.impl;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.*;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
-
-import com.google.common.collect.Sets;
-
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
@@ -23,6 +10,16 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
+import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.ParseException;
 
 public class LibrariesBillingReport extends TableReport {
 
@@ -53,14 +50,15 @@ public class LibrariesBillingReport extends TableReport {
       libsCount += 1;
     }
 
-    private static final Comparator<SummaryObject> summaryComparator = (SummaryObject o1, SummaryObject o2) -> {
-      if (o1.getProject().equals(o2.getProject())) {
-        return o2.getKit().compareTo(o2.getKit());
-      } else {
-        // sort on this primarily
-        return o1.getProject().compareTo(o2.getProject());
-      }
-    };
+    private static final Comparator<SummaryObject> summaryComparator =
+        (SummaryObject o1, SummaryObject o2) -> {
+          if (o1.getProject().equals(o2.getProject())) {
+            return o2.getKit().compareTo(o2.getKit());
+          } else {
+            // sort on this primarily
+            return o1.getProject().compareTo(o2.getProject());
+          }
+        };
   }
 
   private static class DetailedObject {
@@ -70,7 +68,12 @@ public class LibrariesBillingReport extends TableReport {
     private final String libraryDesignCode;
     private final String project;
 
-    public DetailedObject(String project, String kit, String creationDate, String libraryAlias, String libraryDesignCode) {
+    public DetailedObject(
+        String project,
+        String kit,
+        String creationDate,
+        String libraryAlias,
+        String libraryDesignCode) {
       this.project = project;
       this.kit = kit;
       this.creationDate = removeTime(creationDate);
@@ -98,14 +101,15 @@ public class LibrariesBillingReport extends TableReport {
       return project;
     }
 
-    private static final Comparator<DetailedObject> detailedComparator = (DetailedObject o1, DetailedObject o2) -> {
-      if (o1.getProject().equals(o2.getProject())) {
-        return o2.getCreationDate().compareTo(o2.getCreationDate());
-      } else {
-        // sort on this primarily
-        return o1.getProject().compareTo(o2.getProject());
-      }
-    };
+    private static final Comparator<DetailedObject> detailedComparator =
+        (DetailedObject o1, DetailedObject o2) -> {
+          if (o1.getProject().equals(o2.getProject())) {
+            return o2.getCreationDate().compareTo(o2.getCreationDate());
+          } else {
+            // sort on this primarily
+            return o1.getProject().compareTo(o2.getProject());
+          }
+        };
   }
 
   public static final String REPORT_NAME = "libraries-billing";
@@ -167,19 +171,25 @@ public class LibrariesBillingReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     // filter by libraries
     List<String> libraryTypes = Arrays.asList("Illumina PE Library", "Illumina SE Library");
-    List<SampleDto> allLibraries = pinery.getSample().allFiltered(new SamplesFilter().withTypes(libraryTypes));
+    List<SampleDto> allLibraries =
+        pinery.getSample().allFiltered(new SamplesFilter().withTypes(libraryTypes));
 
     // filter down to libraries within the date range
-    List<SampleDto> newLibraries = allLibraries.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+    List<SampleDto> newLibraries =
+        allLibraries.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
 
     for (SampleDto lib : newLibraries) {
-      String kitName = (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName());
+      String kitName =
+          (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName());
       String project = lib.getProjectName();
 
       // update summary
-      SummaryObject matchingKitAndProject = summaryData.stream()
-          .filter(row -> row.getKit().equals(kitName) && row.getProject().equals(project))
-          .findAny().orElse(null);
+      SummaryObject matchingKitAndProject =
+          summaryData
+              .stream()
+              .filter(row -> row.getKit().equals(kitName) && row.getProject().equals(project))
+              .findAny()
+              .orElse(null);
       if (matchingKitAndProject == null) {
         // new project & kit combo
         matchingKitAndProject = new SummaryObject(project, kitName);
@@ -198,8 +208,12 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   private DetailedObject makeDetailedRow(SampleDto lib) {
-    return new DetailedObject(lib.getProjectName(), (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName()),
-        lib.getCreatedDate(), lib.getName(), getAttribute(LIBRARY_DESIGN_CODE, lib));
+    return new DetailedObject(
+        lib.getProjectName(),
+        (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName()),
+        lib.getCreatedDate(),
+        lib.getName(),
+        getAttribute(LIBRARY_DESIGN_CODE, lib));
   }
 
   @Override
@@ -207,25 +221,21 @@ public class LibrariesBillingReport extends TableReport {
     return Arrays.asList(
         new ColumnDefinition("Study Title"),
         new ColumnDefinition("Library Kit"),
-        new ColumnDefinition(String.format("Count (%s - %s)", (start == null ? "Any Time" : start), (end == null ? "Now" : end))),
+        new ColumnDefinition(
+            String.format(
+                "Count (%s - %s)",
+                (start == null ? "Any Time" : start), (end == null ? "Now" : end))),
         new ColumnDefinition(""),
         new ColumnDefinition(""));
   }
 
   private List<String> getDetailedHeadings() {
-    return Arrays.asList(
-        "Project",
-        "Creation Date",
-        "Library",
-        "Library Kit",
-        "Seq. Strategy");
+    return Arrays.asList("Project", "Creation Date", "Library", "Library Kit", "Seq. Strategy");
   }
 
   @Override
   protected int getRowCount() {
-    return summaryData.size()
-        + 2
-        + detailedData.size();
+    return summaryData.size() + 2 + detailedData.size();
   }
 
   @Override

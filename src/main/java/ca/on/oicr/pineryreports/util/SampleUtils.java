@@ -1,5 +1,9 @@
 package ca.on.oicr.pineryreports.util;
 
+import ca.on.oicr.ws.dto.AttributeDto;
+import ca.on.oicr.ws.dto.SampleDto;
+import ca.on.oicr.ws.dto.SampleReferenceDto;
+import com.google.common.collect.Lists;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,19 +19,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
-
-import ca.on.oicr.ws.dto.AttributeDto;
-import ca.on.oicr.ws.dto.SampleDto;
-import ca.on.oicr.ws.dto.SampleReferenceDto;
-
 public class SampleUtils {
-
 
   private SampleUtils() {
     throw new IllegalStateException("Util class not intended for instantiation");
   }
-  
+
   public static final String ATTR_CATEGORY = "Sample Category";
   public static final String ATTR_EXTERNAL_NAME = "External Name";
   public static final String ATTR_TISSUE_TYPE = "Tissue Type";
@@ -76,9 +73,10 @@ public class SampleUtils {
   public static final String LIBRARY_DESIGN_SM = "SM";
   public static final String LIBRARY_DESIGN_WT = "WT";
   public static final String LIBRARY_DESIGN_TR = "TR";
-  public static final List<String> RNA_LIBRARY_DESIGN_CODES = Collections
-      .unmodifiableList(Arrays.asList(LIBRARY_DESIGN_MR, LIBRARY_DESIGN_SM, LIBRARY_DESIGN_WT,
-          LIBRARY_DESIGN_TR));
+  public static final List<String> RNA_LIBRARY_DESIGN_CODES =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              LIBRARY_DESIGN_MR, LIBRARY_DESIGN_SM, LIBRARY_DESIGN_WT, LIBRARY_DESIGN_TR));
   // Unknown library design code
   public static final String LIBRARY_DESIGN_NN = "NN";
 
@@ -86,17 +84,16 @@ public class SampleUtils {
   public static final String NOVASEQ = "Illumina NovaSeq 6000";
 
   public static Map<String, SampleDto> mapSamplesById(Collection<SampleDto> samples) {
-    return samples.stream()
-    .collect(Collectors.toMap(SampleDto::getId, dto->dto));
+    return samples.stream().collect(Collectors.toMap(SampleDto::getId, dto -> dto));
   }
-  
-  public static List<SampleDto> filter(Collection<SampleDto> samples, Predicate<SampleDto> predicate) {
-    return samples.stream()
-        .filter(predicate)
-        .collect(Collectors.toList());
+
+  public static List<SampleDto> filter(
+      Collection<SampleDto> samples, Predicate<SampleDto> predicate) {
+    return samples.stream().filter(predicate).collect(Collectors.toList());
   }
-  
-  public static List<SampleDto> filter(Collection<SampleDto> samples, Collection<Predicate<SampleDto>> predicates) {
+
+  public static List<SampleDto> filter(
+      Collection<SampleDto> samples, Collection<Predicate<SampleDto>> predicates) {
     if (predicates == null || predicates.isEmpty()) {
       return Lists.newArrayList(samples);
     } else {
@@ -108,15 +105,15 @@ public class SampleUtils {
       return filter(samples, combined);
     }
   }
-  
+
   public static Predicate<SampleDto> byProject(String projectName) {
     return dto -> projectName.equals(dto.getProjectName());
   }
-  
+
   public static Predicate<SampleDto> bySampleCategory(String sampleCategory) {
     return dto -> sampleCategory.equals(getAttribute(ATTR_CATEGORY, dto));
   }
-  
+
   public static Predicate<SampleDto> byCreatedBetween(String start, String end) {
     return dto -> isCreatedBetween(dto, start, end);
   }
@@ -125,7 +122,7 @@ public class SampleUtils {
     return (start == null || dto.getCreatedDate().compareTo(start) > 0)
         && (end == null || dto.getCreatedDate().compareTo(end) < 0);
   }
-  
+
   public static Predicate<SampleDto> byCreator(List<Integer> userIds) {
     if (userIds.isEmpty()) return dto -> true;
     return dto -> userIds.contains(dto.getCreatedById());
@@ -134,7 +131,9 @@ public class SampleUtils {
   public static Predicate<SampleDto> byReceivedBetween(String start, String end) {
     return dto -> {
       String received = getAttribute(ATTR_RECEIVE_DATE, dto);
-      return received != null && (start == null || received.compareTo(start) > 0) && (end == null || received.compareTo(end) < 0);
+      return received != null
+          && (start == null || received.compareTo(start) > 0)
+          && (end == null || received.compareTo(end) < 0);
     };
   }
 
@@ -167,13 +166,15 @@ public class SampleUtils {
     return dto -> {
       String designCode = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dto);
       if (designCode == null)
-        throw new IllegalArgumentException("Library is missing a library design code; is " + dto.getId() + " really a library?");
+        throw new IllegalArgumentException(
+            "Library is missing a library design code; is " + dto.getId() + " really a library?");
       return RNA_LIBRARY_DESIGN_CODES.contains(designCode);
     };
   }
 
   public static boolean isNonIlluminaLibrary(SampleDto dilution) {
-    if (dilution.getSampleType() == null) throw new IllegalArgumentException("Dilution " + dilution.getName() + " has no sample_type");
+    if (dilution.getSampleType() == null)
+      throw new IllegalArgumentException("Dilution " + dilution.getName() + " has no sample_type");
     return !dilution.getSampleType().contains("Illumina"); // note the negation here
   }
 
@@ -181,31 +182,31 @@ public class SampleUtils {
     return SampleUtils::isNonIlluminaLibrary;
   }
 
-  public static final Predicate<SampleDto> withSlidesRemaining = slide -> {
-    Integer slides = getIntAttribute(ATTR_SLIDES, slide);
-    Integer discards = getIntAttribute(ATTR_DISCARDS, slide);
-    if (slides == null) {
-      throw new IllegalArgumentException("Sample does not seem to be a slide");
-    }
-    if (discards == null) {
-      return slides > 0;
-    }
-    return slides > discards;
-  };
+  public static final Predicate<SampleDto> withSlidesRemaining =
+      slide -> {
+        Integer slides = getIntAttribute(ATTR_SLIDES, slide);
+        Integer discards = getIntAttribute(ATTR_DISCARDS, slide);
+        if (slides == null) {
+          throw new IllegalArgumentException("Sample does not seem to be a slide");
+        }
+        if (discards == null) {
+          return slides > 0;
+        }
+        return slides > discards;
+      };
 
   public static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples) {
-    return samples.stream()
+    return samples
+        .stream()
         .filter(sample -> !"EMPTY".equals(sample.getStorageLocation()))
         .collect(Collectors.toList());
   }
 
   /**
    * Return attribute value that exists for the given attribute name on the given sample.
-   * 
-   * @param sample
-   *          Sample to look for attribute
-   * @param attributeName
-   *          Name of the attribute we are retrieving values for
+   *
+   * @param sample Sample to look for attribute
+   * @param attributeName Name of the attribute we are retrieving values for
    * @return Attribute the attribute value, or null if the attribute is not found
    */
   public static String getAttribute(String attributeName, SampleDto sample) {
@@ -218,10 +219,10 @@ public class SampleUtils {
     }
     return null;
   }
-  
+
   /**
    * Return attribute value that exists for the given attribute name on the given sample.
-   * 
+   *
    * @param sample Sample to look for attribute
    * @param attributeName Name of the attribute we are retrieving values for
    * @return Attribute the attribute value, or null if the attribute is not found
@@ -229,53 +230,65 @@ public class SampleUtils {
   public static Integer getIntAttribute(String attributeName, SampleDto sample) {
     return getIntAttribute(attributeName, sample, null);
   }
-  
+
   /**
    * Return attribute value that exists for the given attribute name on the given sample.
-   * 
+   *
    * @param sample Sample to look for attribute
    * @param attributeName Name of the attribute we are retrieving values for
    * @param defaultValue value to return if the attribute is not found
    * @return Attribute the attribute value, or defaultValue if the attribute is not found
    */
-  public static Integer getIntAttribute(String attributeName, SampleDto sample, Integer defaultValue) {
+  public static Integer getIntAttribute(
+      String attributeName, SampleDto sample, Integer defaultValue) {
     String attr = getAttribute(attributeName, sample);
     return attr == null ? defaultValue : Integer.valueOf(attr);
   }
-  
+
   /**
-   * Get an attribute from higher up in the hierarchy. Will never return an attribute found directly on sample
-   * 
+   * Get an attribute from higher up in the hierarchy. Will never return an attribute found directly
+   * on sample
+   *
    * @param attributeName
    * @param sample find the attribute in this sample's hierarchy
    * @param allSamples complete set of potential ancestors to this sample, mapped by ID
-   * @return the attribute value from the nearest ancestor which has the attribute, or null if not found
+   * @return the attribute value from the nearest ancestor which has the attribute, or null if not
+   *     found
    */
-  public static String getUpstreamAttribute(String attributeName, SampleDto sample, Map<String, SampleDto> allSamples) {
-    for (SampleDto parent = getParent(sample, allSamples); parent != null; parent = getParent(parent, allSamples)) {
+  public static String getUpstreamAttribute(
+      String attributeName, SampleDto sample, Map<String, SampleDto> allSamples) {
+    for (SampleDto parent = getParent(sample, allSamples);
+        parent != null;
+        parent = getParent(parent, allSamples)) {
       String value = getAttribute(attributeName, parent);
       if (value != null) return value;
     }
     return null;
   }
-  
-  public static String getUpstreamField(Function<SampleDto, String> getField, SampleDto sample, Map<String, SampleDto> allSamples) {
-	for (SampleDto parent = getParent(sample, allSamples); parent != null; parent = getParent(parent, allSamples)) {
-	  String value = getField.apply(parent);
-	  if (value != null) return value;
-	}
-	return null;
+
+  public static String getUpstreamField(
+      Function<SampleDto, String> getField, SampleDto sample, Map<String, SampleDto> allSamples) {
+    for (SampleDto parent = getParent(sample, allSamples);
+        parent != null;
+        parent = getParent(parent, allSamples)) {
+      String value = getField.apply(parent);
+      if (value != null) return value;
+    }
+    return null;
   }
-  
+
   /**
-   * Get an attribute from lower in the hierarchy. Will never return an attribute found directly on sample.
-   * 
+   * Get an attribute from lower in the hierarchy. Will never return an attribute found directly on
+   * sample.
+   *
    * @param attributeName
    * @param sample find the attribute in this sample's children
    * @param possibleChildren set of potential children to this sample
-   * @return the attribute value set from the children which have the attribute, or empty set if not found
+   * @return the attribute value set from the children which have the attribute, or empty set if not
+   *     found
    */
-  public static Set<String> getChildAttributes(String attributeName, SampleDto sample, List<SampleDto> possibleChildren) {
+  public static Set<String> getChildAttributes(
+      String attributeName, SampleDto sample, List<SampleDto> possibleChildren) {
     Set<String> foundAttributes = new HashSet<>();
     for (SampleDto child : possibleChildren) {
       if (getParentId(child) == null || !getParentId(child).equals(sample.getId())) continue;
@@ -289,7 +302,7 @@ public class SampleUtils {
 
   /**
    * Get the direct parent of sample
-   * 
+   *
    * @param sample sample to find the parent of
    * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
    * @return the sample's parent, or null if it has no parent
@@ -301,71 +314,83 @@ public class SampleUtils {
     }
     SampleDto parent = potentialParents.get(parentId);
     if (parent == null) {
-      throw new IllegalStateException("Parent sample " + parentId + " not found. Possibly in a different project");
+      throw new IllegalStateException(
+          "Parent sample " + parentId + " not found. Possibly in a different project");
     }
     return parent;
   }
-  
+
   /**
    * Get an ancestor of the sample
-   * 
+   *
    * @param sample sample to find the parent of
    * @param sampleCategory category of parent to find
    * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
    * @return the closest ancestor of sample of the provided sample category
    */
-  public static SampleDto getParent(SampleDto sample, String sampleCategory, Map<String, SampleDto> potentialParents) {
+  public static SampleDto getParent(
+      SampleDto sample, String sampleCategory, Map<String, SampleDto> potentialParents) {
     if (sample == null) {
       throw new IllegalArgumentException("Sample cannot be null");
     }
-    for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
+    for (SampleDto current = sample;
+        current != null;
+        current = getParent(current, potentialParents)) {
       if (sampleCategory.equals(getAttribute(ATTR_CATEGORY, current))) {
         return current;
       }
     }
-    throw new IllegalStateException("Parent " + sampleCategory + " of sample " + sample.getId()
-        + " not found. Possibly in a different project");
+    throw new IllegalStateException(
+        "Parent "
+            + sampleCategory
+            + " of sample "
+            + sample.getId()
+            + " not found. Possibly in a different project");
   }
-  
+
   /**
    * Get an ancestor of the sample if it exists
-   * 
+   *
    * @param sample sample to find the parent of
    * @param sampleClass class of parent to find
    * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
-   * @return the closest ancestor of sample of the provided sample class, or null if one is not found
+   * @return the closest ancestor of sample of the provided sample class, or null if one is not
+   *     found
    */
-  public static SampleDto getOptionalParent(SampleDto sample, String sampleClass, Map<String, SampleDto> potentialParents) {
-    for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
+  public static SampleDto getOptionalParent(
+      SampleDto sample, String sampleClass, Map<String, SampleDto> potentialParents) {
+    for (SampleDto current = sample;
+        current != null;
+        current = getParent(current, potentialParents)) {
       if (sampleClass.equals(current.getSampleType())) {
         return current;
       }
     }
     return null;
   }
-  
+
   private static String getParentId(SampleDto sample) {
     Set<SampleReferenceDto> parents = sample.getParents();
     if (parents == null) {
       return null;
     }
     switch (parents.size()) {
-    case 0:
-      return null;
-    case 1:
-      return parents.iterator().next().getId();
-    default:
-      throw new IllegalStateException("Sample " + sample.getId() + " has more than one parent");
+      case 0:
+        return null;
+      case 1:
+        return parents.iterator().next().getId();
+      default:
+        throw new IllegalStateException("Sample " + sample.getId() + " has more than one parent");
     }
   }
-  
+
   /**
    * Round to a specified number of decimal places
-   * 
+   *
    * @param number number to round
    * @param decimalPlaces number of decimal places to round to
-   * @return the number as a String to ensure no further mutation occurs. The number will always have the specified number of
-   * decimal places, even when unneccessary (e.g. "1.20")
+   * @return the number as a String to ensure no further mutation occurs. The number will always
+   *     have the specified number of decimal places, even when unneccessary (e.g. "1.20")
    */
   public static String round(double number, int decimalPlaces) {
     DecimalFormat df = new DecimalFormat();
@@ -374,10 +399,11 @@ public class SampleUtils {
     df.setGroupingUsed(false);
     return df.format(number);
   }
-  
+
   /**
-   * Determine if a library or dilution is an RNA library/dilution, based on whether the parent sample is RNA or is cDNA (derived from RNA)
-   * 
+   * Determine if a library or dilution is an RNA library/dilution, based on whether the parent
+   * sample is RNA or is cDNA (derived from RNA)
+   *
    * @param library library or dilution to test for RNA-ness
    * @param potentialParents potential parents of the library
    * @return a boolean indicating whether the parent aliquot is RNA or cDNA
@@ -391,9 +417,12 @@ public class SampleUtils {
       return false;
     }
     if (!library.getSampleType().contains(LIBRARY)) {
-      throw new IllegalArgumentException("Provided sample " + library.getName() + " is not a library");
+      throw new IllegalArgumentException(
+          "Provided sample " + library.getName() + " is not a library");
     }
-    for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
+    for (SampleDto current = library;
+        current != null;
+        current = getParent(current, potentialParents)) {
       if (current.getSampleType().contains(LIBRARY) && current.getSampleType().contains("Seq")) {
         continue;
       }
@@ -404,8 +433,9 @@ public class SampleUtils {
   }
 
   /**
-   * Determine if a library was created using a 10X kit (assumes all 10X kits have "10X" in the kit name)
-   * 
+   * Determine if a library was created using a 10X kit (assumes all 10X kits have "10X" in the kit
+   * name)
+   *
    * @param library an actual library (will return false for all dilutions)
    * @return a boolean indicating if the library was created using a 10X kit
    */
@@ -419,26 +449,35 @@ public class SampleUtils {
     }
     if (library.getSampleType().contains(" Seq")) {
       // is a dilution; get parent library
-      for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
+      for (SampleDto current = library;
+          current != null;
+          current = getParent(current, potentialParents)) {
         if (current.getSampleType().contains(LIBRARY)) {
           library = current; // reassign so we check the prep kit of the actual library
           break;
         }
       }
     }
-    if (library.getPreparationKit() == null || library.getPreparationKit().getName() == null) return false; // old libraries
+    if (library.getPreparationKit() == null || library.getPreparationKit().getName() == null)
+      return false; // old libraries
     return library.getPreparationKit().getName().contains("10X");
   }
 
   public static Integer getTimesReceived(String sampleName) {
-    Matcher m = Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_(\\d+)-\\d+.*$").matcher(sampleName);
-    if (!m.matches() || m.group(1) == null) throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
+    Matcher m =
+        Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_(\\d+)-\\d+.*$")
+            .matcher(sampleName);
+    if (!m.matches() || m.group(1) == null)
+      throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
     return Integer.valueOf(m.group(1));
   }
 
   public static Integer getTubeNumber(String sampleName) {
-    Matcher m = Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_\\d+-(\\d+).*$").matcher(sampleName);
-    if (!m.matches() || m.group(1) == null) throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
+    Matcher m =
+        Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_\\d+-(\\d+).*$")
+            .matcher(sampleName);
+    if (!m.matches() || m.group(1) == null)
+      throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
     return Integer.valueOf(m.group(1));
   }
 
