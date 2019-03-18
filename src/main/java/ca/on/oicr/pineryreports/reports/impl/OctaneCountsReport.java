@@ -238,16 +238,20 @@ public class OctaneCountsReport extends TableReport {
           break;
         case SAMPLE_CATEGORY_ALIQUOT:
           if (sam.getSampleType().contains("DNA")) {
-            dnaAliquots.add(sam);
             if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allOctaneSamplesById) != null) {
               dnaAliquotsFromSlides.add(sam);
             }
             if (tissueOriginAndTypeMatch(
                 getParent(sam, SAMPLE_CATEGORY_TISSUE, allOctaneSamplesById), "Ly", "R")) {
               dnaAliquotsFromBuffy.add(sam);
+            } else {
+              dnaAliquots.add(sam);
             }
           } else if (SAMPLE_CLASS_WHOLE_RNA.equals(sam.getSampleType())) {
-            rnaAliquots.add(sam);
+            if (!tissueOriginAndTypeMatch(
+                getParent(sam, SAMPLE_CATEGORY_TISSUE, allOctaneSamplesById), "Ly", "R")) {
+              rnaAliquots.add(sam);
+            }
             if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allOctaneSamplesById) != null) {
               rnaAliquotsFromSlides.add(sam);
             }
