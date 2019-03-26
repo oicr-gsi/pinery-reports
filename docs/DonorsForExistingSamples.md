@@ -2,28 +2,30 @@
 
 Originally written for OCT: https://jira.oicr.on.ca/browse/GR-710
 
-Lists names donors and samples for all samples that are:
-
-  * still on-site (not empty, not discarded, not distributed) 
-  * not blood of some sort (Ly, Ct, Pl).
+Lists names donors and samples for all samples that are still on-site (not empty, not discarded, not distributed) 
 
 The report is separated into the following categories:
 
-  * Slides
+  * Tissue (Slides; no Blood)
     * P tissue type
     * M tissue type
     * n tissue type
     * 'other' tissue type
-  * DNA
+  * DNA Stock (no Blood)
     * P tissue type
     * M tissue type
     * n tissue type
     * 'other' tissue type
-  * RNA
+  * RNA Stock (no Blood)
     * P tissue type
     * M tissue type
     * n tissue type
     * 'other' tissue type
+  * Blood
+    * Buffy Coat tissue
+    * Buffy Coat DNA stock
+    * Plasma tissue
+    * ctPlasma tissue
     
 ## Options
 
