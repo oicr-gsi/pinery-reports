@@ -186,6 +186,9 @@ public class OctaneCountsReport extends TableReport {
     if (sitePrefix != null) {
       allOctaneSamples = filterBySitePrefix(allOctaneSamples);
     }
+    if (allOctaneSamples.isEmpty()) {
+      throw new IllegalStateException("Could not find any samples in Pinery");
+    }
 
     List<SampleDto> buffyCoats = new ArrayList<>(); // Ly_R tissues
     List<SampleDto> plasma = new ArrayList<>(); // Pl_R tissues
