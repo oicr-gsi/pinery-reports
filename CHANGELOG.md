@@ -6,8 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
 ## Unreleased
-
-
+## Changed:
+  * `octane`: filter all samples by creator
 
 ## [1.3.0]  2019-03-26
 ### Added:

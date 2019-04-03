@@ -271,11 +271,7 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers = new ArrayList<>();
 
     List<SampleDto> unstainedInventory =
-        slides
-            .stream()
-            .filter(byStain(null))
-            .filter(withSlidesRemaining)
-            .collect(Collectors.toList());
+        filter(slides, Arrays.asList(byStain(null), withSlidesRemaining, byCreator(userIds)));
     inventoryNumbers.add(
         new Count("Tumor Tissue Unstained Slides", countSlidesRemaining(unstainedInventory)));
     inventoryNumbers.add(
@@ -284,35 +280,31 @@ public class OctaneCountsReport extends TableReport {
             countUniqueIdentities(unstainedInventory, allOctaneSamplesById)));
 
     List<SampleDto> heInventory =
-        slides
-            .stream()
-            .filter(byStain(STAIN_HE))
-            .filter(withSlidesRemaining)
-            .collect(Collectors.toList());
+        filter(slides, Arrays.asList(byStain(STAIN_HE), withSlidesRemaining, byCreator(userIds)));
     inventoryNumbers.add(new Count("Tumor Tissue H&E Slides", countSlidesRemaining(heInventory)));
     inventoryNumbers.add(
         new Count(
             "Tumor Tissue H&E Slides (Cases)",
             countUniqueIdentities(heInventory, allOctaneSamplesById)));
 
-    List<SampleDto> buffyInventory = filterNonEmpty(buffyCoats);
+    List<SampleDto> buffyInventory = filterNonEmpty(filterByCreator(buffyCoats));
     inventoryNumbers.add(new Count("Buffy Coat", buffyInventory.size()));
     inventoryNumbers.add(
         new Count(
             "Buffy Coat (Cases)", countUniqueIdentities(buffyInventory, allOctaneSamplesById)));
 
-    List<SampleDto> plasmaInventory = filterNonEmpty(plasma);
+    List<SampleDto> plasmaInventory = filterNonEmpty(filterByCreator(plasma));
     inventoryNumbers.add(new Count("Plasma", plasmaInventory.size()));
     inventoryNumbers.add(
         new Count("Plasma (Cases)", countUniqueIdentities(plasmaInventory, allOctaneSamplesById)));
 
-    List<SampleDto> ctInventory = filterNonEmpty(ctDnaPlasma);
+    List<SampleDto> ctInventory = filterNonEmpty(filterByCreator(ctDnaPlasma));
     inventoryNumbers.add(new Count("ctDNA Plasma", ctInventory.size()));
     inventoryNumbers.add(
         new Count(
             "ctDNA Plasma (Cases)", countUniqueIdentities(ctInventory, allOctaneSamplesById)));
 
-    List<SampleDto> buffyStockInventory = filterNonEmpty(stocksFromBuffy);
+    List<SampleDto> buffyStockInventory = filterNonEmpty(filterByCreator(stocksFromBuffy));
     inventoryNumbers.add(new Count("Extracted Buffy Coat", buffyStockInventory.size()));
     inventoryNumbers.add(
         new Count(
@@ -320,16 +312,16 @@ public class OctaneCountsReport extends TableReport {
             countUniqueIdentities(buffyStockInventory, allOctaneSamplesById)));
 
     // These next four need to be filtered to include only Transformative Pathology users
-    List<SampleDto> stockDnaFromSlideInventory = filterNonEmpty(stockDnaFromSlides);
-    inventoryNumbers.add(
-        new Count("Tumor Tissue DNA", filterByCreator(stockDnaFromSlideInventory).size()));
+    List<SampleDto> stockDnaFromSlideInventory =
+        filterNonEmpty(filterByCreator(stockDnaFromSlides));
+    inventoryNumbers.add(new Count("Tumor Tissue DNA", stockDnaFromSlideInventory.size()));
     inventoryNumbers.add(
         new Count(
             "Tumor Tissue DNA (Cases)",
-            countUniqueIdentities(
-                filterByCreator(stockDnaFromSlideInventory), allOctaneSamplesById)));
+            countUniqueIdentities(stockDnaFromSlideInventory, allOctaneSamplesById)));
 
-    List<SampleDto> stockRnaFromSlideInventory = filterNonEmpty(stockRnaFromSlides);
+    List<SampleDto> stockRnaFromSlideInventory =
+        filterNonEmpty(filterByCreator(stockRnaFromSlides));
     inventoryNumbers.add(new Count("Tumor Tissue RNA", stockRnaFromSlideInventory.size()));
     inventoryNumbers.add(
         new Count(
@@ -375,39 +367,30 @@ public class OctaneCountsReport extends TableReport {
 
     // Filter down to samples within date range
     List<SampleDto> newBuffyCoats =
-        buffyCoats.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(buffyCoats, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     List<SampleDto> newPlasma =
-        plasma.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(plasma, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     List<SampleDto> newCtDnaPlasma =
-        ctDnaPlasma.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(ctDnaPlasma, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     List<SampleDto> newSlides =
-        slides.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(slides, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     stocksFromBuffy =
-        stocksFromBuffy.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(stocksFromBuffy, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     stockDnaFromSlides =
-        stockDnaFromSlides
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
+        filter(stockDnaFromSlides, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     dnaAliquots =
-        dnaAliquots.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(dnaAliquots, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     dnaAliquotsFromSlides =
-        dnaAliquotsFromSlides
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
+        filter(
+            dnaAliquotsFromSlides, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     dnaAliquotsFromBuffy =
-        dnaAliquotsFromBuffy
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
+        filter(
+            dnaAliquotsFromBuffy, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     rnaAliquots =
-        rnaAliquots.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(rnaAliquots, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
     rnaAliquotsFromSlides =
-        rnaAliquotsFromSlides
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
+        filter(
+            rnaAliquotsFromSlides, Arrays.asList(byCreatedBetween(start, end), byCreator(userIds)));
 
     // Case Numbers
     caseNumbers.add(
@@ -417,15 +400,14 @@ public class OctaneCountsReport extends TableReport {
             "Tumor Tissue Extracted",
             countUniqueIdentities(stockDnaFromSlides, allOctaneSamplesById)));
 
-    // These next two need to be filtered to include only Transformative Pathology users
     caseNumbers.add(
         new Count(
             "Tumor Tissue DNA Transferred",
-            countUniqueIdentities(filterByCreator(dnaAliquotsFromSlides), allOctaneSamplesById)));
+            countUniqueIdentities(dnaAliquotsFromSlides, allOctaneSamplesById)));
     caseNumbers.add(
         new Count(
             "Tumor Tissue RNA Transferred",
-            countUniqueIdentities(filterByCreator(rnaAliquotsFromSlides), allOctaneSamplesById)));
+            countUniqueIdentities(rnaAliquotsFromSlides, allOctaneSamplesById)));
 
     caseNumbers.add(
         new Count(
@@ -448,11 +430,8 @@ public class OctaneCountsReport extends TableReport {
     sampleNumbers.add(new Count("Tumor Tissue Rec'd", countSlidesReceived(newSlides)));
     sampleNumbers.add(new Count("Tumor Tissue Extracted", stockDnaFromSlides.size()));
 
-    // These next two need to be filtered to include only Transformative Pathology users
-    sampleNumbers.add(
-        new Count("Tumor Tissue DNA Transferred", filterByCreator(dnaAliquots).size()));
-    sampleNumbers.add(
-        new Count("Tumor Tissue RNA Transferred", filterByCreator(rnaAliquots).size()));
+    sampleNumbers.add(new Count("Tumor Tissue DNA Transferred", dnaAliquots.size()));
+    sampleNumbers.add(new Count("Tumor Tissue RNA Transferred", rnaAliquots.size()));
 
     sampleNumbers.add(new Count("Buffy Coat Rec'd", newBuffyCoats.size()));
     sampleNumbers.add(new Count("Buffy Coat Extracted", stocksFromBuffy.size()));
