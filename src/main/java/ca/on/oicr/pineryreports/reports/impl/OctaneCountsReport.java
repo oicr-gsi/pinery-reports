@@ -371,40 +371,21 @@ public class OctaneCountsReport extends TableReport {
             .collect(Collectors.toList());
 
     // Filter down to samples within date range
-    List<SampleDto> newBuffyCoats =
-        buffyCoats.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
-    List<SampleDto> newPlasma =
-        plasma.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+    List<SampleDto> newBuffyCoats = filter(buffyCoats, Arrays.asList(byCreatedBetween(start, end)));
+    List<SampleDto> newPlasma = filter(plasma, Arrays.asList(byCreatedBetween(start, end)));
     List<SampleDto> newCtDnaPlasma =
-        ctDnaPlasma.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
-    List<SampleDto> newSlides =
-        slides.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
-    stocksFromBuffy =
-        stocksFromBuffy.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
-    stockDnaFromSlides =
-        stockDnaFromSlides
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
-    dnaAliquots =
-        dnaAliquots.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(ctDnaPlasma, Arrays.asList(byCreatedBetween(start, end)));
+    List<SampleDto> newSlides = filter(slides, Arrays.asList(byCreatedBetween(start, end)));
+    stocksFromBuffy = filter(stocksFromBuffy, Arrays.asList(byCreatedBetween(start, end)));
+    stockDnaFromSlides = filter(stockDnaFromSlides, Arrays.asList(byCreatedBetween(start, end)));
+    dnaAliquots = filter(dnaAliquots, Arrays.asList(byCreatedBetween(start, end)));
     dnaAliquotsFromSlides =
-        dnaAliquotsFromSlides
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
+        filter(dnaAliquotsFromSlides, Arrays.asList(byCreatedBetween(start, end)));
     dnaAliquotsFromBuffy =
-        dnaAliquotsFromBuffy
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
-    rnaAliquots =
-        rnaAliquots.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        filter(dnaAliquotsFromBuffy, Arrays.asList(byCreatedBetween(start, end)));
+    rnaAliquots = filter(rnaAliquots, Arrays.asList(byCreatedBetween(start, end)));
     rnaAliquotsFromSlides =
-        rnaAliquotsFromSlides
-            .stream()
-            .filter(byCreatedBetween(start, end))
-            .collect(Collectors.toList());
+        filter(rnaAliquotsFromSlides, Arrays.asList(byCreatedBetween(start, end)));
 
     // Case Numbers
     caseNumbers.add(
