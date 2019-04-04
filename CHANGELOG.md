@@ -8,6 +8,7 @@ and as of version 1.0.0, follows semantic versioning.
 ## Unreleased
 ## Changed:
   * `octane`: filter all samples by creator
+  * `bisque`: added more library designs
 
 ## [1.3.0]  2019-03-26
 ### Added:
