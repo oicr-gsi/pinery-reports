@@ -273,7 +273,14 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   private Set<String> projects = Sets.newHashSet();
 
-  List<String> ldO = Arrays.asList(LIBRARY_DESIGN_CH, LIBRARY_DESIGN_BS, LIBRARY_DESIGN_AS);
+  List<String> ldO =
+      Arrays.asList(
+          LIBRARY_DESIGN_CH,
+          LIBRARY_DESIGN_BS,
+          LIBRARY_DESIGN_AS,
+          LIBRARY_DESIGN_SC,
+          LIBRARY_DESIGN_CT,
+          LIBRARY_DESIGN_CM);
 
   protected int columnCount = 0;
 

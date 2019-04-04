@@ -68,6 +68,8 @@ public class SampleUtils {
   public static final String LIBRARY_DESIGN_AS = "AS";
   public static final String LIBRARY_DESIGN_BS = "BS";
   public static final String LIBRARY_DESIGN_SC = "SC";
+  public static final String LIBRARY_DESIGN_CT = "CT";
+  public static final String LIBRARY_DESIGN_CM = "CM";
   // RNA Library design codes
   public static final String LIBRARY_DESIGN_MR = "MR";
   public static final String LIBRARY_DESIGN_SM = "SM";
