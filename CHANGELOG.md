@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
 ## Unreleased
+### Fixed:
+  * `lanes-billing`: libraries count in NovaSeq joined lanes
 
 ## [1.3.1]  2019-04-04
-## Changed:
+### Changed:
   * `octane`: filter all samples by creator
   * `bisque`: added more library designs
 
