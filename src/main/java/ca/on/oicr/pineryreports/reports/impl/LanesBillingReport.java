@@ -279,7 +279,7 @@ public class LanesBillingReport extends TableReport {
       if (NOVASEQ.equals(instrumentModel)) novaSeqLanesCount = run.getPositions().size();
       for (RunDtoPosition lane : run.getPositions()) {
         int laneNumber = lane.getPosition();
-        int samplesInLane = lane.getSamples() == null ? 0 : lane.getSamples().size();
+        int samplesInLane = 0;
         boolean dnaInLane = false;
         boolean rnaInLane = false;
         Map<String, Integer> projectsInLane = new HashMap<>();
@@ -314,6 +314,8 @@ public class LanesBillingReport extends TableReport {
             addSummaryData(summaryData, noProject);
             // skip further processing because there are no samples in the lane
             continue;
+          } else {
+            samplesInLane = lane.getSamples().size();
           }
         } else {
           // NextSeq flowcells are 4 lanes but they can't be split. We report these as single-lane
