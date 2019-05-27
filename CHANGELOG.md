@@ -7,6 +7,8 @@ and as of version 1.0.0, follows semantic versioning.
 
 ## Unreleased
 
+### Updated:
+  * `jackson-databind` version to fix security vulnerability
 
 ## [1.3.2]  2019-05-27
 ### Fixed:
