@@ -7,6 +7,11 @@ and as of version 1.0.0, follows semantic versioning.
 
 ## Unreleased
 
+## [1.4.0]  2019-10-25
+### Changed:
+  * Use Pinery 2.6.0
+### Fixed:
+  * Bump Jackson version to fix security vulnerability
 
 ## [1.3.2]  2019-05-27
 ### Fixed:
