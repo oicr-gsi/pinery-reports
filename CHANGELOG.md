@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
-## Unreleased
+## [1.5.0]  2019-11-12
 ### Added:
   * `stocks-by-concentration`
 
