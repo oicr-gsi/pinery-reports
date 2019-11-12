@@ -187,7 +187,6 @@ public class LanesBillingReport extends TableReport {
       }
       this.end = before;
     }
-    recordOptionsUsed(cmd);
   }
 
   @Override

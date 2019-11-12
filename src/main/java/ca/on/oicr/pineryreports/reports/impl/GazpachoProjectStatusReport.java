@@ -326,7 +326,6 @@ public class GazpachoProjectStatusReport extends TableReport {
     }
 
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
-    recordOptionsUsed(cmd);
   }
 
   @Override

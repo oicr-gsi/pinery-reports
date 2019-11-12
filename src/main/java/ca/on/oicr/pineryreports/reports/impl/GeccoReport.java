@@ -66,7 +66,6 @@ public class GeccoReport extends TableReport {
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    recordOptionsUsed(cmd);
     // No options (could be expanded to report for any project, etc)
   }
 

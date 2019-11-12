@@ -147,7 +147,6 @@ public class LibrariesBillingReport extends TableReport {
       }
       this.end = before;
     }
-    recordOptionsUsed(cmd);
   }
 
   @Override

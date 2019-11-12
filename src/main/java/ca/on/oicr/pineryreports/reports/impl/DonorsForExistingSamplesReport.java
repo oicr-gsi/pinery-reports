@@ -63,7 +63,7 @@ public class DonorsForExistingSamplesReport extends TableReport {
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    recordOptionsUsed(cmd);
+    // no options
   }
 
   @Override

@@ -86,7 +86,6 @@ public class StockReport extends TableReport {
       }
       this.end = before;
     }
-    recordOptionsUsed(cmd);
   }
 
   @Override

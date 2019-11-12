@@ -73,7 +73,6 @@ public class ReceiptMissingReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
-    recordOptionsUsed(cmd);
   }
 
   @Override

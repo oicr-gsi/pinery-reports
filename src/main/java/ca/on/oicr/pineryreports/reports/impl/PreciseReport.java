@@ -250,7 +250,6 @@ public class PreciseReport extends TableReport {
       }
       this.end = before;
     }
-    recordOptionsUsed(cmd);
   }
 
   @Override
@@ -628,7 +627,7 @@ public class PreciseReport extends TableReport {
     rowNum -=
         (toDateSix.size()
             + 4); // list + (blank, 2 headers, total). This step is here because Java passes by
-                  // value, so subtracting
+    // value, so subtracting
     // rowNum at the end of the method does nothing
 
     row = getRowsForSection(TimePoint.TWELVE.getKey(), labelListLong, toDateTwelve, rowNum);

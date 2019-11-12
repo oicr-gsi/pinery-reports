@@ -56,7 +56,6 @@ public class DonorReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt()).trim();
-    recordOptionsUsed(cmd);
   }
 
   @Override

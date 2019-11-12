@@ -308,7 +308,6 @@ public class BisqueProjectsStatusReport extends TableReport {
       List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
       this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
     }
-    recordOptionsUsed(cmd);
   }
 
   @Override
