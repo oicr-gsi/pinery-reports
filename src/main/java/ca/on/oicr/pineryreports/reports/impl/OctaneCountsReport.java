@@ -155,7 +155,6 @@ public class OctaneCountsReport extends TableReport {
     if (cmd.hasOption(OPT_SITE_PREFIX.getLongOpt())) {
       sitePrefix = cmd.getOptionValue(OPT_SITE_PREFIX.getLongOpt());
     }
-    recordOptionsUsed(cmd);
   }
 
   @Override

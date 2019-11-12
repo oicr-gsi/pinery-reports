@@ -90,7 +90,6 @@ public class LocationMissingReport extends TableReport {
         }
       }
     }
-    recordOptionsUsed(cmd);
   }
 
   @Override

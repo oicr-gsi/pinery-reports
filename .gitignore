@@ -6,4 +6,4 @@ bin
 nb-configuration.xml
 report.csv
 report.pdf
-
+.DS_Store
