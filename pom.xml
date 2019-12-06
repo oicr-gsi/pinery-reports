@@ -4,7 +4,7 @@
   
   <groupId>ca.on.oicr</groupId>
   <artifactId>pinery-reports</artifactId>
-  <version>1.5.1-SNAPSHOT</version>
+  <version>1.5.1</version>
   <name>Pinery Reports</name>
 
   <properties>

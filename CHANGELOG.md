@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
+## [1.5.1]  2019-12-06
+### Changed:
+  * updated to Pinery 2.8.0
+
 ## [1.5.0]  2019-11-12
 ### Added:
   * `stocks-by-concentration`
