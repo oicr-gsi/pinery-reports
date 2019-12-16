@@ -20,7 +20,7 @@ Note: Inventory counts are for the point in time when the report is generated, a
 Example: Generate in csv format
 
 ```
-java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r octane -f csv -o report.csv --after=2017-10-01 --before=2017-11-01 --users=35,45,27,40,83,1 --sitePrefix=OCT_01
+java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r octane -f csv -o report.csv --after=2017-10-01 --before=2017-11-01 --users=35,45,27,40,83,1,107,109 --sitePrefix=OCT_01
 ```
 
 ## Example
