@@ -5,7 +5,6 @@ import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
-import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
@@ -47,7 +46,7 @@ public class StockReport extends TableReport {
               new ColumnDefinition("Date Received", TextAlignment.CENTER),
               new ColumnDefinition("Institution")));
 
-  private List<String> projects;
+  private Set<String> projects;
   private String start;
   private String end;
 
@@ -72,7 +71,7 @@ public class StockReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
-    this.projects = projx.stream().map(String::trim).collect(Collectors.toList());
+    this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
 
     if (cmd.hasOption(OPT_AFTER.getLongOpt())) {
       String after = cmd.getOptionValue(OPT_AFTER.getLongOpt());
@@ -103,8 +102,7 @@ public class StockReport extends TableReport {
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {
-    List<SampleDto> allSamples =
-        pinery.getSample().allFiltered(new SamplesFilter().withProjects(projects));
+    List<SampleDto> allSamples = pinery.getSample().all();
     allSamplesById = mapSamplesById(allSamples);
     stocks = filterReportableStocks(allSamples);
     stocks.sort(byReceiveDateAndName);
@@ -113,6 +111,7 @@ public class StockReport extends TableReport {
   private List<SampleDto> filterReportableStocks(List<SampleDto> unfiltered) {
     Set<Predicate<SampleDto>> filters = Sets.newHashSet();
     filters.add(bySampleCategory(SAMPLE_CATEGORY_STOCK));
+    filters.add(byProjects(projects));
     filters.add(byCreatedBetween(start, end));
     return filter(unfiltered, filters);
   }
