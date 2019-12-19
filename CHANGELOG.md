@@ -8,6 +8,7 @@ and as of version 1.0.0, follows semantic versioning.
 ## Unreleased
 ### Changed
   * `stock`: Allow reporting on multiple projects
+  * `stock`: Use initial volume in report instead of current volume
 
 ## [1.5.2]  2019-12-17
 ### Changed:

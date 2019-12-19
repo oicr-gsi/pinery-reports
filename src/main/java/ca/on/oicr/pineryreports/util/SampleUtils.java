@@ -45,6 +45,7 @@ public class SampleUtils {
   public static final String ATTR_SYNTHETIC = "Synthetic";
   public static final String ATTR_DISTRIBUTED = "Distributed";
   public static final String ATTR_DISTRIBUTION_DATE = "Distribution Date";
+  public static final String ATTR_INITIAL_VOLUME = "Initial Volume";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
@@ -250,6 +251,16 @@ public class SampleUtils {
       String attributeName, SampleDto sample, Integer defaultValue) {
     String attr = getAttribute(attributeName, sample);
     return attr == null ? defaultValue : Integer.valueOf(attr);
+  }
+
+  public static Float getFloatAttribute(String attributeName, SampleDto sample) {
+    return getFloatAttribute(attributeName, sample, null);
+  }
+
+  public static Float getFloatAttribute(
+      String attributeName, SampleDto sample, Float defaultValue) {
+    String attr = getAttribute(attributeName, sample);
+    return attr == null ? defaultValue : Float.valueOf(attr);
   }
 
   /**

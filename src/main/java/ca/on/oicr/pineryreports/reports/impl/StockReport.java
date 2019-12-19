@@ -154,7 +154,7 @@ public class StockReport extends TableReport {
     row[2] = getUpstreamAttribute(ATTR_EXTERNAL_NAME, stock, allSamplesById);
     Float concentration = stock.getConcentration();
     row[3] = concentration == null ? null : round(concentration, 2);
-    Float volume = stock.getVolume();
+    Float volume = getFloatAttribute(ATTR_INITIAL_VOLUME, stock, 0F);
     row[4] = volume == null ? null : round(volume, 2);
     row[5] =
         toStringOrNull(
