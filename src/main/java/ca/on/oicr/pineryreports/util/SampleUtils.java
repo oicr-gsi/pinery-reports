@@ -109,7 +109,12 @@ public class SampleUtils {
   }
 
   public static Predicate<SampleDto> byProject(String projectName) {
-    return dto -> projectName.equals(dto.getProjectName());
+    Set<String> projectNames = new HashSet<>(Arrays.asList(projectName));
+    return byProjects(projectNames);
+  }
+
+  public static Predicate<SampleDto> byProjects(Set<String> projectNames) {
+    return dto -> projectNames.contains(dto.getProjectName());
   }
 
   public static Predicate<SampleDto> bySampleCategory(String sampleCategory) {

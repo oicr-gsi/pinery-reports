@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
@@ -45,7 +46,7 @@ public class StockReport extends TableReport {
               new ColumnDefinition("Date Received", TextAlignment.CENTER),
               new ColumnDefinition("Institution")));
 
-  private String project;
+  private Set<String> projects;
   private String start;
   private String end;
 
@@ -69,7 +70,8 @@ public class StockReport extends TableReport {
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    this.project = cmd.getOptionValue(OPT_PROJECT.getLongOpt());
+    List<String> projx = Arrays.asList(cmd.getOptionValue(OPT_PROJECT.getLongOpt()).split(","));
+    this.projects = projx.stream().map(String::trim).collect(Collectors.toSet());
 
     if (cmd.hasOption(OPT_AFTER.getLongOpt())) {
       String after = cmd.getOptionValue(OPT_AFTER.getLongOpt());
@@ -90,8 +92,9 @@ public class StockReport extends TableReport {
 
   @Override
   public String getTitle() {
-    return project
-        + " Stock Report, "
+    return " Stock Report for "
+        + String.join(", ", projects)
+        + ": "
         + (start == null ? "Any Time" : start)
         + " - "
         + (end == null ? "Now" : end);
@@ -107,8 +110,8 @@ public class StockReport extends TableReport {
 
   private List<SampleDto> filterReportableStocks(List<SampleDto> unfiltered) {
     Set<Predicate<SampleDto>> filters = Sets.newHashSet();
-    filters.add(byProject(project));
     filters.add(bySampleCategory(SAMPLE_CATEGORY_STOCK));
+    filters.add(byProjects(projects));
     filters.add(byCreatedBetween(start, end));
     return filter(unfiltered, filters);
   }
