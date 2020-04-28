@@ -26,6 +26,7 @@ public class SampleUtils {
   }
 
   public static final String ATTR_CATEGORY = "Sample Category";
+  public static final String ATTR_CUSTODY = "Custody";
   public static final String ATTR_EXTERNAL_NAME = "External Name";
   public static final String ATTR_TISSUE_TYPE = "Tissue Type";
   public static final String ATTR_TISSUE_ORIGIN = "Tissue Origin";
