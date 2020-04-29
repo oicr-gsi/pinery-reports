@@ -281,7 +281,9 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers = new ArrayList<>();
 
     List<SampleDto> unstainedInventory =
-        filter(slides, Arrays.asList(byStain(null), withSlidesRemaining, byCreator(userIds)));
+        filter(
+            slides,
+            Arrays.asList(byStain(null), withSlidesRemaining, byCreator(userIds), byCustodyTp()));
     inventoryNumbers.add(
         new Count("Tumor Tissue Unstained Slides", countSlidesRemaining(unstainedInventory)));
     inventoryNumbers.add(
@@ -290,38 +292,46 @@ public class OctaneCountsReport extends TableReport {
             countUniqueIdentities(unstainedInventory, allOctaneSamplesById)));
 
     List<SampleDto> heInventory =
-        filter(slides, Arrays.asList(byStain(STAIN_HE), withSlidesRemaining, byCreator(userIds)));
+        filter(
+            slides,
+            Arrays.asList(
+                byStain(STAIN_HE), withSlidesRemaining, byCreator(userIds), byCustodyTp()));
     inventoryNumbers.add(new Count("Tumor Tissue H&E Slides", countSlidesRemaining(heInventory)));
     inventoryNumbers.add(
         new Count(
             "Tumor Tissue H&E Slides (Cases)",
             countUniqueIdentities(heInventory, allOctaneSamplesById)));
 
-    List<SampleDto> buffyInventory = filterNonEmpty(filterByCreator(buffyCoats));
+    List<SampleDto> buffyInventory =
+        filter(filterNonEmpty(filterByCreator(buffyCoats)), byCustodyTp());
     inventoryNumbers.add(new Count("Buffy Coat", buffyInventory.size()));
     inventoryNumbers.add(
         new Count(
             "Buffy Coat (Cases)", countUniqueIdentities(buffyInventory, allOctaneSamplesById)));
 
-    List<SampleDto> plasmaInventory = filterNonEmpty(filterByCreator(plasma));
+    List<SampleDto> plasmaInventory =
+        filter(filterNonEmpty(filterByCreator(plasma)), byCustodyTp());
     inventoryNumbers.add(new Count("Plasma", plasmaInventory.size()));
     inventoryNumbers.add(
         new Count("Plasma (Cases)", countUniqueIdentities(plasmaInventory, allOctaneSamplesById)));
 
-    List<SampleDto> ctInventory = filterNonEmpty(filterByCreator(ctDnaPlasma));
+    List<SampleDto> ctInventory =
+        filter(filterNonEmpty(filterByCreator(ctDnaPlasma)), byCustodyTp());
     inventoryNumbers.add(new Count("ctDNA Plasma", ctInventory.size()));
     inventoryNumbers.add(
         new Count(
             "ctDNA Plasma (Cases)", countUniqueIdentities(ctInventory, allOctaneSamplesById)));
 
-    List<SampleDto> buffyStockInventory = filterNonEmpty(filterByCreator(stocksFromBuffy));
+    List<SampleDto> buffyStockInventory =
+        filter(filterNonEmpty(filterByCreator(stocksFromBuffy)), byCustodyTp());
     inventoryNumbers.add(new Count("Extracted Buffy Coat", buffyStockInventory.size()));
     inventoryNumbers.add(
         new Count(
             "Extracted Buffy Coat (Cases)",
             countUniqueIdentities(buffyStockInventory, allOctaneSamplesById)));
 
-    List<SampleDto> ctStockInventory = filterNonEmpty(filterByCreator(stocksFromCt));
+    List<SampleDto> ctStockInventory =
+        filter(filterNonEmpty(filterByCreator(stocksFromCt)), byCustodyTp());
     inventoryNumbers.add(new Count("Extracted cfDNA", ctStockInventory.size()));
     inventoryNumbers.add(
         new Count(
@@ -330,7 +340,7 @@ public class OctaneCountsReport extends TableReport {
 
     // These next four need to be filtered to include only Transformative Pathology users
     List<SampleDto> stockDnaFromSlideInventory =
-        filterNonEmpty(filterByCreator(stockDnaFromSlides));
+        filter(filterNonEmpty(filterByCreator(stockDnaFromSlides)), byCustodyTp());
     inventoryNumbers.add(new Count("Tumor Tissue DNA", stockDnaFromSlideInventory.size()));
     inventoryNumbers.add(
         new Count(
@@ -338,7 +348,7 @@ public class OctaneCountsReport extends TableReport {
             countUniqueIdentities(stockDnaFromSlideInventory, allOctaneSamplesById)));
 
     List<SampleDto> stockRnaFromSlideInventory =
-        filterNonEmpty(filterByCreator(stockRnaFromSlides));
+        filter(filterNonEmpty(filterByCreator(stockRnaFromSlides)), byCustodyTp());
     inventoryNumbers.add(new Count("Tumor Tissue RNA", stockRnaFromSlideInventory.size()));
     inventoryNumbers.add(
         new Count(
@@ -351,6 +361,7 @@ public class OctaneCountsReport extends TableReport {
     slides
         .stream()
         .filter(byStain(null))
+        .filter(byCustodyTp())
         .forEach(
             sam -> {
               String tissueType = getUpstreamAttribute(ATTR_TISSUE_TYPE, sam, allOctaneSamplesById);
@@ -514,6 +525,13 @@ public class OctaneCountsReport extends TableReport {
         stain == null
             ? getAttribute(ATTR_STAIN, slide) == null
             : stain.equals(getAttribute(ATTR_STAIN, slide));
+  }
+
+  private static Predicate<SampleDto> byCustodyTp() {
+    return sample -> {
+      String custody = getAttribute(ATTR_CUSTODY, sample);
+      return custody == null || custody.equals("TP") || custody.equals("Unspecified (Internal)");
+    };
   }
 
   /**
