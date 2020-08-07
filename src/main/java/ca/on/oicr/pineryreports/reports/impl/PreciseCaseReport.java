@@ -115,7 +115,7 @@ public class PreciseCaseReport extends TableReport {
             .collect(Collectors.toList());
 
     table = new LinkedList<>();
-
+    List<SampleDto> potentialSamplesAtCurrentTime = null;
     // One row per identity
     for (SampleDto identity : allPreciseIdentities) {
       List<String> row = new LinkedList<>();
@@ -124,13 +124,12 @@ public class PreciseCaseReport extends TableReport {
       // For all regular time points
       for (int i = 0; i < 5; i++) {
         TimePoint currentTimePoint = TimePoint.values()[i];
-        List<SampleDto> potentialSamplesAtCurrentTime =
-            allPreciseSamplesByIdentity.get(identity.getId());
+        potentialSamplesAtCurrentTime = allPreciseSamplesByIdentity.get(identity.getId());
         if (potentialSamplesAtCurrentTime == null) {
           row.addAll(
               Lists.newArrayList(
                   "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
-                  "0", "0", "0", "0", "0"));
+                  "0", "0", "0", "0", "0", "0", "0", "0"));
         } else {
           List<SampleDto> samplesAtCurrentTime =
               allPreciseSamplesByIdentity
@@ -155,39 +154,49 @@ public class PreciseCaseReport extends TableReport {
                         .filter(s -> origin.equals(getAttribute(ATTR_TISSUE_ORIGIN, s)))
                         .count()));
           }
-
-          // Handle irregular time points
-          row.add(
-              String.valueOf(
-                  allPreciseSamplesByIdentity
-                      .get(identity.getId()) // Get children of this identity
-                      .stream()
-                      .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
-                      .filter(TimePoint.BX.predicate())
-                      .filter(
-                          s ->
-                              "POS".equals(getAttribute(ATTR_GROUP_ID, s))
-                                  || "POS"
-                                      .equals(
-                                          getUpstreamAttribute(
-                                              ATTR_GROUP_ID, s, allPreciseSamplesById)))
-                      .count()));
-          row.add(
-              String.valueOf(
-                  allPreciseSamplesByIdentity
-                      .get(identity.getId()) // Get children of this identity
-                      .stream()
-                      .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
-                      .filter(TimePoint.BX.predicate())
-                      .filter(
-                          s ->
-                              "NEG".equals(getAttribute(ATTR_GROUP_ID, s))
-                                  || "NEG"
-                                      .equals(
-                                          getUpstreamAttribute(
-                                              ATTR_GROUP_ID, s, allPreciseSamplesById)))
-                      .count()));
         }
+      }
+      if (potentialSamplesAtCurrentTime != null) {
+        // Handle irregular time points
+        row.add(
+            String.valueOf(
+                allPreciseSamplesByIdentity
+                    .get(identity.getId()) // Get children of this identity
+                    .stream()
+                    .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
+                    .filter(TimePoint.BX.predicate())
+                    .filter(
+                        s ->
+                            "POS".equals(getAttribute(ATTR_GROUP_ID, s))
+                                || "POS"
+                                    .equals(
+                                        getUpstreamAttribute(
+                                            ATTR_GROUP_ID, s, allPreciseSamplesById)))
+                    .count()));
+        row.add(
+            String.valueOf(
+                allPreciseSamplesByIdentity
+                    .get(identity.getId()) // Get children of this identity
+                    .stream()
+                    .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
+                    .filter(TimePoint.BX.predicate())
+                    .filter(
+                        s ->
+                            "NEG".equals(getAttribute(ATTR_GROUP_ID, s))
+                                || "NEG"
+                                    .equals(
+                                        getUpstreamAttribute(
+                                            ATTR_GROUP_ID, s, allPreciseSamplesById)))
+                    .count()));
+
+        row.add(
+            String.valueOf(
+                allPreciseSamplesByIdentity
+                    .get(identity.getId())
+                    .stream()
+                    .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
+                    .filter(TimePoint.RP.predicate())
+                    .count()));
       }
 
       table.add(row);
@@ -215,7 +224,7 @@ public class PreciseCaseReport extends TableReport {
 
   @Override
   protected int getRowCount() {
-    return 1 + allPreciseIdentities.size();
+    return allPreciseIdentities.size();
   }
 
   @Override
