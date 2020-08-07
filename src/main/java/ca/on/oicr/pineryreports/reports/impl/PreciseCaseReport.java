@@ -104,6 +104,8 @@ public class PreciseCaseReport extends TableReport {
             .getSample()
             .allFiltered(new SampleClient.SamplesFilter().withProjects(Lists.newArrayList("PRE")));
     Map<String, SampleDto> allPreciseSamplesById = mapSamplesById(allPreciseSamples);
+    Map<String, List<SampleDto>> allPreciseSamplesByIdentity =
+        mapChildrenByIdentityId(allPreciseSamplesById);
     List<String> tissueOriginOrder = Lists.newArrayList("Se", "Pl", "Ly");
     List<String> tissueOriginOrderExtra = Lists.newArrayList("Se", "Pl", "Ly", "Us", "Up");
     allPreciseIdentities =
@@ -123,11 +125,9 @@ public class PreciseCaseReport extends TableReport {
       for (int i = 0; i < 5; i++) {
         TimePoint currentTimePoint = TimePoint.values()[i];
         List<SampleDto> samplesAtCurrentTime =
-            allPreciseSamples
+            allPreciseSamplesByIdentity
+                .get(identity) // Get children of this identity
                 .stream()
-                .filter(
-                    s ->
-                        s.getName().startsWith(identity.getName())) // Get children of this Identity
                 .filter(currentTimePoint.predicate()) // Get samples at this time point
                 .collect(Collectors.toList());
         // on 0th, 2th, 4th iterations use all the types, otherwise just 3
@@ -152,18 +152,18 @@ public class PreciseCaseReport extends TableReport {
       // Handle irregular time points
       row.add(
           String.valueOf(
-              allPreciseSamples
+              allPreciseSamplesByIdentity
+                  .get(identity) // Get children of this identity
                   .stream()
-                  .filter(s -> s.getName().startsWith(identity.getName()))
                   .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
                   .filter(TimePoint.BX.predicate())
                   .filter(s -> getAttribute(ATTR_GROUP_ID, s).equals("POS"))
                   .count()));
       row.add(
           String.valueOf(
-              allPreciseSamples
+              allPreciseSamplesByIdentity
+                  .get(identity) // Get children of this identity
                   .stream()
-                  .filter(s -> s.getName().startsWith(identity.getName()))
                   .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
                   .filter(TimePoint.BX.predicate())
                   .filter(s -> getAttribute(ATTR_GROUP_ID, s).equals("NEG"))
@@ -171,6 +171,20 @@ public class PreciseCaseReport extends TableReport {
 
       table.add(row);
     }
+  }
+
+  private Map<String, List<SampleDto>> mapChildrenByIdentityId(Map<String, SampleDto> samplesById) {
+    Map<String, List<SampleDto>> childrenByIdentityId = new HashMap<>();
+    for (SampleDto sample : samplesById.values()) {
+      if (!SAMPLE_CATEGORY_IDENTITY.equals(getAttribute(ATTR_CATEGORY, sample))) {
+        SampleDto identity = getParent(sample, SAMPLE_CATEGORY_IDENTITY, samplesById);
+        if (!childrenByIdentityId.containsKey(identity.getId())) {
+          childrenByIdentityId.put(identity.getId(), new ArrayList<>());
+        }
+        childrenByIdentityId.get(identity.getId()).add(sample);
+      }
+    }
+    return childrenByIdentityId;
   }
 
   @Override
