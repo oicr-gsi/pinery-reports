@@ -126,6 +126,7 @@ public class Main {
                     + "location-missing, "
                     + "octane, "
                     + "precise, "
+                    + "precisecase, "
                     + "projects-status, "
                     + "receipt-missing, "
                     + "sequencing, "
@@ -191,8 +192,8 @@ public class Main {
         return new DonorsForExistingSamplesReport();
       case StocksByConcentrationReport.REPORT_NAME:
         return new StocksByConcentrationReport();
-      case PreciseIdentityReport.REPORT_NAME:
-        return new PreciseIdentityReport();
+      case PreciseCaseReport.REPORT_NAME:
+        return new PreciseCaseReport();
       default:
         throw new ParseException("Invalid report requested: " + reportName);
     }
