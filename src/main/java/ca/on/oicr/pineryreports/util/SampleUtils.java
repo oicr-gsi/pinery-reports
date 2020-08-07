@@ -123,6 +123,23 @@ public class SampleUtils {
     return dto -> sampleCategory.equals(getAttribute(ATTR_CATEGORY, dto));
   }
 
+  public static Predicate<SampleDto> byTissueOriginAndType(
+      String origin, String type, Map<String, SampleDto> potentialParents) {
+    return byHierarchyAttribute(ATTR_TISSUE_ORIGIN, origin, potentialParents)
+        .and(byHierarchyAttribute(ATTR_TISSUE_TYPE, type, potentialParents));
+  }
+
+  public static Predicate<SampleDto> byHierarchyAttribute(
+      String attribute, String value, Map<String, SampleDto> potentialParents) {
+    return dto ->
+        value.equals(getAttribute(attribute, dto))
+            || value.equals(getUpstreamAttribute(attribute, dto, potentialParents));
+  }
+
+  public static Predicate<SampleDto> byEmpty(boolean empty) {
+    return dto -> "EMPTY".equals(dto.getStorageLocation()) == empty;
+  }
+
   public static Predicate<SampleDto> byCreatedBetween(String start, String end) {
     return dto -> isCreatedBetween(dto, start, end);
   }

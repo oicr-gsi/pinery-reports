@@ -4,9 +4,30 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ReportFormat;
 import ca.on.oicr.pineryreports.reports.Report;
-import ca.on.oicr.pineryreports.reports.impl.*;
+import ca.on.oicr.pineryreports.reports.impl.BisqueProjectsStatusReport;
+import ca.on.oicr.pineryreports.reports.impl.DonorReport;
+import ca.on.oicr.pineryreports.reports.impl.DonorsForExistingSamplesReport;
+import ca.on.oicr.pineryreports.reports.impl.DysReport;
+import ca.on.oicr.pineryreports.reports.impl.GazpachoProjectStatusReport;
+import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
+import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
+import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
+import ca.on.oicr.pineryreports.reports.impl.LibrariesSequencingReport;
+import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
+import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
+import ca.on.oicr.pineryreports.reports.impl.OctaneItemsInBankReport;
+import ca.on.oicr.pineryreports.reports.impl.PreciseInventoryByCaseReport;
+import ca.on.oicr.pineryreports.reports.impl.PreciseReport;
+import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
+import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
+import ca.on.oicr.pineryreports.reports.impl.SlideReport;
+import ca.on.oicr.pineryreports.reports.impl.StockReport;
+import ca.on.oicr.pineryreports.reports.impl.StocksByConcentrationReport;
+import ca.on.oicr.pineryreports.reports.impl.TglLibrariesRunReport;
+
 import java.io.File;
 import java.io.IOException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -125,6 +146,7 @@ public class Main {
                     + "libraries-sequencing, "
                     + "location-missing, "
                     + "octane, "
+                    + "octane-bank, "
                     + "precise, "
                     + "precisecase, "
                     + "projects-status, "
@@ -166,6 +188,8 @@ public class Main {
         return new ProjectSequencingReport();
       case OctaneCountsReport.REPORT_NAME:
         return new OctaneCountsReport();
+      case OctaneItemsInBankReport.REPORT_NAME:
+        return new OctaneItemsInBankReport();
       case ReceiptMissingReport.REPORT_NAME:
         return new ReceiptMissingReport();
       case SlideReport.REPORT_NAME:
