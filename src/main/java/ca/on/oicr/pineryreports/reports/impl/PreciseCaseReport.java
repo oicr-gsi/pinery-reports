@@ -84,11 +84,6 @@ public class PreciseCaseReport extends TableReport {
       return key;
     }
 
-    /**
-     * Assumes that PRECISE samples will always have _nn_ in the name, and that Tissue Origin will
-     * never be "nn". Should hopefully be a safe assumption since this is a biobanking project where
-     * tracking tissue origin is critical.
-     */
     public Predicate<SampleDto> predicate() {
       return sample -> {
         if (SAMPLE_CATEGORY_IDENTITY.equals(getAttribute(ATTR_CATEGORY, sample))) return false;
@@ -120,17 +115,17 @@ public class PreciseCaseReport extends TableReport {
     for (SampleDto identity : allPreciseIdentities) {
       List<String> row = new LinkedList<>();
       row.add(identity.getName());
+      potentialSamplesAtCurrentTime = allPreciseSamplesByIdentity.get(identity.getId());
+      if (potentialSamplesAtCurrentTime == null) {
+        row.addAll(
+            Lists.newArrayList(
+                "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "0", "0", "0", "0", "0", "0", "0"));
+      } else {
+        // For all regular time points
+        for (int i = 0; i < 5; i++) {
+          TimePoint currentTimePoint = TimePoint.values()[i];
 
-      // For all regular time points
-      for (int i = 0; i < 5; i++) {
-        TimePoint currentTimePoint = TimePoint.values()[i];
-        potentialSamplesAtCurrentTime = allPreciseSamplesByIdentity.get(identity.getId());
-        if (potentialSamplesAtCurrentTime == null) {
-          row.addAll(
-              Lists.newArrayList(
-                  "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
-                  "0", "0", "0", "0", "0", "0", "0", "0"));
-        } else {
           List<SampleDto> samplesAtCurrentTime =
               allPreciseSamplesByIdentity
                   .get(identity.getId()) // Get children of this identity
@@ -155,8 +150,6 @@ public class PreciseCaseReport extends TableReport {
                         .count()));
           }
         }
-      }
-      if (potentialSamplesAtCurrentTime != null) {
         // Handle irregular time points
         row.add(
             String.valueOf(
