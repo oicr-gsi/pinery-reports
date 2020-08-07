@@ -8,6 +8,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.SampleDto;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -62,7 +63,8 @@ public class PreciseCaseReport extends TableReport {
      */
     public Predicate<SampleDto> predicate() {
       return sample -> {
-        if (SAMPLE_CATEGORY_IDENTITY.equals(sample.getSampleType())) return false;
+        if (SAMPLE_CATEGORY_IDENTITY.equals(SampleUtils.getAttribute(ATTR_CATEGORY, sample)))
+          return false;
         return timePointCode == getTimesReceived(sample.getName());
       };
     }
