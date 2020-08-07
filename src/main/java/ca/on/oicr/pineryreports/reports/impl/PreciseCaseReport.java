@@ -103,9 +103,9 @@ public class PreciseCaseReport extends TableReport {
         pinery
             .getSample()
             .allFiltered(new SampleClient.SamplesFilter().withProjects(Lists.newArrayList("PRE")));
-    List<String> tissueOriginOrder = Lists.newArrayList("_Se_", "_Pl_", "_Ly_");
-    List<String> tissueOriginOrderExtra =
-        Lists.newArrayList("_Se_", "_Pl_", "_Ly_", "_Us_", "_Up_");
+    Map<String, SampleDto> allPreciseSamplesById = mapSamplesById(allPreciseSamples);
+    List<String> tissueOriginOrder = Lists.newArrayList("Se", "Pl", "Ly");
+    List<String> tissueOriginOrderExtra = Lists.newArrayList("Se", "Pl", "Ly", "Us", "Up");
     allPreciseIdentities =
         allPreciseSamples
             .stream()
@@ -142,7 +142,10 @@ public class PreciseCaseReport extends TableReport {
         for (String origin : tissueOrigins) {
           row.add(
               String.valueOf(
-                  samplesAtCurrentTime.stream().filter(s -> s.getName().contains(origin)).count()));
+                  samplesAtCurrentTime
+                      .stream()
+                      .filter(s -> origin.equals(getAttribute(ATTR_TISSUE_ORIGIN, s)))
+                      .count()));
         }
       }
 
