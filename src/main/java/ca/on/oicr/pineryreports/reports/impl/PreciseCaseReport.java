@@ -152,12 +152,7 @@ public class PreciseCaseReport extends TableReport {
                 String.valueOf(
                     samplesAtCurrentTime
                         .stream()
-                        .filter(
-                            s ->
-                                origin.equals(getAttribute(ATTR_TISSUE_ORIGIN, s))
-                                    || origin.equals(
-                                        getUpstreamAttribute(
-                                            ATTR_TISSUE_ORIGIN, s, allPreciseSamplesById)))
+                        .filter(s -> origin.equals(getAttribute(ATTR_TISSUE_ORIGIN, s)))
                         .count()));
           }
 
