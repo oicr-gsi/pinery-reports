@@ -110,13 +110,11 @@ public class PreciseCaseReport extends TableReport {
             .collect(Collectors.toList());
 
     table = new LinkedList<>();
-    List<SampleDto> potentialSamplesAtCurrentTime = null;
     // One row per identity
     for (SampleDto identity : allPreciseIdentities) {
       List<String> row = new LinkedList<>();
       row.add(identity.getName());
-      potentialSamplesAtCurrentTime = allPreciseSamplesByIdentity.get(identity.getId());
-      if (potentialSamplesAtCurrentTime == null) {
+      if (allPreciseSamplesByIdentity.containsKey(identity.getId())) {
         row.addAll(
             Lists.newArrayList(
                 "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
