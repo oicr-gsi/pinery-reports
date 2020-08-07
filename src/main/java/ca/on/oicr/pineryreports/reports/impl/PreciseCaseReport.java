@@ -27,6 +27,35 @@ public class PreciseCaseReport extends TableReport {
   List<List<String>> table;
   List<SampleDto> allPreciseIdentities;
 
+  private static final List<ColumnDefinition> COLUMNS =
+      Collections.unmodifiableList(
+          Arrays.asList(
+              new ColumnDefinition("ID"),
+              new ColumnDefinition("Screening/Randomization Serum"),
+              new ColumnDefinition("Screening/Randomization Plasma"),
+              new ColumnDefinition("Screening/Randomization Buffy Coat"),
+              new ColumnDefinition("Screening/Randomization Urine Supernatant"),
+              new ColumnDefinition("Screening/Randomization Urine Pellet"),
+              new ColumnDefinition("6 mo Follow Up Serum"),
+              new ColumnDefinition("6 mo Follow Up Plasma"),
+              new ColumnDefinition("6 mo Follow Up Buffy Coat"),
+              new ColumnDefinition("1 yr Follow Up Serum"),
+              new ColumnDefinition("1 yr Follow Up Plasma"),
+              new ColumnDefinition("1 yr Follow Up Buffy Coat"),
+              new ColumnDefinition("1 yr Follow Up Urine Supernatant"),
+              new ColumnDefinition("1 yr Follow Up Urine Pellet"),
+              new ColumnDefinition("18 mo Follow Up Serum"),
+              new ColumnDefinition("18 mo Follow Up Plasma"),
+              new ColumnDefinition("18 mo Follow Up Buffy Coat"),
+              new ColumnDefinition("2 yr Follow Up Serum"),
+              new ColumnDefinition("2 yr Follow Up Plasma"),
+              new ColumnDefinition("2 yr Follow Up Buffy Coat"),
+              new ColumnDefinition("2 yr Follow Up Urine Supernatant"),
+              new ColumnDefinition("2 yr Follow Up Urine Pellet"),
+              new ColumnDefinition("Bx Slides - Positive"),
+              new ColumnDefinition("Bx Slides - Negative"),
+              new ColumnDefinition("RP Slides")));
+
   private enum TimePoint {
     // Coded by the Times Received portion of the tissue name: PRE_1111111_Xx_X_nn_*#*-1
     RANDOMIZATION("Screening/Randomization", 1),
@@ -84,35 +113,6 @@ public class PreciseCaseReport extends TableReport {
             .collect(Collectors.toList());
 
     table = new LinkedList<>();
-
-    // Add headers
-    table.add(
-        Lists.newArrayList(
-            "ID",
-            "Screening/Randomization Serum",
-            "Screening/Randomization Plasma",
-            "Screening/Randomization Buffy Coat",
-            "Screening/Randomization Urine Supernatant",
-            "Screening/Randomization Urine Pellet",
-            "6 mo Follow Up Serum",
-            "6 mo Follow Up Plasma",
-            "6 mo Follow Up Buffy Coat",
-            "1 yr Follow Up Serum",
-            "1 yr Follow Up Plasma",
-            "1 yr Follow Up Buffy Coat",
-            "1 yr Follow Up Urine Supernatant",
-            "1 yr Follow Up Urine Pellet",
-            "18 mo Follow Up Serum",
-            "18 mo Follow Up Plasma",
-            "18 mo Follow Up Buffy Coat",
-            "2 yr Follow Up Serum",
-            "2 yr Follow Up Plasma",
-            "2 yr Follow Up Buffy Coat",
-            "2 yr Follow Up Urine Supernatant",
-            "2 yr Follow Up Urine Pellet",
-            "Bx Slides - Positive",
-            "Bx Slides - Negative",
-            "RP Slides"));
 
     // One row per identity
     for (SampleDto identity : allPreciseIdentities) {
@@ -172,7 +172,7 @@ public class PreciseCaseReport extends TableReport {
 
   @Override
   protected List<ColumnDefinition> getColumns() {
-    return null;
+    return COLUMNS;
   }
 
   @Override
