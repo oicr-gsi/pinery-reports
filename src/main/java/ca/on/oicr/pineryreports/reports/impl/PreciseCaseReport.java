@@ -114,7 +114,7 @@ public class PreciseCaseReport extends TableReport {
     for (SampleDto identity : allPreciseIdentities) {
       List<String> row = new LinkedList<>();
       row.add(identity.getName());
-      if (allPreciseSamplesByIdentity.containsKey(identity.getId())) {
+      if (!allPreciseSamplesByIdentity.containsKey(identity.getId())) {
         row.addAll(
             Lists.newArrayList(
                 "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
