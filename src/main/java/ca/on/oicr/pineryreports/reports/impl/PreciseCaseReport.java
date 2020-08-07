@@ -157,7 +157,7 @@ public class PreciseCaseReport extends TableReport {
                   .filter(s -> s.getName().startsWith(identity.getName()))
                   .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
                   .filter(TimePoint.BX.predicate())
-                  .filter(s -> true) // TODO: How to get Group ID? Need that for POS/NEG
+                  .filter(s -> getAttribute(ATTR_GROUP_ID, s).equals("POS"))
                   .count()));
       row.add(
           String.valueOf(
@@ -166,7 +166,7 @@ public class PreciseCaseReport extends TableReport {
                   .filter(s -> s.getName().startsWith(identity.getName()))
                   .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
                   .filter(TimePoint.BX.predicate())
-                  .filter(s -> true) // TODO: How to get Group ID? Need that for POS/NEG
+                  .filter(s -> getAttribute(ATTR_GROUP_ID, s).equals("NEG"))
                   .count()));
 
       table.add(row);
