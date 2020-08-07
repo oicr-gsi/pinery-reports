@@ -1,6 +1,5 @@
 package ca.on.oicr.pineryreports.reports.impl;
 
-import static ca.on.oicr.pineryreports.util.GeneralUtils.DATE_REGEX;
 import static ca.on.oicr.pineryreports.util.GeneralUtils.REPORT_CATEGORY_COUNTS;
 import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
@@ -9,11 +8,11 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
-import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -24,11 +23,6 @@ import org.apache.commons.cli.ParseException;
 public class PreciseCaseReport extends TableReport {
   public static final String REPORT_NAME = "precisecase";
   public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
-  private String start;
-  private String end;
-
-  private static final Option OPT_AFTER = CommonOptions.after(true);
-  private static final Option OPT_BEFORE = CommonOptions.before(true);
 
   List<List<String>> table;
   List<SampleDto> allPreciseIdentities;
@@ -198,31 +192,17 @@ public class PreciseCaseReport extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    return Sets.newHashSet(OPT_BEFORE, OPT_AFTER);
+    return Sets.newHashSet();
   }
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    if (cmd.hasOption(OPT_AFTER.getLongOpt())) {
-      String after = cmd.getOptionValue(OPT_AFTER.getLongOpt());
-      if (!after.matches(DATE_REGEX)) {
-        throw new ParseException("After date must be in format yyyy-mm-dd");
-      }
-      this.start = after;
-    }
-
-    if (cmd.hasOption(OPT_BEFORE.getLongOpt())) {
-      String before = cmd.getOptionValue(OPT_BEFORE.getLongOpt());
-      if (!before.matches(DATE_REGEX)) {
-        throw new ParseException("Before date must be in format yyyy-mm-dd");
-      }
-      this.end = before;
-    }
+    return;
   }
 
   @Override
   public String getTitle() {
-    return "PRECISE Case Report generated " + end;
+    return "PRECISE Case Report generated " + LocalDate.now();
   }
 
   @Override
