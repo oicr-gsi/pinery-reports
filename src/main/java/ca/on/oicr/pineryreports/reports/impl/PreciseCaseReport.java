@@ -111,7 +111,7 @@ public class PreciseCaseReport extends TableReport {
     allPreciseIdentities =
         allPreciseSamples
             .stream()
-            .filter(s -> getAttribute(ATTR_CATEGORY, s).equals(SAMPLE_CATEGORY_IDENTITY))
+            .filter(s -> SAMPLE_CATEGORY_IDENTITY.equals(getAttribute(ATTR_CATEGORY, s)))
             .collect(Collectors.toList());
 
     table = new LinkedList<>();
@@ -160,13 +160,15 @@ public class PreciseCaseReport extends TableReport {
               allPreciseSamplesByIdentity
                   .get(identity.getId()) // Get children of this identity
                   .stream()
-                  .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
+                  .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
                   .filter(TimePoint.BX.predicate())
                   .filter(
                       s ->
-                          getAttribute(ATTR_GROUP_ID, s).equals("POS")
-                              || getUpstreamAttribute(ATTR_GROUP_ID, s, allPreciseSamplesById)
-                                  .equals("POS"))
+                          "POS".equals(getAttribute(ATTR_GROUP_ID, s))
+                              || "POS"
+                                  .equals(
+                                      getUpstreamAttribute(
+                                          ATTR_GROUP_ID, s, allPreciseSamplesById)))
                   .count()));
       row.add(
           String.valueOf(
@@ -177,9 +179,11 @@ public class PreciseCaseReport extends TableReport {
                   .filter(TimePoint.BX.predicate())
                   .filter(
                       s ->
-                          getAttribute(ATTR_GROUP_ID, s).equals("NEG")
-                              || getUpstreamAttribute(ATTR_GROUP_ID, s, allPreciseSamplesById)
-                                  .equals("NEG"))
+                          "NEG".equals(getAttribute(ATTR_GROUP_ID, s))
+                              || "NEG"
+                                  .equals(
+                                      getUpstreamAttribute(
+                                          ATTR_GROUP_ID, s, allPreciseSamplesById)))
                   .count()));
 
       table.add(row);
