@@ -124,67 +124,76 @@ public class PreciseCaseReport extends TableReport {
       // For all regular time points
       for (int i = 0; i < 5; i++) {
         TimePoint currentTimePoint = TimePoint.values()[i];
-        List<SampleDto> samplesAtCurrentTime =
-            allPreciseSamplesByIdentity
-                .get(identity.getId()) // Get children of this identity
-                .stream()
-                .filter(currentTimePoint.predicate()) // Get samples at this time point
-                .collect(Collectors.toList());
-        // on 0th, 2th, 4th iterations use all the types, otherwise just 3
-        List<String> tissueOrigins;
-        if (i % 2 == 0) {
-          tissueOrigins = tissueOriginOrderExtra;
+        List<SampleDto> potentialSamplesAtCurrentTime =
+            allPreciseSamplesByIdentity.get(identity.getId());
+        if (potentialSamplesAtCurrentTime == null) {
+          row.addAll(
+              Lists.newArrayList(
+                  "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                  "0", "0", "0", "0", "0"));
         } else {
-          tissueOrigins = tissueOriginOrder;
-        }
+          List<SampleDto> samplesAtCurrentTime =
+              allPreciseSamplesByIdentity
+                  .get(identity.getId()) // Get children of this identity
+                  .stream()
+                  .filter(currentTimePoint.predicate()) // Get samples at this time point
+                  .collect(Collectors.toList());
+          // on 0th, 2th, 4th iterations use all the types, otherwise just 3
+          List<String> tissueOrigins;
+          if (i % 2 == 0) {
+            tissueOrigins = tissueOriginOrderExtra;
+          } else {
+            tissueOrigins = tissueOriginOrder;
+          }
 
-        // for all applicable tissue origins, get counts and add them to the row
-        for (String origin : tissueOrigins) {
+          // for all applicable tissue origins, get counts and add them to the row
+          for (String origin : tissueOrigins) {
+            row.add(
+                String.valueOf(
+                    samplesAtCurrentTime
+                        .stream()
+                        .filter(
+                            s ->
+                                origin.equals(getAttribute(ATTR_TISSUE_ORIGIN, s))
+                                    || origin.equals(
+                                        getUpstreamAttribute(
+                                            ATTR_TISSUE_ORIGIN, s, allPreciseSamplesById)))
+                        .count()));
+          }
+
+          // Handle irregular time points
           row.add(
               String.valueOf(
-                  samplesAtCurrentTime
+                  allPreciseSamplesByIdentity
+                      .get(identity.getId()) // Get children of this identity
                       .stream()
+                      .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
+                      .filter(TimePoint.BX.predicate())
                       .filter(
                           s ->
-                              origin.equals(getAttribute(ATTR_TISSUE_ORIGIN, s))
-                                  || origin.equals(
-                                      getUpstreamAttribute(
-                                          ATTR_TISSUE_ORIGIN, s, allPreciseSamplesById)))
+                              "POS".equals(getAttribute(ATTR_GROUP_ID, s))
+                                  || "POS"
+                                      .equals(
+                                          getUpstreamAttribute(
+                                              ATTR_GROUP_ID, s, allPreciseSamplesById)))
+                      .count()));
+          row.add(
+              String.valueOf(
+                  allPreciseSamplesByIdentity
+                      .get(identity.getId()) // Get children of this identity
+                      .stream()
+                      .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
+                      .filter(TimePoint.BX.predicate())
+                      .filter(
+                          s ->
+                              "NEG".equals(getAttribute(ATTR_GROUP_ID, s))
+                                  || "NEG"
+                                      .equals(
+                                          getUpstreamAttribute(
+                                              ATTR_GROUP_ID, s, allPreciseSamplesById)))
                       .count()));
         }
       }
-
-      // Handle irregular time points
-      row.add(
-          String.valueOf(
-              allPreciseSamplesByIdentity
-                  .get(identity.getId()) // Get children of this identity
-                  .stream()
-                  .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
-                  .filter(TimePoint.BX.predicate())
-                  .filter(
-                      s ->
-                          "POS".equals(getAttribute(ATTR_GROUP_ID, s))
-                              || "POS"
-                                  .equals(
-                                      getUpstreamAttribute(
-                                          ATTR_GROUP_ID, s, allPreciseSamplesById)))
-                  .count()));
-      row.add(
-          String.valueOf(
-              allPreciseSamplesByIdentity
-                  .get(identity.getId()) // Get children of this identity
-                  .stream()
-                  .filter(s -> s.getSampleType().equals(SAMPLE_CLASS_SLIDE))
-                  .filter(TimePoint.BX.predicate())
-                  .filter(
-                      s ->
-                          "NEG".equals(getAttribute(ATTR_GROUP_ID, s))
-                              || "NEG"
-                                  .equals(
-                                      getUpstreamAttribute(
-                                          ATTR_GROUP_ID, s, allPreciseSamplesById)))
-                  .count()));
 
       table.add(row);
     }
@@ -216,7 +225,7 @@ public class PreciseCaseReport extends TableReport {
 
   @Override
   protected String[] getRow(int rowNum) {
-    return (String[]) table.get(rowNum).toArray();
+    return table.get(rowNum).toArray(new String[COLUMNS.size()]);
   }
 
   @Override
