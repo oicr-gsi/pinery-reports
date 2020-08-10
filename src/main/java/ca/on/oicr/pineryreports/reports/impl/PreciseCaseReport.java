@@ -169,7 +169,8 @@ public class PreciseCaseReport extends TableReport {
                                 || "POS"
                                     .equals(
                                         getUpstreamAttribute(
-                                            ATTR_GROUP_ID, s, allPreciseSamplesById)))
+                                            ATTR_GROUP_ID, s, allPreciseSamplesById))
+                                || null == getAttribute(ATTR_GROUP_ID, s))
                     .count()));
         row.add(
             String.valueOf(
