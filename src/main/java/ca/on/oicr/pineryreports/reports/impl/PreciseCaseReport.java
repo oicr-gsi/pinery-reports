@@ -8,6 +8,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.SampleDto;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -126,6 +127,9 @@ public class PreciseCaseReport extends TableReport {
                   .get(identity.getId()) // Get children of this identity
                   .stream()
                   .filter(currentTimePoint.predicate()) // Get samples at this time point
+                  .filter(s -> 6 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
+                  .filter(s -> 17 != SampleUtils.getTubeNumber(s.getName()))
+                  .filter(s -> 31 != SampleUtils.getTubeNumber(s.getName()))
                   .collect(Collectors.toList());
           // on 0th, 2th, 4th iterations use all the types, otherwise just 3
           List<String> tissueOrigins;
@@ -151,6 +155,9 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId()) // Get children of this identity
                     .stream()
+                    .filter(s -> 06 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
+                    .filter(s -> 17 != SampleUtils.getTubeNumber(s.getName()))
+                    .filter(s -> 31 != SampleUtils.getTubeNumber(s.getName()))
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
                     .filter(TimePoint.BX.predicate())
                     .filter(
@@ -166,6 +173,9 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId()) // Get children of this identity
                     .stream()
+                    .filter(s -> 06 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
+                    .filter(s -> 17 != SampleUtils.getTubeNumber(s.getName()))
+                    .filter(s -> 31 != SampleUtils.getTubeNumber(s.getName()))
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
                     .filter(TimePoint.BX.predicate())
                     .filter(
@@ -182,6 +192,9 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId())
                     .stream()
+                    .filter(s -> 06 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
+                    .filter(s -> 17 != SampleUtils.getTubeNumber(s.getName()))
+                    .filter(s -> 31 != SampleUtils.getTubeNumber(s.getName()))
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
                     .filter(TimePoint.RP.predicate())
                     .count()));
