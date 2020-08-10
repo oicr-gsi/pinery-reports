@@ -192,8 +192,8 @@ public class Main {
         return new DonorsForExistingSamplesReport();
       case StocksByConcentrationReport.REPORT_NAME:
         return new StocksByConcentrationReport();
-      case PreciseCaseReport.REPORT_NAME:
-        return new PreciseCaseReport();
+      case PreciseInventoryByCaseReport.REPORT_NAME:
+        return new PreciseInventoryByCaseReport();
       default:
         throw new ParseException("Invalid report requested: " + reportName);
     }

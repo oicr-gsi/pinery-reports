@@ -21,8 +21,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-public class PreciseCaseReport extends TableReport {
-  public static final String REPORT_NAME = "precisecase";
+public class PreciseInventoryByCaseReport extends TableReport {
+  public static final String REPORT_NAME = "preciseinventorybycase";
   public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
 
   List<List<String>> table;
@@ -68,10 +68,12 @@ public class PreciseCaseReport extends TableReport {
     RP("RP Slides", 7);
     private final String key;
     private final int timePointCode;
-    private static final Map<String, PreciseCaseReport.TimePoint> lookup = new TreeMap<>();
+    private static final Map<String, PreciseInventoryByCaseReport.TimePoint> lookup =
+        new TreeMap<>();
 
     static {
-      for (PreciseCaseReport.TimePoint s : EnumSet.allOf(PreciseCaseReport.TimePoint.class)) {
+      for (PreciseInventoryByCaseReport.TimePoint s :
+          EnumSet.allOf(PreciseInventoryByCaseReport.TimePoint.class)) {
         lookup.put(s.getKey(), s);
       }
     }
