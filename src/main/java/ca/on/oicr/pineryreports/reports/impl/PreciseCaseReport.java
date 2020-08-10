@@ -115,10 +115,7 @@ public class PreciseCaseReport extends TableReport {
       List<String> row = new LinkedList<>();
       row.add(identity.getName());
       if (!allPreciseSamplesByIdentity.containsKey(identity.getId())) {
-        row.addAll(
-            Lists.newArrayList(
-                "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
-                "0", "0", "0", "0", "0", "0", "0"));
+        row.addAll(Collections.nCopies(COLUMNS.size() - 1, "0")); // -1 because of ID column
       } else {
         // For all regular time points
         for (int i = 0; i < 5; i++) {
