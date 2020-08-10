@@ -155,7 +155,7 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId()) // Get children of this identity
                     .stream()
-                    .filter(s -> 06 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
+                    .filter(s -> 6 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
                     .filter(s -> 17 != SampleUtils.getTubeNumber(s.getName()))
                     .filter(s -> 31 != SampleUtils.getTubeNumber(s.getName()))
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
@@ -192,7 +192,7 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId())
                     .stream()
-                    .filter(s -> 06 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
+                    .filter(s -> 6 != SampleUtils.getTubeNumber(s.getName())) // See GLT-3314
                     .filter(s -> 17 != SampleUtils.getTubeNumber(s.getName()))
                     .filter(s -> 31 != SampleUtils.getTubeNumber(s.getName()))
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
