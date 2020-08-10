@@ -4,24 +4,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ReportFormat;
 import ca.on.oicr.pineryreports.reports.Report;
-import ca.on.oicr.pineryreports.reports.impl.BisqueProjectsStatusReport;
-import ca.on.oicr.pineryreports.reports.impl.DonorReport;
-import ca.on.oicr.pineryreports.reports.impl.DonorsForExistingSamplesReport;
-import ca.on.oicr.pineryreports.reports.impl.DysReport;
-import ca.on.oicr.pineryreports.reports.impl.GazpachoProjectStatusReport;
-import ca.on.oicr.pineryreports.reports.impl.GeccoReport;
-import ca.on.oicr.pineryreports.reports.impl.LanesBillingReport;
-import ca.on.oicr.pineryreports.reports.impl.LibrariesBillingReport;
-import ca.on.oicr.pineryreports.reports.impl.LibrariesSequencingReport;
-import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
-import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
-import ca.on.oicr.pineryreports.reports.impl.PreciseReport;
-import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
-import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
-import ca.on.oicr.pineryreports.reports.impl.SlideReport;
-import ca.on.oicr.pineryreports.reports.impl.StockReport;
-import ca.on.oicr.pineryreports.reports.impl.StocksByConcentrationReport;
-import ca.on.oicr.pineryreports.reports.impl.TglLibrariesRunReport;
+import ca.on.oicr.pineryreports.reports.impl.*;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.cli.CommandLine;
@@ -143,6 +126,7 @@ public class Main {
                     + "location-missing, "
                     + "octane, "
                     + "precise, "
+                    + "precisecase, "
                     + "projects-status, "
                     + "receipt-missing, "
                     + "sequencing, "
@@ -208,6 +192,8 @@ public class Main {
         return new DonorsForExistingSamplesReport();
       case StocksByConcentrationReport.REPORT_NAME:
         return new StocksByConcentrationReport();
+      case PreciseCaseReport.REPORT_NAME:
+        return new PreciseCaseReport();
       default:
         throw new ParseException("Invalid report requested: " + reportName);
     }
