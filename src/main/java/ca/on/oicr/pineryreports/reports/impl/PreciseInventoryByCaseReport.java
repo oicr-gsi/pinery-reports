@@ -8,6 +8,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pinery.client.SampleClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.SampleDto;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -20,8 +21,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
-public class PreciseCaseReport extends TableReport {
-  public static final String REPORT_NAME = "precisecase";
+public class PreciseInventoryByCaseReport extends TableReport {
+  public static final String REPORT_NAME = "preciseinventorybycase";
   public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
 
   List<List<String>> table;
@@ -67,10 +68,12 @@ public class PreciseCaseReport extends TableReport {
     RP("RP Slides", 7);
     private final String key;
     private final int timePointCode;
-    private static final Map<String, PreciseCaseReport.TimePoint> lookup = new TreeMap<>();
+    private static final Map<String, PreciseInventoryByCaseReport.TimePoint> lookup =
+        new TreeMap<>();
 
     static {
-      for (PreciseCaseReport.TimePoint s : EnumSet.allOf(PreciseCaseReport.TimePoint.class)) {
+      for (PreciseInventoryByCaseReport.TimePoint s :
+          EnumSet.allOf(PreciseInventoryByCaseReport.TimePoint.class)) {
         lookup.put(s.getKey(), s);
       }
     }
@@ -90,6 +93,13 @@ public class PreciseCaseReport extends TableReport {
         return timePointCode == getTimesReceived(sample.getName());
       };
     }
+  }
+
+  static Predicate<SampleDto> filterTubes() {
+    return sample -> {
+      int tube = SampleUtils.getTubeNumber(sample.getName());
+      return !(tube == 6 || tube == 17 || tube == 31);
+    };
   }
 
   @Override
@@ -126,6 +136,7 @@ public class PreciseCaseReport extends TableReport {
                   .get(identity.getId()) // Get children of this identity
                   .stream()
                   .filter(currentTimePoint.predicate()) // Get samples at this time point
+                  .filter(filterTubes())
                   .collect(Collectors.toList());
           // on 0th, 2th, 4th iterations use all the types, otherwise just 3
           List<String> tissueOrigins;
@@ -151,6 +162,7 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId()) // Get children of this identity
                     .stream()
+                    .filter(filterTubes())
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
                     .filter(TimePoint.BX.predicate())
                     .filter(
@@ -159,6 +171,12 @@ public class PreciseCaseReport extends TableReport {
                                 || "POS"
                                     .equals(
                                         getUpstreamAttribute(
+                                            ATTR_GROUP_ID, s, allPreciseSamplesById))
+                                || (null == getAttribute(ATTR_GROUP_ID, s)
+                                    // Ensure there isn't a NEG somewhere upstream, but whole column
+                                    // is null
+                                    && null
+                                        == getUpstreamAttribute(
                                             ATTR_GROUP_ID, s, allPreciseSamplesById)))
                     .count()));
         row.add(
@@ -166,6 +184,7 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId()) // Get children of this identity
                     .stream()
+                    .filter(filterTubes())
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
                     .filter(TimePoint.BX.predicate())
                     .filter(
@@ -182,6 +201,7 @@ public class PreciseCaseReport extends TableReport {
                 allPreciseSamplesByIdentity
                     .get(identity.getId())
                     .stream()
+                    .filter(filterTubes())
                     .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
                     .filter(TimePoint.RP.predicate())
                     .count()));
