@@ -172,7 +172,12 @@ public class PreciseInventoryByCaseReport extends TableReport {
                                     .equals(
                                         getUpstreamAttribute(
                                             ATTR_GROUP_ID, s, allPreciseSamplesById))
-                                || null == getAttribute(ATTR_GROUP_ID, s))
+                                || (null == getAttribute(ATTR_GROUP_ID, s)
+                                    // Ensure there isn't a NEG somewhere upstream, but whole column
+                                    // is null
+                                    && null
+                                        == getUpstreamAttribute(
+                                            ATTR_GROUP_ID, s, allPreciseSamplesById)))
                     .count()));
         row.add(
             String.valueOf(
