@@ -47,6 +47,7 @@ public class SampleUtils {
   public static final String ATTR_DISTRIBUTED = "Distributed";
   public static final String ATTR_DISTRIBUTION_DATE = "Distribution Date";
   public static final String ATTR_INITIAL_VOLUME = "Initial Volume";
+  public static final String ATTR_LATEST_TRANSFER_REQUEST = "Latest Transfer Request";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";

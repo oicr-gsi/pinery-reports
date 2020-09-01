@@ -71,13 +71,12 @@ public class OctaneItemsInBankReport extends TableReport {
               new ColumnDefinition("Tumour RNA Remaining (ng)"),
               new ColumnDefinition("Tumour RNA Exhausted")));
 
-  private static final List<String> tumourTissueTypes =
-      Collections.unmodifiableList(Lists.newArrayList("M", "T", "U", "n"));
-
   private static final Predicate<SampleDto> byTransferred =
       dto -> {
         String custody = getAttribute(ATTR_CUSTODY, dto);
-        return custody != null && !"TP".equals(custody);
+        return custody != null
+            && !"TP".equals(custody)
+            && !"Unspecified (Internal)".equals(custody);
       };
 
   private final List<Integer> userIds = new ArrayList<>();
@@ -235,7 +234,15 @@ public class OctaneItemsInBankReport extends TableReport {
   private String getDistributionRecipients(List<SampleDto> children) {
     return children
         .stream()
-        .map(dto -> getAttribute(ATTR_CUSTODY, dto))
+        .map(
+            dto -> {
+              String custody = getAttribute(ATTR_CUSTODY, dto);
+              if (custody == null) {
+                return null;
+              }
+              String request = getAttribute(ATTR_LATEST_TRANSFER_REQUEST, dto);
+              return request == null ? custody : request;
+            })
         .filter(Objects::nonNull)
         .distinct()
         .collect(Collectors.joining(", "));
@@ -275,17 +282,15 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private int addTumourCounts(String[] row, int col, List<SampleDto> children) {
+    row[++col] = Integer.toString(countSlides(children, false));
+    row[++col] = Integer.toString(countSlides(children, true));
+
+    // filter to only include items descended from slides
     List<SampleDto> filtered =
         children
             .stream()
-            .filter(
-                dto ->
-                    tumourTissueTypes.contains(
-                        getUpstreamAttribute(ATTR_TISSUE_TYPE, dto, samplesById)))
+            .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, samplesById) != null)
             .collect(Collectors.toList());
-
-    row[++col] = Integer.toString(countSlides(filtered, false));
-    row[++col] = Integer.toString(countSlides(filtered, true));
 
     List<SampleDto> dnaDistributed = getDistributed(filtered, DNA);
     row[++col] = Integer.toString(dnaDistributed.size());
@@ -305,7 +310,9 @@ public class OctaneItemsInBankReport extends TableReport {
     return children
         .stream()
         .filter(dto -> SAMPLE_CLASS_SLIDE.equals(dto.getSampleType()))
-        .filter(byEmpty(empty))
+        // for exhausted (empty == true), include partially-used
+        // for remaining (empty == false), only count if not "EMPTY"
+        .filter(empty ? s -> true : byEmpty(false))
         .filter(byCreator(userIds))
         .mapToInt(
             dto ->
