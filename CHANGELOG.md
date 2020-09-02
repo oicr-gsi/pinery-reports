@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
+## [1.8.0]  2020-09-02
+### Added:
+  * Precise Case Report (`precisecase`)
+  * OCTANE Items in Bank Report (`octane-bank`)
+
 ## [1.7.0]  2020-04-29
 ### Changed
   * `octane`: exclude transferred/distributed samples from inventory counts
