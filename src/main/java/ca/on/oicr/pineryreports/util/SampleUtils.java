@@ -47,6 +47,7 @@ public class SampleUtils {
   public static final String ATTR_DISTRIBUTED = "Distributed";
   public static final String ATTR_DISTRIBUTION_DATE = "Distribution Date";
   public static final String ATTR_INITIAL_VOLUME = "Initial Volume";
+  public static final String ATTR_LATEST_TRANSFER_REQUEST = "Latest Transfer Request";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
@@ -121,6 +122,23 @@ public class SampleUtils {
 
   public static Predicate<SampleDto> bySampleCategory(String sampleCategory) {
     return dto -> sampleCategory.equals(getAttribute(ATTR_CATEGORY, dto));
+  }
+
+  public static Predicate<SampleDto> byTissueOriginAndType(
+      String origin, String type, Map<String, SampleDto> potentialParents) {
+    return byHierarchyAttribute(ATTR_TISSUE_ORIGIN, origin, potentialParents)
+        .and(byHierarchyAttribute(ATTR_TISSUE_TYPE, type, potentialParents));
+  }
+
+  public static Predicate<SampleDto> byHierarchyAttribute(
+      String attribute, String value, Map<String, SampleDto> potentialParents) {
+    return dto ->
+        value.equals(getAttribute(attribute, dto))
+            || value.equals(getUpstreamAttribute(attribute, dto, potentialParents));
+  }
+
+  public static Predicate<SampleDto> byEmpty(boolean empty) {
+    return dto -> "EMPTY".equals(dto.getStorageLocation()) == empty;
   }
 
   public static Predicate<SampleDto> byCreatedBetween(String start, String end) {
