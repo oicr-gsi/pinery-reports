@@ -5,14 +5,12 @@ import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
-import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.AttributeDto;
 import ca.on.oicr.ws.dto.SampleDto;
 import ca.on.oicr.ws.dto.UserDto;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -179,11 +177,14 @@ public class OctaneCountsReport extends TableReport {
     List<UserDto> allUsers = pinery.getUser().all();
     allUsersById = mapUsersById(allUsers);
 
+    List<SampleDto> allSamples = pinery.getSample().all();
     List<SampleDto> allOctaneSamples =
-        pinery
-            .getSample()
-            .allFiltered(new SamplesFilter().withProjects(Lists.newArrayList("OCT", "OCTCAP")));
-    Map<String, SampleDto> allOctaneSamplesById = mapSamplesById(allOctaneSamples);
+        allSamples
+            .stream()
+            .filter(
+                sam -> "OCT".equals(sam.getProjectName()) || "OCTCAP".equals(sam.getProjectName()))
+            .collect(Collectors.toList());
+    Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples);
     if (sitePrefix != null) {
       allOctaneSamples = filterBySitePrefix(allOctaneSamples);
     }
@@ -230,13 +231,13 @@ public class OctaneCountsReport extends TableReport {
           }
           break;
         case SAMPLE_CATEGORY_STOCK:
-          SampleDto tissue = getParent(sam, SAMPLE_CATEGORY_TISSUE, allOctaneSamplesById);
+          SampleDto tissue = getParent(sam, SAMPLE_CATEGORY_TISSUE, allSamplesById);
           if (tissueOriginAndTypeMatch(tissue, "Ly", "R")) {
             stocksFromBuffy.add(sam);
           } else if (tissueOriginAndTypeMatch(tissue, "Ct", "T")) {
             stocksFromCt.add(sam);
           }
-          if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allOctaneSamplesById) != null) {
+          if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allSamplesById) != null) {
             if (sam.getSampleType().contains("DNA")) {
               stockDnaFromSlides.add(sam);
             } else if (sam.getSampleType().contains("RNA")) {
@@ -246,26 +247,26 @@ public class OctaneCountsReport extends TableReport {
           break;
         case SAMPLE_CATEGORY_ALIQUOT:
           if (sam.getSampleType().contains("DNA")) {
-            if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allOctaneSamplesById) != null) {
+            if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allSamplesById) != null) {
               dnaAliquotsFromSlides.add(sam);
             }
             if (tissueOriginAndTypeMatch(
-                getParent(sam, SAMPLE_CATEGORY_TISSUE, allOctaneSamplesById), "Ly", "R")) {
+                getParent(sam, SAMPLE_CATEGORY_TISSUE, allSamplesById), "Ly", "R")) {
               dnaAliquotsFromBuffy.add(sam);
             } else if (tissueOriginAndTypeMatch(
-                getParent(sam, SAMPLE_CATEGORY_TISSUE, allOctaneSamplesById), "Ct", "T")) {
+                getParent(sam, SAMPLE_CATEGORY_TISSUE, allSamplesById), "Ct", "T")) {
               dnaAliquotsFromCt.add(sam);
             } else {
               dnaAliquots.add(sam);
             }
           } else if (SAMPLE_CLASS_WHOLE_RNA.equals(sam.getSampleType())) {
             if (!tissueOriginAndTypeMatch(
-                    getParent(sam, SAMPLE_CATEGORY_TISSUE, allOctaneSamplesById), "Ly", "R")
+                    getParent(sam, SAMPLE_CATEGORY_TISSUE, allSamplesById), "Ly", "R")
                 && !tissueOriginAndTypeMatch(
-                    getParent(sam, SAMPLE_CATEGORY_TISSUE, allOctaneSamplesById), "Ct", "T")) {
+                    getParent(sam, SAMPLE_CATEGORY_TISSUE, allSamplesById), "Ct", "T")) {
               rnaAliquots.add(sam);
             }
-            if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allOctaneSamplesById) != null) {
+            if (getOptionalParent(sam, SAMPLE_CLASS_SLIDE, allSamplesById) != null) {
               rnaAliquotsFromSlides.add(sam);
             }
           }
@@ -275,7 +276,7 @@ public class OctaneCountsReport extends TableReport {
           continue;
       }
     }
-    calculateConsumedSlides(allOctaneSamples, allOctaneSamplesById);
+    calculateConsumedSlides(allOctaneSamples, allSamplesById);
 
     // Inventory Numbers
     inventoryNumbers = new ArrayList<>();
@@ -289,7 +290,7 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers.add(
         new Count(
             "Tumor Tissue Unstained Slides (Cases)",
-            countUniqueIdentities(unstainedInventory, allOctaneSamplesById)));
+            countUniqueIdentities(unstainedInventory, allSamplesById)));
 
     List<SampleDto> heInventory =
         filter(
@@ -299,28 +300,25 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers.add(new Count("Tumor Tissue H&E Slides", countSlidesRemaining(heInventory)));
     inventoryNumbers.add(
         new Count(
-            "Tumor Tissue H&E Slides (Cases)",
-            countUniqueIdentities(heInventory, allOctaneSamplesById)));
+            "Tumor Tissue H&E Slides (Cases)", countUniqueIdentities(heInventory, allSamplesById)));
 
     List<SampleDto> buffyInventory =
         filter(filterNonEmpty(filterByCreator(buffyCoats)), byCustodyTp());
     inventoryNumbers.add(new Count("Buffy Coat", buffyInventory.size()));
     inventoryNumbers.add(
-        new Count(
-            "Buffy Coat (Cases)", countUniqueIdentities(buffyInventory, allOctaneSamplesById)));
+        new Count("Buffy Coat (Cases)", countUniqueIdentities(buffyInventory, allSamplesById)));
 
     List<SampleDto> plasmaInventory =
         filter(filterNonEmpty(filterByCreator(plasma)), byCustodyTp());
     inventoryNumbers.add(new Count("Plasma", plasmaInventory.size()));
     inventoryNumbers.add(
-        new Count("Plasma (Cases)", countUniqueIdentities(plasmaInventory, allOctaneSamplesById)));
+        new Count("Plasma (Cases)", countUniqueIdentities(plasmaInventory, allSamplesById)));
 
     List<SampleDto> ctInventory =
         filter(filterNonEmpty(filterByCreator(ctDnaPlasma)), byCustodyTp());
     inventoryNumbers.add(new Count("ctDNA Plasma", ctInventory.size()));
     inventoryNumbers.add(
-        new Count(
-            "ctDNA Plasma (Cases)", countUniqueIdentities(ctInventory, allOctaneSamplesById)));
+        new Count("ctDNA Plasma (Cases)", countUniqueIdentities(ctInventory, allSamplesById)));
 
     List<SampleDto> buffyStockInventory =
         filter(filterNonEmpty(filterByCreator(stocksFromBuffy)), byCustodyTp());
@@ -328,15 +326,14 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers.add(
         new Count(
             "Extracted Buffy Coat (Cases)",
-            countUniqueIdentities(buffyStockInventory, allOctaneSamplesById)));
+            countUniqueIdentities(buffyStockInventory, allSamplesById)));
 
     List<SampleDto> ctStockInventory =
         filter(filterNonEmpty(filterByCreator(stocksFromCt)), byCustodyTp());
     inventoryNumbers.add(new Count("Extracted cfDNA", ctStockInventory.size()));
     inventoryNumbers.add(
         new Count(
-            "Extracted cfDNA (Cases)",
-            countUniqueIdentities(ctStockInventory, allOctaneSamplesById)));
+            "Extracted cfDNA (Cases)", countUniqueIdentities(ctStockInventory, allSamplesById)));
 
     // These next four need to be filtered to include only Transformative Pathology users
     List<SampleDto> stockDnaFromSlideInventory =
@@ -345,7 +342,7 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers.add(
         new Count(
             "Tumor Tissue DNA (Cases)",
-            countUniqueIdentities(stockDnaFromSlideInventory, allOctaneSamplesById)));
+            countUniqueIdentities(stockDnaFromSlideInventory, allSamplesById)));
 
     List<SampleDto> stockRnaFromSlideInventory =
         filter(filterNonEmpty(filterByCreator(stockRnaFromSlides)), byCustodyTp());
@@ -353,7 +350,7 @@ public class OctaneCountsReport extends TableReport {
     inventoryNumbers.add(
         new Count(
             "Tumor Tissue RNA (Cases)",
-            countUniqueIdentities(stockRnaFromSlideInventory, allOctaneSamplesById)));
+            countUniqueIdentities(stockRnaFromSlideInventory, allSamplesById)));
 
     Map<String, Set<SampleDto>> unstainedSlideCasesByTissueType = new HashMap<>();
     Map<String, Set<SampleDto>> unstainedSlideCasesByTissueOrigin = new HashMap<>();
@@ -364,14 +361,13 @@ public class OctaneCountsReport extends TableReport {
         .filter(byCustodyTp())
         .forEach(
             sam -> {
-              String tissueType = getUpstreamAttribute(ATTR_TISSUE_TYPE, sam, allOctaneSamplesById);
+              String tissueType = getUpstreamAttribute(ATTR_TISSUE_TYPE, sam, allSamplesById);
               Set<SampleDto> ttCases =
                   unstainedSlideCasesByTissueType.getOrDefault(tissueType, new HashSet<>());
               ttCases.add(sam);
               unstainedSlideCasesByTissueType.put(tissueType, ttCases);
 
-              String tissueOrigin =
-                  getUpstreamAttribute(ATTR_TISSUE_ORIGIN, sam, allOctaneSamplesById);
+              String tissueOrigin = getUpstreamAttribute(ATTR_TISSUE_ORIGIN, sam, allSamplesById);
               Set<SampleDto> toCases =
                   unstainedSlideCasesByTissueOrigin.getOrDefault(tissueOrigin, new HashSet<>());
               toCases.add(sam);
@@ -412,42 +408,35 @@ public class OctaneCountsReport extends TableReport {
 
     // Case Numbers
     caseNumbers.add(
-        new Count("Tumor Tissue Rec'd", countNewCases(newSlides, slides, allOctaneSamplesById)));
+        new Count("Tumor Tissue Rec'd", countNewCases(newSlides, slides, allSamplesById)));
     caseNumbers.add(
         new Count(
-            "Tumor Tissue Extracted",
-            countUniqueIdentities(stockDnaFromSlides, allOctaneSamplesById)));
+            "Tumor Tissue Extracted", countUniqueIdentities(stockDnaFromSlides, allSamplesById)));
 
     caseNumbers.add(
         new Count(
             "Tumor Tissue DNA Transferred",
-            countUniqueIdentities(dnaAliquotsFromSlides, allOctaneSamplesById)));
+            countUniqueIdentities(dnaAliquotsFromSlides, allSamplesById)));
     caseNumbers.add(
         new Count(
             "Tumor Tissue RNA Transferred",
-            countUniqueIdentities(rnaAliquotsFromSlides, allOctaneSamplesById)));
+            countUniqueIdentities(rnaAliquotsFromSlides, allSamplesById)));
 
     caseNumbers.add(
-        new Count(
-            "Buffy Coat Rec'd", countNewCases(newBuffyCoats, buffyCoats, allOctaneSamplesById)));
+        new Count("Buffy Coat Rec'd", countNewCases(newBuffyCoats, buffyCoats, allSamplesById)));
+    caseNumbers.add(
+        new Count("Buffy Coat Extracted", countUniqueIdentities(stocksFromBuffy, allSamplesById)));
     caseNumbers.add(
         new Count(
-            "Buffy Coat Extracted", countUniqueIdentities(stocksFromBuffy, allOctaneSamplesById)));
+            "Buffy Coat Transferred", countUniqueIdentities(dnaAliquotsFromBuffy, allSamplesById)));
+    caseNumbers.add(new Count("Plasma Rec'd", countNewCases(newPlasma, plasma, allSamplesById)));
     caseNumbers.add(
         new Count(
-            "Buffy Coat Transferred",
-            countUniqueIdentities(dnaAliquotsFromBuffy, allOctaneSamplesById)));
+            "cfDNA Plasma Rec'd", countNewCases(newCtDnaPlasma, ctDnaPlasma, allSamplesById)));
     caseNumbers.add(
-        new Count("Plasma Rec'd", countNewCases(newPlasma, plasma, allOctaneSamplesById)));
+        new Count("ctDNA Extracted", countUniqueIdentities(stocksFromCt, allSamplesById)));
     caseNumbers.add(
-        new Count(
-            "cfDNA Plasma Rec'd",
-            countNewCases(newCtDnaPlasma, ctDnaPlasma, allOctaneSamplesById)));
-    caseNumbers.add(
-        new Count("ctDNA Extracted", countUniqueIdentities(stocksFromCt, allOctaneSamplesById)));
-    caseNumbers.add(
-        new Count(
-            "ctDNA Transferred", countUniqueIdentities(dnaAliquotsFromCt, allOctaneSamplesById)));
+        new Count("ctDNA Transferred", countUniqueIdentities(dnaAliquotsFromCt, allSamplesById)));
 
     // Sample numbers
     sampleNumbers.add(new Count("Tumor Tissue Rec'd", countSlidesReceived(newSlides)));

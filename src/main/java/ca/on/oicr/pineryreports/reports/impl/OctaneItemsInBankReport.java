@@ -5,12 +5,10 @@ import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
-import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -81,7 +79,8 @@ public class OctaneItemsInBankReport extends TableReport {
 
   private final List<Integer> userIds = new ArrayList<>();
 
-  private Map<String, SampleDto> samplesById;
+  private Map<String, SampleDto> allSamplesById;
+  private List<SampleDto> octaneSamples;
 
   @Override
   public String getReportName() {
@@ -120,11 +119,14 @@ public class OctaneItemsInBankReport extends TableReport {
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
-    List<SampleDto> samples =
-        pinery
-            .getSample()
-            .allFiltered(new SamplesFilter().withProjects(Lists.newArrayList("OCT", "OCTCAP")));
-    samplesById = mapSamplesById(samples);
+    List<SampleDto> allSamples = pinery.getSample().all();
+    allSamplesById = mapSamplesById(allSamples);
+    octaneSamples =
+        allSamples
+            .stream()
+            .filter(
+                sam -> "OCT".equals(sam.getProjectName()) || "OCTCAP".equals(sam.getProjectName()))
+            .collect(Collectors.toList());
 
     List<SampleDto> identities = findIdentities();
     Map<String, List<SampleDto>> childrenByIdentityId = mapChildrenByIdentityId();
@@ -155,8 +157,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private List<SampleDto> findIdentities() {
-    return samplesById
-        .values()
+    return octaneSamples
         .stream()
         .filter(bySampleCategory(SAMPLE_CATEGORY_IDENTITY))
         .collect(Collectors.toList());
@@ -164,9 +165,9 @@ public class OctaneItemsInBankReport extends TableReport {
 
   private Map<String, List<SampleDto>> mapChildrenByIdentityId() {
     Map<String, List<SampleDto>> childrenByIdentityId = new HashMap<>();
-    for (SampleDto sample : samplesById.values()) {
+    for (SampleDto sample : octaneSamples) {
       if (!SAMPLE_CATEGORY_IDENTITY.equals(getAttribute(ATTR_CATEGORY, sample))) {
-        SampleDto identity = getParent(sample, SAMPLE_CATEGORY_IDENTITY, samplesById);
+        SampleDto identity = getParent(sample, SAMPLE_CATEGORY_IDENTITY, allSamplesById);
         if (!childrenByIdentityId.containsKey(identity.getId())) {
           childrenByIdentityId.put(identity.getId(), new ArrayList<>());
         }
@@ -196,7 +197,7 @@ public class OctaneItemsInBankReport extends TableReport {
     List<SampleDto> filtered =
         children
             .stream()
-            .filter(byTissueOriginAndType(tissueOrigin, tissueType, samplesById))
+            .filter(byTissueOriginAndType(tissueOrigin, tissueType, allSamplesById))
             .collect(Collectors.toList());
 
     row[++col] = Long.toString(countTissues(filtered, false));
@@ -289,7 +290,7 @@ public class OctaneItemsInBankReport extends TableReport {
     List<SampleDto> filtered =
         children
             .stream()
-            .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, samplesById) != null)
+            .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, allSamplesById) != null)
             .collect(Collectors.toList());
 
     List<SampleDto> dnaDistributed = getDistributed(filtered, DNA);
