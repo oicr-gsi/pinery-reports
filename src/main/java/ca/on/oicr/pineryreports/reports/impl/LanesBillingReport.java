@@ -8,6 +8,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
+import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.InstrumentDto;
 import ca.on.oicr.ws.dto.InstrumentModelDto;
 import ca.on.oicr.ws.dto.RunDto;
@@ -370,12 +371,13 @@ public class LanesBillingReport extends TableReport {
           } else {
             dnaInLane = true;
           }
-          if (projectsInLane.containsKey(dilution.getProjectName())) {
+          String project = getProjectWithSubproject(dilution, samplesById);
+          if (projectsInLane.containsKey(project)) {
             // increment project libraries
-            projectsInLane.merge(dilution.getProjectName(), 1, Integer::sum);
+            projectsInLane.merge(project, 1, Integer::sum);
           } else {
             // add project with library to map
-            projectsInLane.put(dilution.getProjectName(), 1);
+            projectsInLane.put(project, 1);
           }
         }
         String laneContents = dnaInLane ? (rnaInLane ? MIXED_LANE : DNA_LANE) : RNA_LANE;
@@ -398,6 +400,15 @@ public class LanesBillingReport extends TableReport {
       }
     }
     return new ReportObject(detailedData, summaryData);
+  }
+
+  private String getProjectWithSubproject(SampleDto sample, Map<String, SampleDto> allSamples) {
+    String subproject = SampleUtils.getUpstreamAttribute(ATTR_SUBPROJECT, sample, allSamples);
+    if (subproject == null) {
+      return sample.getProjectName();
+    } else {
+      return String.format("%s - %s", sample.getProjectName(), subproject);
+    }
   }
 
   private static final String TGL = "TGL";
