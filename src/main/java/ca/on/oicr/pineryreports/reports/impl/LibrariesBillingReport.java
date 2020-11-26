@@ -5,10 +5,10 @@ import static ca.on.oicr.pineryreports.util.SampleUtils.*;
 
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
-import ca.on.oicr.pinery.client.SampleClient.SamplesFilter;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
+import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.SampleDto;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -168,19 +169,20 @@ public class LibrariesBillingReport extends TableReport {
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {
-    // filter by libraries
-    List<String> libraryTypes = Arrays.asList("Illumina PE Library", "Illumina SE Library");
-    List<SampleDto> allLibraries =
-        pinery.getSample().allFiltered(new SamplesFilter().withTypes(libraryTypes));
-
-    // filter down to libraries within the date range
+    List<SampleDto> samples = pinery.getSample().all();
+    Map<String, SampleDto> samplesById = SampleUtils.mapSamplesById(samples);
+    // filter down to Illumina PE/SE libraries within the date range
     List<SampleDto> newLibraries =
-        allLibraries.stream().filter(byCreatedBetween(start, end)).collect(Collectors.toList());
+        samples
+            .stream()
+            .filter(sam -> sam.getSampleType().matches("^Illumina [PS]E Library$"))
+            .filter(byCreatedBetween(start, end))
+            .collect(Collectors.toList());
 
     for (SampleDto lib : newLibraries) {
       String kitName =
           (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName());
-      String project = lib.getProjectName();
+      String project = getProjectWithSubproject(lib, samplesById);
 
       // update summary
       SummaryObject matchingKitAndProject =
@@ -199,16 +201,25 @@ public class LibrariesBillingReport extends TableReport {
       }
 
       // add detailed row
-      detailedData.add(makeDetailedRow(lib));
+      detailedData.add(makeDetailedRow(lib, samplesById));
     }
 
     summaryData.sort(SummaryObject.summaryComparator);
     detailedData.sort(DetailedObject.detailedComparator);
   }
 
-  private DetailedObject makeDetailedRow(SampleDto lib) {
+  private String getProjectWithSubproject(SampleDto sample, Map<String, SampleDto> allSamples) {
+    String subproject = SampleUtils.getUpstreamAttribute(ATTR_SUBPROJECT, sample, allSamples);
+    if (subproject == null) {
+      return sample.getProjectName();
+    } else {
+      return String.format("%s - %s", sample.getProjectName(), subproject);
+    }
+  }
+
+  private DetailedObject makeDetailedRow(SampleDto lib, Map<String, SampleDto> allSamples) {
     return new DetailedObject(
-        lib.getProjectName(),
+        getProjectWithSubproject(lib, allSamples),
         (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName()),
         lib.getCreatedDate(),
         lib.getName(),
