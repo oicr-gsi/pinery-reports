@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
+## [1.9.0]  2020-11-26
+### Changed:
+  * group by subproject in billing reports 
+
 ## [1.8.1]  2020-09-25
 ### Fixed:
   * `octane`: handle cross-project sample hierarchies
