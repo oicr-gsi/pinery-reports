@@ -9,14 +9,11 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.pineryreports.util.SampleUtils;
+import ca.on.oicr.ws.dto.AttributeDto;
 import ca.on.oicr.ws.dto.SampleDto;
+import ca.on.oicr.ws.dto.SampleReferenceDto;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -68,18 +65,21 @@ public class LibrariesBillingReport extends TableReport {
     private final String libraryAlias;
     private final String libraryDesignCode;
     private final String project;
+    private final String externalNames;
 
     public DetailedObject(
         String project,
         String kit,
         String creationDate,
         String libraryAlias,
-        String libraryDesignCode) {
+        String libraryDesignCode,
+        String externalNames) {
       this.project = project;
       this.kit = kit;
       this.creationDate = removeTime(creationDate);
       this.libraryAlias = libraryAlias;
       this.libraryDesignCode = libraryDesignCode;
+      this.externalNames = externalNames;
     }
 
     public String getCreationDate() {
@@ -111,6 +111,10 @@ public class LibrariesBillingReport extends TableReport {
             return o1.getProject().compareTo(o2.getProject());
           }
         };
+
+    public String getExternalNames() {
+      return externalNames;
+    }
   }
 
   public static final String REPORT_NAME = "libraries-billing";
@@ -223,7 +227,20 @@ public class LibrariesBillingReport extends TableReport {
         (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName()),
         lib.getCreatedDate(),
         lib.getName(),
-        getAttribute(LIBRARY_DESIGN_CODE, lib));
+        getAttribute(LIBRARY_DESIGN_CODE, lib),
+        getExternalNames(lib, allSamples));
+  }
+
+  private String getExternalNames(SampleDto lib, Map<String, SampleDto> allSamples) {
+    String extNames = "";
+    for (SampleReferenceDto parentReference : lib.getParents()) {
+      for (AttributeDto parentAttribute : allSamples.get(parentReference).getAttributes()) {
+        String parentAttributeName = parentAttribute.getName();
+        if (parentAttributeName.equals(ATTR_EXTERNAL_NAME))
+          extNames.concat(",").concat(parentAttributeName);
+      }
+    }
+    return extNames;
   }
 
   @Override
@@ -240,7 +257,8 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   private List<String> getDetailedHeadings() {
-    return Arrays.asList("Project", "Creation Date", "Library", "Library Kit", "Seq. Strategy");
+    return Arrays.asList(
+        "Project", "Creation Date", "Library", "External Names", "Library Kit", "Seq. Strategy");
   }
 
   @Override
@@ -308,6 +326,8 @@ public class LibrariesBillingReport extends TableReport {
     row[++i] = obj.getCreationDate();
     // Library
     row[++i] = obj.getLibrary();
+    // External Names
+    row[++i] = obj.getExternalNames();
     // Library Kit
     row[++i] = obj.getKit();
     // Seq. Strategy
