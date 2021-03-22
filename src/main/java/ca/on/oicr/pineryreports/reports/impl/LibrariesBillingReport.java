@@ -9,9 +9,7 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.pineryreports.util.SampleUtils;
-import ca.on.oicr.ws.dto.AttributeDto;
 import ca.on.oicr.ws.dto.SampleDto;
-import ca.on.oicr.ws.dto.SampleReferenceDto;
 import com.google.common.collect.Sets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -232,15 +230,7 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   private String getExternalNames(SampleDto lib, Map<String, SampleDto> allSamples) {
-    String extNames = "";
-    for (SampleReferenceDto parentReference : lib.getParents()) {
-      for (AttributeDto parentAttribute : allSamples.get(parentReference).getAttributes()) {
-        String parentAttributeName = parentAttribute.getName();
-        if (parentAttributeName.equals(ATTR_EXTERNAL_NAME))
-          extNames.concat(",").concat(parentAttributeName);
-      }
-    }
-    return extNames;
+    return SampleUtils.getUpstreamAttribute(ATTR_EXTERNAL_NAME, lib, allSamples);
   }
 
   @Override
@@ -317,7 +307,7 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   private String[] makeDetailedRow(DetailedObject obj) {
-    String[] row = new String[getColumns().size()];
+    String[] row = new String[getDetailedHeadings().size()];
 
     int i = -1;
     // Project
