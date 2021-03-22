@@ -245,11 +245,8 @@ public class LibrariesBillingReport extends TableReport {
     int largestHeadingsSize = Math.max(summaryHeadings.size(), getDetailedHeadings().size());
 
     for (int i = 0; i < largestHeadingsSize; i++) {
-      try {
-        columnDefinitions.add(new ColumnDefinition(summaryHeadings.get(i)));
-      } catch (IndexOutOfBoundsException ioob) {
-        columnDefinitions.add(new ColumnDefinition(""));
-      }
+      String content = i < summaryHeadings.size() ? summaryHeadings.get(i) : "";
+      columnDefinitions.add(new ColumnDefinition(content));
     }
 
     return columnDefinitions;
