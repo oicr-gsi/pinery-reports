@@ -233,17 +233,34 @@ public class LibrariesBillingReport extends TableReport {
     return SampleUtils.getUpstreamAttribute(ATTR_EXTERNAL_NAME, lib, allSamples);
   }
 
+  /**
+   * This method is used both to output the first header row of the report, and for calculating the
+   * number of columns in order to ensure a rectangular CSV. Since our two tables in this report are
+   * of differing widths, find the wider of the two and append blanks for the correct width.
+   */
   @Override
   protected List<ColumnDefinition> getColumns() {
+    List<ColumnDefinition> columnDefinitions = new LinkedList<>();
+    List<String> summaryHeadings = getSummaryHeadings();
+    int largestHeadingsSize = Math.max(summaryHeadings.size(), getDetailedHeadings().size());
+
+    for (int i = 0; i < largestHeadingsSize; i++) {
+      try {
+        columnDefinitions.add(new ColumnDefinition(summaryHeadings.get(i)));
+      } catch (IndexOutOfBoundsException ioob) {
+        columnDefinitions.add(new ColumnDefinition(""));
+      }
+    }
+
+    return columnDefinitions;
+  }
+
+  private List<String> getSummaryHeadings() {
     return Arrays.asList(
-        new ColumnDefinition("Study Title"),
-        new ColumnDefinition("Library Kit"),
-        new ColumnDefinition(
-            String.format(
-                "Count (%s - %s)",
-                (start == null ? "Any Time" : start), (end == null ? "Now" : end))),
-        new ColumnDefinition(""),
-        new ColumnDefinition(""));
+        "Study Title",
+        "Library Kit",
+        String.format(
+            "Count (%s - %s)", (start == null ? "Any Time" : start), (end == null ? "Now" : end)));
   }
 
   private List<String> getDetailedHeadings() {
