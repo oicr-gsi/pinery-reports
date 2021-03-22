@@ -11,12 +11,7 @@ import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.SampleDto;
 import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -68,18 +63,21 @@ public class LibrariesBillingReport extends TableReport {
     private final String libraryAlias;
     private final String libraryDesignCode;
     private final String project;
+    private final String externalNames;
 
     public DetailedObject(
         String project,
         String kit,
         String creationDate,
         String libraryAlias,
-        String libraryDesignCode) {
+        String libraryDesignCode,
+        String externalNames) {
       this.project = project;
       this.kit = kit;
       this.creationDate = removeTime(creationDate);
       this.libraryAlias = libraryAlias;
       this.libraryDesignCode = libraryDesignCode;
+      this.externalNames = externalNames;
     }
 
     public String getCreationDate() {
@@ -111,6 +109,10 @@ public class LibrariesBillingReport extends TableReport {
             return o1.getProject().compareTo(o2.getProject());
           }
         };
+
+    public String getExternalNames() {
+      return externalNames;
+    }
   }
 
   public static final String REPORT_NAME = "libraries-billing";
@@ -223,24 +225,44 @@ public class LibrariesBillingReport extends TableReport {
         (lib.getPreparationKit() == null ? "No Kit" : lib.getPreparationKit().getName()),
         lib.getCreatedDate(),
         lib.getName(),
-        getAttribute(LIBRARY_DESIGN_CODE, lib));
+        getAttribute(LIBRARY_DESIGN_CODE, lib),
+        getExternalNames(lib, allSamples));
   }
 
+  private String getExternalNames(SampleDto lib, Map<String, SampleDto> allSamples) {
+    return SampleUtils.getUpstreamAttribute(ATTR_EXTERNAL_NAME, lib, allSamples);
+  }
+
+  /**
+   * This method is used both to output the first header row of the report, and for calculating the
+   * number of columns in order to ensure a rectangular CSV. Since our two tables in this report are
+   * of differing widths, find the wider of the two and append blanks for the correct width.
+   */
   @Override
   protected List<ColumnDefinition> getColumns() {
+    List<ColumnDefinition> columnDefinitions = new LinkedList<>();
+    List<String> summaryHeadings = getSummaryHeadings();
+    int largestHeadingsSize = Math.max(summaryHeadings.size(), getDetailedHeadings().size());
+
+    for (int i = 0; i < largestHeadingsSize; i++) {
+      String content = i < summaryHeadings.size() ? summaryHeadings.get(i) : "";
+      columnDefinitions.add(new ColumnDefinition(content));
+    }
+
+    return columnDefinitions;
+  }
+
+  private List<String> getSummaryHeadings() {
     return Arrays.asList(
-        new ColumnDefinition("Study Title"),
-        new ColumnDefinition("Library Kit"),
-        new ColumnDefinition(
-            String.format(
-                "Count (%s - %s)",
-                (start == null ? "Any Time" : start), (end == null ? "Now" : end))),
-        new ColumnDefinition(""),
-        new ColumnDefinition(""));
+        "Study Title",
+        "Library Kit",
+        String.format(
+            "Count (%s - %s)", (start == null ? "Any Time" : start), (end == null ? "Now" : end)));
   }
 
   private List<String> getDetailedHeadings() {
-    return Arrays.asList("Project", "Creation Date", "Library", "Library Kit", "Seq. Strategy");
+    return Arrays.asList(
+        "Project", "Creation Date", "Library", "External Names", "Library Kit", "Seq. Strategy");
   }
 
   @Override
@@ -308,6 +330,8 @@ public class LibrariesBillingReport extends TableReport {
     row[++i] = obj.getCreationDate();
     // Library
     row[++i] = obj.getLibrary();
+    // External Names
+    row[++i] = obj.getExternalNames();
     // Library Kit
     row[++i] = obj.getKit();
     // Seq. Strategy
