@@ -324,7 +324,7 @@ public class LibrariesBillingReport extends TableReport {
   }
 
   private String[] makeDetailedRow(DetailedObject obj) {
-    String[] row = new String[getDetailedHeadings().size()];
+    String[] row = new String[getColumns().size()];
 
     int i = -1;
     // Project
