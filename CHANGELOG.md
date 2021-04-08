@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and as of version 1.0.0, follows semantic versioning.
 
+## [1.10.0]  2021-04-08 
+### Added: 
+  * External Names in Library Billing report
+### Changed 
+  * Updated to Pinery 1.19.0 
+ 
 ## [1.9.0]  2020-11-26
 ### Changed:
   * group by subproject in billing reports 
