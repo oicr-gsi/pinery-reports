@@ -4,6 +4,11 @@
 
 A Java app for generating regular reports based on [Pinery](https://github.com/oicr-gsi/pinery) data
 
+## Requirements
+
+* Maven 3 or later
+* JDK 11 or later
+
 ## Build
 
 ```
