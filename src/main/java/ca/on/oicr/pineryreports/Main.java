@@ -17,6 +17,7 @@ import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneItemsInBankReport;
 import ca.on.oicr.pineryreports.reports.impl.PreciseInventoryByCaseReport;
+import ca.on.oicr.pineryreports.reports.impl.PreciseInventorySummaryReport;
 import ca.on.oicr.pineryreports.reports.impl.PreciseReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
@@ -24,10 +25,8 @@ import ca.on.oicr.pineryreports.reports.impl.SlideReport;
 import ca.on.oicr.pineryreports.reports.impl.StockReport;
 import ca.on.oicr.pineryreports.reports.impl.StocksByConcentrationReport;
 import ca.on.oicr.pineryreports.reports.impl.TglLibrariesRunReport;
-
 import java.io.File;
 import java.io.IOException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -149,6 +148,7 @@ public class Main {
                     + "octane-bank, "
                     + "precise, "
                     + "precisecase, "
+                    + "precise-summary, "
                     + "projects-status, "
                     + "receipt-missing, "
                     + "sequencing, "
@@ -218,6 +218,8 @@ public class Main {
         return new StocksByConcentrationReport();
       case PreciseInventoryByCaseReport.REPORT_NAME:
         return new PreciseInventoryByCaseReport();
+      case PreciseInventorySummaryReport.REPORT_NAME:
+        return new PreciseInventorySummaryReport();
       default:
         throw new ParseException("Invalid report requested: " + reportName);
     }
