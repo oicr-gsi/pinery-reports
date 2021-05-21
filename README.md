@@ -34,15 +34,8 @@ java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r 
 
 ## Reports
 
-See [report pages](docs) for additional options and examples:
-
-* [GECCO Report](docs/GeccoReport.md)
-* [Stock Report](docs/StockReport.md)
-* [Project Sequencing Report](docs/ProjectSequencingReport.md)
-* [OCTANE Counts Report](docs/OctaneCountsReport.md)
-* [Receipt Missing Report](docs/ReceiptMissingReport.md)
-* [Slide Report](docs/SlideReport.md)
-
+See [report pages](docs) or the [OICR wiki](https://wiki.oicr.on.ca/x/hY5kBQ) for additional options
+and examples:
 
 ## Generate using Docker
 
