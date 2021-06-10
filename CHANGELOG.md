@@ -8,6 +8,26 @@ see [changes](changes).
 
 --------------------------------------------------------------------------------
 
+## [1.11.0] - 2021-06-10
+
+### Added
+
+* PRECISE Inventory Summary Report
+
+### Changed
+
+* Updated reports to account for slide changes in MISO/Pinery
+  * Donors for Existing Samples
+  * OCTANE Counts
+  * OCTANE Items in Bank
+  * PRECISE
+  * Slide
+
+### Upgrade Notes
+
+* Project now requires Java 11 or later to build
+
+
 ## [1.10.0]  2021-04-08
 ### Added:
   * External Names in Library Billing report
