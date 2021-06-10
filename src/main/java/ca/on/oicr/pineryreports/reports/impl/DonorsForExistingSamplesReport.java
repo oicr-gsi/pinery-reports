@@ -87,8 +87,7 @@ public class DonorsForExistingSamplesReport extends TableReport {
     tissuesByType.put(
         "other",
         deduplicateIdentities(
-            tissue
-                .stream()
+            tissue.stream()
                 .filter(byOther())
                 .sorted((s1, s2) -> s1.getName().compareTo(s2.getName()))
                 .collect(Collectors.toList())));
@@ -124,8 +123,7 @@ public class DonorsForExistingSamplesReport extends TableReport {
 
   private List<SampleDto> filterBySampleNameContainsSection(
       String target, List<SampleDto> unfiltered) {
-    return unfiltered
-        .stream()
+    return unfiltered.stream()
         .filter(bySampleNameContains(target))
         .sorted((s1, s2) -> s1.getName().compareTo(s2.getName()))
         .collect(Collectors.toList());
@@ -205,12 +203,9 @@ public class DonorsForExistingSamplesReport extends TableReport {
   private static Predicate<SampleDto> byNonEmpty() {
     return dto -> {
       String slides = getAttribute(ATTR_SLIDES, dto);
-      String discards = getAttribute(ATTR_DISCARDS, dto);
-      if (slides != null
-          && discards != null
-          && Integer.valueOf(slides) - Integer.valueOf(discards) <= 0)
-        return false; // slides are used
-      // up
+      if (slides != null && Integer.parseInt(slides) <= 0) {
+        return false; // slides are used up
+      }
       if (getAttribute(ATTR_DISTRIBUTED, dto) != null) return false; // sample has been distributed
       if (dto.getStorageLocation() == null) return true;
       return !dto.getStorageLocation().contains("EMPTY");

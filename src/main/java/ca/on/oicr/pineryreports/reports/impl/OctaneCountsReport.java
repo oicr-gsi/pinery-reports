@@ -8,7 +8,6 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
-import ca.on.oicr.ws.dto.AttributeDto;
 import ca.on.oicr.ws.dto.SampleDto;
 import ca.on.oicr.ws.dto.UserDto;
 import com.google.common.collect.Sets;
@@ -179,8 +178,7 @@ public class OctaneCountsReport extends TableReport {
 
     List<SampleDto> allSamples = pinery.getSample().all();
     List<SampleDto> allOctaneSamples =
-        allSamples
-            .stream()
+        allSamples.stream()
             .filter(
                 sam -> "OCT".equals(sam.getProjectName()) || "OCTCAP".equals(sam.getProjectName()))
             .collect(Collectors.toList());
@@ -216,7 +214,6 @@ public class OctaneCountsReport extends TableReport {
         continue;
       }
       if (SAMPLE_CLASS_SLIDE.equals(sam.getSampleType())) {
-        addSlidesRemainingCount(sam);
         slides.add(sam);
         continue;
       }
@@ -276,7 +273,6 @@ public class OctaneCountsReport extends TableReport {
           continue;
       }
     }
-    calculateConsumedSlides(allOctaneSamples, allSamplesById);
 
     // Inventory Numbers
     inventoryNumbers = new ArrayList<>();
@@ -355,8 +351,7 @@ public class OctaneCountsReport extends TableReport {
     Map<String, Set<SampleDto>> unstainedSlideCasesByTissueType = new HashMap<>();
     Map<String, Set<SampleDto>> unstainedSlideCasesByTissueOrigin = new HashMap<>();
 
-    slides
-        .stream()
+    slides.stream()
         .filter(byStain(null))
         .filter(byCustodyTp())
         .forEach(
@@ -375,16 +370,12 @@ public class OctaneCountsReport extends TableReport {
             });
 
     tissueTypeNumbers =
-        unstainedSlideCasesByTissueType
-            .entrySet()
-            .stream()
+        unstainedSlideCasesByTissueType.entrySet().stream()
             .map(entry -> new Count(entry.getKey(), entry.getValue().size()))
             .sorted()
             .collect(Collectors.toList());
     tissueOriginNumbers =
-        unstainedSlideCasesByTissueOrigin
-            .entrySet()
-            .stream()
+        unstainedSlideCasesByTissueOrigin.entrySet().stream()
             .map(entry -> new Count(entry.getKey(), entry.getValue().size()))
             .sorted()
             .collect(Collectors.toList());
@@ -468,45 +459,12 @@ public class OctaneCountsReport extends TableReport {
     return filter(unfiltered, filters);
   }
 
-  private void addSlidesRemainingCount(SampleDto slide) {
-    Integer slides = getIntAttribute(ATTR_SLIDES, slide, 0);
-    Integer discards = getIntAttribute(ATTR_DISCARDS, slide, 0);
-    AttributeDto attr = new AttributeDto();
-    attr.setName(ATTR_REMAINING);
-    attr.setValue(Integer.toString(slides - discards));
-    slide.getAttributes().add(attr);
-  }
-
-  private void calculateConsumedSlides(
-      Collection<SampleDto> samples, Map<String, SampleDto> potentialParents) {
-    samples
-        .stream()
-        .filter(sam -> getAttribute(ATTR_CONSUMED, sam) != null)
-        .forEach(
-            sam ->
-                sam.getParents()
-                    .forEach(
-                        ref -> {
-                          SampleDto parent = potentialParents.get(ref.getId());
-                          AttributeDto remainingAttr =
-                              parent
-                                  .getAttributes()
-                                  .stream()
-                                  .filter(attr -> ATTR_REMAINING.equals(attr.getName()))
-                                  .findFirst()
-                                  .get();
-                          Integer remaining = Integer.parseInt(remainingAttr.getValue());
-                          Integer consumed = Integer.parseInt(getAttribute(ATTR_CONSUMED, sam));
-                          remainingAttr.setValue(Integer.toString(remaining - consumed));
-                        }));
-  }
-
   private int countSlidesRemaining(Collection<SampleDto> samples) {
-    return samples.stream().mapToInt(s -> getIntAttribute(ATTR_REMAINING, s)).sum();
+    return samples.stream().mapToInt(s -> getIntAttribute(ATTR_SLIDES, s)).sum();
   }
 
   private int countSlidesReceived(Collection<SampleDto> samples) {
-    return samples.stream().mapToInt(s -> getIntAttribute(ATTR_SLIDES, s)).sum();
+    return samples.stream().mapToInt(s -> getIntAttribute(ATTR_INITIAL_SLIDES, s)).sum();
   }
 
   private static Predicate<SampleDto> byStain(String stain) {
@@ -546,12 +504,10 @@ public class OctaneCountsReport extends TableReport {
       // return all the old samples, since we want all samples ever created
       return getUniqueIdentities(newSamples, potentialParents).stream().count();
     }
-    return getUniqueIdentities(newSamples, potentialParents)
-        .stream()
+    return getUniqueIdentities(newSamples, potentialParents).stream()
         .filter(
             identity ->
-                potentialOldSamples
-                    .stream()
+                potentialOldSamples.stream()
                     .noneMatch(
                         sam ->
                             identity
@@ -563,8 +519,7 @@ public class OctaneCountsReport extends TableReport {
 
   private List<SampleDto> getUniqueIdentities(
       Collection<SampleDto> samples, Map<String, SampleDto> potentialParents) {
-    return samples
-        .stream()
+    return samples.stream()
         .map(sam -> getParent(sam, SAMPLE_CATEGORY_IDENTITY, potentialParents))
         .distinct()
         .collect(Collectors.toList());
@@ -586,9 +541,7 @@ public class OctaneCountsReport extends TableReport {
   }
 
   private String getUserNames(List<Integer> userIds) {
-    return allUsersById
-        .entrySet()
-        .stream()
+    return allUsersById.entrySet().stream()
         .filter(userById -> userIds.contains(userById.getKey()))
         .map(
             userById ->

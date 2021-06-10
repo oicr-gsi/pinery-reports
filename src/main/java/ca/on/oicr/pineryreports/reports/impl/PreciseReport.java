@@ -419,18 +419,14 @@ public class PreciseReport extends TableReport {
             || "Unknown".equals(sample.getSampleType())) {
           return false;
         }
+        if ("EMPTY".equals(sample.getStorageLocation())) {
+          return false;
+        }
         if (SAMPLE_CLASS_SLIDE.equals(sample.getSampleType())) {
-          // slides remaining
           Integer slides = getIntAttribute(ATTR_SLIDES, sample);
-          Integer discards = getIntAttribute(ATTR_DISCARDS, sample);
-          if (discards == null) {
-            return slides > 0;
-          }
-          return slides > discards;
+          return slides > 0;
         } else {
-          return sample.getStorageLocation() != null
-              && sample.getStorageLocation() != ""
-              && sample.getStorageLocation() != "EMPTY";
+          return sample.getStorageLocation() != null && !"".equals(sample.getStorageLocation());
         }
       };
 
@@ -457,8 +453,7 @@ public class PreciseReport extends TableReport {
       return Collections.emptyList();
     }
 
-    return Arrays.asList(Site.values())
-        .stream()
+    return Arrays.asList(Site.values()).stream()
         .map(
             site -> {
               List<Predicate<SampleDto>> allFilters = new ArrayList<>();
@@ -485,8 +480,7 @@ public class PreciseReport extends TableReport {
    */
   private List<String> getSampleAndCaseCountsForLabels(
       List<SampleDto> samples, Map<String, SampleDto> samplesById, List<SampleLabel> labels) {
-    return labels
-        .stream()
+    return labels.stream()
         .map(
             label -> getSampleAndCaseCounts(samples, Arrays.asList(label.predicate()), samplesById))
         .flatMap(Collection::stream)
@@ -508,8 +502,7 @@ public class PreciseReport extends TableReport {
       Map<String, SampleDto> allSamples) {
     List<SampleDto> filteredSamples = filter(samples, predicates);
     List<SampleDto> cases =
-        filteredSamples
-            .stream()
+        filteredSamples.stream()
             .map(sam -> getParent(sam, SAMPLE_CATEGORY_IDENTITY, allSamples))
             .distinct()
             .collect(Collectors.toList());

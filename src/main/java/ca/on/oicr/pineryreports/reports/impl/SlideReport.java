@@ -34,8 +34,8 @@ public class SlideReport extends TableReport {
               new ColumnDefinition("Slide ID"),
               new ColumnDefinition("Alias"),
               new ColumnDefinition("Stain"),
-              new ColumnDefinition("Slides"),
-              new ColumnDefinition("Discards")));
+              new ColumnDefinition("Initial Slides"),
+              new ColumnDefinition("Remaining")));
 
   private static final Option OPT_PROJECT = CommonOptions.project(true);
 
@@ -75,8 +75,7 @@ public class SlideReport extends TableReport {
             .getSample()
             .allFiltered(new SamplesFilter().withProjects(Lists.newArrayList(project)));
     slides =
-        samples
-            .stream()
+        samples.stream()
             .filter(s -> SAMPLE_CLASS_SLIDE.equals(s.getSampleType()))
             .sorted((s1, s2) -> s1.getName().compareTo(s2.getName()))
             .collect(Collectors.toList());
@@ -102,8 +101,8 @@ public class SlideReport extends TableReport {
     row[++i] = slide.getId();
     row[++i] = slide.getName();
     row[++i] = stain == null ? "unstained" : stain;
+    row[++i] = getAttribute(ATTR_INITIAL_SLIDES, slide);
     row[++i] = getAttribute(ATTR_SLIDES, slide);
-    row[++i] = getAttribute(ATTR_DISCARDS, slide);
 
     return row;
   }

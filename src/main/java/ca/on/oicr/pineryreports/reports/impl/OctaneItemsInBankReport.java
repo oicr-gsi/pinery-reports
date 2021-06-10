@@ -122,8 +122,7 @@ public class OctaneItemsInBankReport extends TableReport {
     List<SampleDto> allSamples = pinery.getSample().all();
     allSamplesById = mapSamplesById(allSamples);
     octaneSamples =
-        allSamples
-            .stream()
+        allSamples.stream()
             .filter(
                 sam -> "OCT".equals(sam.getProjectName()) || "OCTCAP".equals(sam.getProjectName()))
             .collect(Collectors.toList());
@@ -157,8 +156,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private List<SampleDto> findIdentities() {
-    return octaneSamples
-        .stream()
+    return octaneSamples.stream()
         .filter(bySampleCategory(SAMPLE_CATEGORY_IDENTITY))
         .collect(Collectors.toList());
   }
@@ -195,8 +193,7 @@ public class OctaneItemsInBankReport extends TableReport {
   private int addDnaCounts(
       String[] row, int col, List<SampleDto> children, String tissueOrigin, String tissueType) {
     List<SampleDto> filtered =
-        children
-            .stream()
+        children.stream()
             .filter(byTissueOriginAndType(tissueOrigin, tissueType, allSamplesById))
             .collect(Collectors.toList());
 
@@ -213,8 +210,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private long countTissues(List<SampleDto> children, boolean empty) {
-    return children
-        .stream()
+    return children.stream()
         .filter(bySampleCategory(SAMPLE_CATEGORY_TISSUE))
         .filter(byEmpty(empty))
         .filter(byCreator(userIds))
@@ -222,8 +218,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private List<SampleDto> getDistributed(List<SampleDto> children, String dnaOrRna) {
-    return children
-        .stream()
+    return children.stream()
         .filter(
             bySampleCategory(SAMPLE_CATEGORY_STOCK).or(bySampleCategory(SAMPLE_CATEGORY_ALIQUOT)))
         .filter(dto -> dto.getSampleType().contains(dnaOrRna))
@@ -233,8 +228,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private String getDistributionRecipients(List<SampleDto> children) {
-    return children
-        .stream()
+    return children.stream()
         .map(
             dto -> {
               String custody = getAttribute(ATTR_CUSTODY, dto);
@@ -250,8 +244,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private float getRemaining(List<SampleDto> children, String dnaOrRna) {
-    return children
-        .stream()
+    return children.stream()
         .filter(bySampleCategory(SAMPLE_CATEGORY_STOCK))
         .filter(dto -> dto.getSampleType().contains(dnaOrRna))
         .filter(byTransferred.negate())
@@ -273,8 +266,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private long countExhausted(List<SampleDto> children, String dnaOrRna) {
-    return children
-        .stream()
+    return children.stream()
         .filter(bySampleCategory(SAMPLE_CATEGORY_STOCK))
         .filter(dto -> dto.getSampleType().contains(dnaOrRna))
         .filter(byEmpty(true).or(byTransferred))
@@ -288,8 +280,7 @@ public class OctaneItemsInBankReport extends TableReport {
 
     // filter to only include items descended from slides
     List<SampleDto> filtered =
-        children
-            .stream()
+        children.stream()
             .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, allSamplesById) != null)
             .collect(Collectors.toList());
 
@@ -308,8 +299,7 @@ public class OctaneItemsInBankReport extends TableReport {
   }
 
   private int countSlides(List<SampleDto> children, boolean empty) {
-    return children
-        .stream()
+    return children.stream()
         .filter(dto -> SAMPLE_CLASS_SLIDE.equals(dto.getSampleType()))
         // for exhausted (empty == true), include partially-used
         // for remaining (empty == false), only count if not "EMPTY"
@@ -318,8 +308,9 @@ public class OctaneItemsInBankReport extends TableReport {
         .mapToInt(
             dto ->
                 empty
-                    ? getIntAttribute(ATTR_DISCARDS, dto)
-                    : (getIntAttribute(ATTR_SLIDES, dto) - getIntAttribute(ATTR_DISCARDS, dto)))
+                    ? (getIntAttribute(ATTR_INITIAL_SLIDES, dto)
+                        - getIntAttribute(ATTR_SLIDES, dto))
+                    : getIntAttribute(ATTR_SLIDES, dto))
         .sum();
   }
 }

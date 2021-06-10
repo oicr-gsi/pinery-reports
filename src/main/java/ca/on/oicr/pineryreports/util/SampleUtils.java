@@ -34,9 +34,8 @@ public class SampleUtils {
   public static final String ATTR_TUBE_ID = "Tube ID";
   public static final String ATTR_SEX = "Sex";
   public static final String ATTR_SLIDES = "Slides";
-  public static final String ATTR_DISCARDS = "Discards";
+  public static final String ATTR_INITIAL_SLIDES = "Initial Slides";
   public static final String ATTR_CONSUMED = "Slides Consumed";
-  public static final String ATTR_REMAINING = "Remaining";
   public static final String ATTR_STAIN = "Stain";
   public static final String ATTR_RECEIVE_DATE = "Receive Date";
   public static final String ATTR_CREATION_DATE = "In-lab Creation Date";
@@ -212,19 +211,14 @@ public class SampleUtils {
   public static final Predicate<SampleDto> withSlidesRemaining =
       slide -> {
         Integer slides = getIntAttribute(ATTR_SLIDES, slide);
-        Integer discards = getIntAttribute(ATTR_DISCARDS, slide);
         if (slides == null) {
           throw new IllegalArgumentException("Sample does not seem to be a slide");
         }
-        if (discards == null) {
-          return slides > 0;
-        }
-        return slides > discards;
+        return slides > 0;
       };
 
   public static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples) {
-    return samples
-        .stream()
+    return samples.stream()
         .filter(sample -> !"EMPTY".equals(sample.getStorageLocation()))
         .collect(Collectors.toList());
   }
