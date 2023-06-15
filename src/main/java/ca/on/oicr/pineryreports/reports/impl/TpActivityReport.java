@@ -141,14 +141,12 @@ public class TpActivityReport extends TableReport {
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(
       Arrays.asList(
           new ColumnDefinition("Project Code"),
-          new ColumnDefinition("Quantification"),
           new ColumnDefinition("Samples Received"),
           new ColumnDefinition("Samples Accessioned"),
           new ColumnDefinition("Samples Extracted"),
           new ColumnDefinition("Samples Aliquoted"),
           new ColumnDefinition("Samples Transferred"),
-          new ColumnDefinition("Samples Distributed"),
-          new ColumnDefinition("Comments")));
+          new ColumnDefinition("Samples Distributed")));
 
   private String start;
   private String end;
@@ -263,7 +261,7 @@ public class TpActivityReport extends TableReport {
     try (Connection conn = DriverManager.getConnection(url, databaseUser, databasePassword)) {
       String userIdString = userIds.stream().map(Long::toString).collect(Collectors.joining(","));
       PreparedStatement stmt = conn.prepareStatement(
-          "SELECT p.shortName AS project, COUNT(*) AS count\n"
+          "SELECT p.code AS project, COUNT(*) AS count\n"
               + "FROM Sample s\n"
               + "JOIN Project p ON p.projectId = s.project_projectId\n"
               + "JOIN (\n"
@@ -276,7 +274,7 @@ public class TpActivityReport extends TableReport {
               + "  GROUP BY ts.sampleId\n"
               + ") xfer ON xfer.sampleId = s.sampleId\n"
               + "WHERE s.creator IN (" + userIdString + ")\n"
-              + "GROUP BY p.shortName;");
+              + "GROUP BY p.code;");
       try (ResultSet results = stmt.executeQuery()) {
         while (results.next()) {
           ProjectCounts counts = getProjectCounts(results.getString("project"), countsByProjectName);
@@ -311,14 +309,12 @@ public class TpActivityReport extends TableReport {
     String[] row = new String[COLUMNS.size()];
 
     row[0] = counts.getProjectName();
-    row[1] = "";
-    row[2] = String.valueOf(counts.getReceivedCount());
-    row[3] = String.valueOf(counts.getAccessionedCount());
-    row[4] = String.valueOf(counts.getExtractedCount());
-    row[5] = String.valueOf(counts.getAliquotedCount());
-    row[6] = String.valueOf(counts.getTransferredCount());
-    row[7] = String.valueOf(counts.getDistributedCount());
-    row[8] = "";
+    row[1] = String.valueOf(counts.getReceivedCount());
+    row[2] = String.valueOf(counts.getAccessionedCount());
+    row[3] = String.valueOf(counts.getExtractedCount());
+    row[4] = String.valueOf(counts.getAliquotedCount());
+    row[5] = String.valueOf(counts.getTransferredCount());
+    row[6] = String.valueOf(counts.getDistributedCount());
 
     return row;
   }
