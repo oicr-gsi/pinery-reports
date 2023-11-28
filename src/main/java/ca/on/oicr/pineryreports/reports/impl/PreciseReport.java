@@ -145,7 +145,11 @@ public class PreciseReport extends TableReport {
     EIGHTEEN("18 Month Follow Up", 4),
     TWENTY_FOUR("24 Month Follow Up", 5),
     BIOPSY("Biopsy", 6),
-    RADICAL("Radical Prostatectomy", 7);
+    RADICAL("Radical Prostatectomy", 7),
+    FOUR_YEAR("4 Year Follow Up", 10),
+    FIVE_YEAR("5 Year Follow Up", 11),
+    SIX_YEAR("6 Year Follow Up", 12);
+
     private final String key;
     private final int timePointCode;
     private static final Map<String, TimePoint> lookup = new TreeMap<>();
@@ -210,12 +214,18 @@ public class PreciseReport extends TableReport {
   private List<List<String>> toDateTwelve;
   private List<List<String>> toDateEighteen;
   private List<List<String>> toDateTwentyFour;
+  private List<List<String>> toDateFourYear;
+  private List<List<String>> toDateFiveYear;
+  private List<List<String>> toDateSixYear;
   private List<List<String>> toDateSlides;
   private List<List<String>> thisMonthRandom;
   private List<List<String>> thisMonthSix;
   private List<List<String>> thisMonthTwelve;
   private List<List<String>> thisMonthEighteen;
   private List<List<String>> thisMonthTwentyFour;
+  private List<List<String>> thisMonthFourYear;
+  private List<List<String>> thisMonthFiveYear;
+  private List<List<String>> thisMonthSixYear;
   private List<List<String>> thisMonthSlides;
   private List<List<String>> toDateDistributed;
   private List<List<String>> thisMonthDistributed;
@@ -308,6 +318,27 @@ public class PreciseReport extends TableReport {
             labelListLong,
             TimePoint.TWENTY_FOUR.predicate(),
             bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    toDateFourYear =
+        getDataForSingleTable(
+            allPreciseSamples,
+            allPreciseSamplesById,
+            labelListLong,
+            TimePoint.FOUR_YEAR.predicate(),
+            bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    toDateFiveYear =
+        getDataForSingleTable(
+            allPreciseSamples,
+            allPreciseSamplesById,
+            labelListLong,
+            TimePoint.FIVE_YEAR.predicate(),
+            bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    toDateSixYear =
+        getDataForSingleTable(
+            allPreciseSamples,
+            allPreciseSamplesById,
+            labelListLong,
+            TimePoint.SIX_YEAR.predicate(),
+            bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     toDateSlides =
         getDataForSingleTable(
             allPreciseSamples,
@@ -356,6 +387,30 @@ public class PreciseReport extends TableReport {
             allPreciseSamplesById,
             labelListLong,
             TimePoint.TWENTY_FOUR.predicate(),
+            byReceivedBetween(start, end),
+            bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthFourYear =
+        getDataForSingleTable(
+            allPreciseSamples,
+            allPreciseSamplesById,
+            labelListLong,
+            TimePoint.FOUR_YEAR.predicate(),
+            byReceivedBetween(start, end),
+            bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthFiveYear =
+        getDataForSingleTable(
+            allPreciseSamples,
+            allPreciseSamplesById,
+            labelListLong,
+            TimePoint.FIVE_YEAR.predicate(),
+            byReceivedBetween(start, end),
+            bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    thisMonthSixYear =
+        getDataForSingleTable(
+            allPreciseSamples,
+            allPreciseSamplesById,
+            labelListLong,
+            TimePoint.SIX_YEAR.predicate(),
             byReceivedBetween(start, end),
             bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     thisMonthSlides =
@@ -582,6 +637,12 @@ public class PreciseReport extends TableReport {
         + 4 // total, blank, headers
         + toDateTwentyFour.size()
         + 4 // total, blank, headers
+        + toDateFourYear.size()
+        + 4 // total, blank, headers
+        + toDateFiveYear.size()
+        + 4 // total, blank, headers
+        + toDateSixYear.size()
+        + 4 // total, blank, headers
         + toDateSlides.size()
         + 4 // total, blank, headers
         + toDateDistributed.size()
@@ -595,6 +656,12 @@ public class PreciseReport extends TableReport {
         + thisMonthEighteen.size()
         + 4 // total, blank, headers
         + thisMonthTwentyFour.size()
+        + 4 // total, blank, headers
+        + thisMonthFourYear.size()
+        + 4 // total, blank, headers
+        + thisMonthFiveYear.size()
+        + 4 // total, blank, headers
+        + thisMonthSixYear.size()
         + 4 // total, blank, headers
         + thisMonthSlides.size()
         + 4 // total, blank, headers
@@ -636,6 +703,21 @@ public class PreciseReport extends TableReport {
     if (row.length != 0) return row;
     rowNum -= (toDateTwentyFour.size() + 4); // list + (blank, 2 headers, total)
 
+    row =
+        getRowsForSection(TimePoint.FOUR_YEAR.getKey(), labelListLong, toDateFourYear, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (toDateFourYear.size() + 4); // list + (blank, 2 headers, total)
+
+    row =
+        getRowsForSection(TimePoint.FIVE_YEAR.getKey(), labelListLong, toDateFiveYear, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (toDateFiveYear.size() + 4); // list + (blank, 2 headers, total)
+
+    row =
+        getRowsForSection(TimePoint.SIX_YEAR.getKey(), labelListLong, toDateSixYear, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (toDateSixYear.size() + 4); // list + (blank, 2 headers, total)
+
     row = getRowsForSection("Tissue", labelListSlides, toDateSlides, rowNum);
     if (row.length != 0) return row;
     rowNum -= (toDateSlides.size() + 4); // list + (blank, 2 headers, total)
@@ -674,6 +756,24 @@ public class PreciseReport extends TableReport {
             TimePoint.TWENTY_FOUR.getKey(), labelListLong, thisMonthTwentyFour, rowNum);
     if (row.length != 0) return row;
     rowNum -= (thisMonthTwentyFour.size() + 4); // list + (blank, 2 headers, total)
+
+    row =
+        getRowsForSection(
+            TimePoint.FOUR_YEAR.getKey(), labelListLong, thisMonthFourYear, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (thisMonthFourYear.size() + 4); // list + (blank, 2 headers, total)
+
+    row =
+        getRowsForSection(
+            TimePoint.FIVE_YEAR.getKey(), labelListLong, thisMonthFiveYear, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (thisMonthFiveYear.size() + 4); // list + (blank, 2 headers, total)
+
+    row =
+        getRowsForSection(
+            TimePoint.SIX_YEAR.getKey(), labelListLong, thisMonthSixYear, rowNum);
+    if (row.length != 0) return row;
+    rowNum -= (thisMonthSixYear.size() + 4); // list + (blank, 2 headers, total)
 
     row = getRowsForSection("Tissue", labelListSlides, thisMonthSlides, rowNum);
     if (row.length != 0) return row;
