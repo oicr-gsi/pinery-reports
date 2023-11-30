@@ -31,22 +31,22 @@ public class PreciseCaseList extends TableReport {
   private static class Record {
 
     private SampleDto identity;
-    private boolean screeningBlood;
-    private boolean screeningUrine;
-    private boolean screeningPellet;
-    private boolean sixMonthBlood;
-    private boolean oneYearBlood;
-    private boolean oneYearUrine;
-    private boolean oneYearPellet;
-    private boolean eighteenMonthBlood;
-    private boolean twoYearBlood;
-    private boolean twoYearUrine;
-    private boolean twoYearPellet;
-    private boolean fourYearBlood;
-    private boolean fiveYearBlood;
-    private boolean sixYearBlood;
-    private boolean bxTissue;
-    private boolean rpTissue;
+    private boolean screeningBlood = false;
+    private boolean screeningUrine = false;
+    private boolean screeningPellet = false;
+    private boolean sixMonthBlood = false;
+    private boolean oneYearBlood = false;
+    private boolean oneYearUrine = false;
+    private boolean oneYearPellet = false;
+    private boolean eighteenMonthBlood = false;
+    private boolean twoYearBlood = false;
+    private boolean twoYearUrine = false;
+    private boolean twoYearPellet = false;
+    private boolean fourYearBlood = false;
+    private boolean fiveYearBlood = false;
+    private boolean sixYearBlood = false;
+    private boolean bxTissue = false;
+    private boolean rpTissue = false;
 
     public Record(SampleDto identity) {
       this.identity = identity;
@@ -206,7 +206,9 @@ public class PreciseCaseList extends TableReport {
     FOUR_YEAR_BLOOD(10, TISSUE_ORIGIN_BLOOD, Record::setFourYearBlood),
     FIVE_YEAR_BLOOD(11, TISSUE_ORIGIN_BLOOD, Record::setFiveYearBlood),
     SIX_YEAR_BLOOD(12, TISSUE_ORIGIN_BLOOD, Record::setSixYearBlood),
-    BX_TISSUE(8, TISSUE_ORIGIN_PROSTATE, Record::setBxTissue),
+    BX_TISSUE_1(6, TISSUE_ORIGIN_PROSTATE, Record::setBxTissue),
+    BX_TISSUE_2(7, TISSUE_ORIGIN_PROSTATE, Record::setBxTissue),
+    BX_TISSUE_3(8, TISSUE_ORIGIN_PROSTATE, Record::setBxTissue),
     RP_TISSUE(9, TISSUE_ORIGIN_PROSTATE, Record::setRpTissue);
 
     private final int timepoint;
@@ -220,7 +222,9 @@ public class PreciseCaseList extends TableReport {
     }
 
     public void apply(Record record, Collection<SampleDto> samples) {
-      setter.accept(record, samples.stream().anyMatch(this::matches));
+      if (samples.stream().anyMatch(this::matches)) {
+        setter.accept(record, true);
+      }
     }
 
     private boolean matches(SampleDto sample) {
