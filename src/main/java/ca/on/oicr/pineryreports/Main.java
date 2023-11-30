@@ -16,6 +16,7 @@ import ca.on.oicr.pineryreports.reports.impl.LibrariesSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.LocationMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneCountsReport;
 import ca.on.oicr.pineryreports.reports.impl.OctaneItemsInBankReport;
+import ca.on.oicr.pineryreports.reports.impl.PreciseCaseList;
 import ca.on.oicr.pineryreports.reports.impl.PreciseInventoryByCaseReport;
 import ca.on.oicr.pineryreports.reports.impl.PreciseInventorySummaryReport;
 import ca.on.oicr.pineryreports.reports.impl.PreciseReport;
@@ -148,6 +149,7 @@ public class Main {
                     + "octane-bank, "
                     + "precise, "
                     + "precisecase, "
+                    + "precise-list, "
                     + "precise-summary, "
                     + "projects-status, "
                     + "receipt-missing, "
@@ -217,6 +219,8 @@ public class Main {
       return new DonorsForExistingSamplesReport();
     case StocksByConcentrationReport.REPORT_NAME:
       return new StocksByConcentrationReport();
+    case PreciseCaseList.REPORT_NAME:
+      return new PreciseCaseList();
     case PreciseInventoryByCaseReport.REPORT_NAME:
       return new PreciseInventoryByCaseReport();
     case PreciseInventorySummaryReport.REPORT_NAME:

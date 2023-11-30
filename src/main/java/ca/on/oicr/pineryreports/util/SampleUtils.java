@@ -5,6 +5,7 @@ import ca.on.oicr.ws.dto.SampleDto;
 import ca.on.oicr.ws.dto.SampleReferenceDto;
 import com.google.common.collect.Lists;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -412,6 +413,22 @@ public class SampleUtils {
         return parents.iterator().next().getId();
       default:
         throw new IllegalStateException("Sample " + sample.getId() + " has more than one parent");
+    }
+  }
+
+  public static List<SampleDto> getDescendants(SampleDto sample, Map<String, SampleDto> samplesById) {
+    List<SampleDto> descendants = new ArrayList<>();
+    getDescendants(sample, samplesById, descendants);
+    return descendants;
+  }
+
+  private static void getDescendants(SampleDto sample, Map<String, SampleDto> samplesById, List<SampleDto> descendants) {
+    if (sample.getChildren() != null) {
+      for (SampleReferenceDto child : sample.getChildren()) {
+        SampleDto descendant = samplesById.get(child.getId());
+        descendants.add(descendant);
+        getDescendants(descendant, samplesById, descendants);
+      }
     }
   }
 
