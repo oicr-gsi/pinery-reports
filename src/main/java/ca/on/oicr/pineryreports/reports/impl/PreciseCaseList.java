@@ -18,10 +18,13 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
 
+import com.google.common.collect.Sets;
+
 import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.pineryreports.util.GeneralUtils;
 import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.SampleDto;
@@ -186,6 +189,9 @@ public class PreciseCaseList extends TableReport {
 
   }
 
+  private static final Option OPT_AFTER = CommonOptions.after(false);
+  private static final Option OPT_BEFORE = CommonOptions.before(false);
+
   private static final String TISSUE_ORIGIN_BLOOD = "Ly";
   private static final String TISSUE_ORIGIN_URINE = "Us";
   private static final String TISSUE_ORIGIN_PELLET = "Up";
@@ -263,6 +269,8 @@ public class PreciseCaseList extends TableReport {
 
   public static final String REPORT_NAME = "precise-list";
 
+  private String start = null;
+  private String end = null;
   private final List<Record> records = new ArrayList<>();
 
   @Override
@@ -272,12 +280,26 @@ public class PreciseCaseList extends TableReport {
 
   @Override
   public Collection<Option> getOptions() {
-    return Collections.emptySet();
+    return Sets.newHashSet(OPT_AFTER, OPT_BEFORE);
   }
 
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
-    // No options
+    if (cmd.hasOption(OPT_AFTER.getLongOpt())) {
+      String after = cmd.getOptionValue(OPT_AFTER.getLongOpt());
+      if (!after.matches(GeneralUtils.DATE_REGEX)) {
+        throw new ParseException("After date must be in format yyyy-mm-dd");
+      }
+      this.start = after;
+    }
+
+    if (cmd.hasOption(OPT_BEFORE.getLongOpt())) {
+      String before = cmd.getOptionValue(OPT_BEFORE.getLongOpt());
+      if (!before.matches(GeneralUtils.DATE_REGEX)) {
+        throw new ParseException("Before date must be in format yyyy-mm-dd");
+      }
+      this.end = before;
+    }
   }
 
   @Override
@@ -301,6 +323,11 @@ public class PreciseCaseList extends TableReport {
     for (SampleDto identity : preciseIdentities) {
       Record record = new Record(identity);
       List<SampleDto> descendants = getDescendants(identity, samplesById);
+      if (start != null || end != null) {
+        descendants = descendants.stream()
+            .filter(byCreatedBetween(start, end))
+            .collect(Collectors.toList());
+      }
       for (Check check : Check.values()) {
         check.apply(record, descendants);
       }
