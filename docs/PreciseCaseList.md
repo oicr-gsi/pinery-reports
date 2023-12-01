@@ -6,7 +6,11 @@ been received.
 
 ## Options
 
-This report has no additional options.
+| Option | Required | Description | Example |
+|--------|----------|-------------|---------|
+| after | no | only indicate samples that were created after (and including) this date (yyyy-MM-dd) | --after=2023-04-01 |
+| before | no | only indicate samples that were created before (and not including) this date (yyyy-MM-dd) | --before=2024-01-01 |
+
 
 ## Generate
 
@@ -15,6 +19,13 @@ Example: Generate in csv format
 ```
 java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r precise-list -f csv -o report.csv
 ```
+
+Example: Generate in csv format including only samples entered in November 2023
+
+```
+java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r precise-list -f csv -o report.csv --after=2023-11-01 --before=2023-12-01
+```
+
 
 ## Example
 
