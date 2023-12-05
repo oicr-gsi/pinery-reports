@@ -8,6 +8,18 @@ see [changes](changes).
 
 --------------------------------------------------------------------------------
 
+## [1.13.0] - 2023-12-05
+
+### Added
+
+* PRECISE Case List Report
+
+### Changed
+
+* Updated to Pinery 2.29.0
+* PRECISE Report now includes Four, Five, and Six Year Follow Up timepoints
+
+
 ## [1.12.0] - 2023-06-15
 
 ### Added
