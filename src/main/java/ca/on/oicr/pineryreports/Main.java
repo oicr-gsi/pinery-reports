@@ -22,6 +22,7 @@ import ca.on.oicr.pineryreports.reports.impl.PreciseInventorySummaryReport;
 import ca.on.oicr.pineryreports.reports.impl.PreciseReport;
 import ca.on.oicr.pineryreports.reports.impl.ProjectSequencingReport;
 import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
+import ca.on.oicr.pineryreports.reports.impl.RequisitionsReport;
 import ca.on.oicr.pineryreports.reports.impl.SlideReport;
 import ca.on.oicr.pineryreports.reports.impl.StockReport;
 import ca.on.oicr.pineryreports.reports.impl.StocksByConcentrationReport;
@@ -89,7 +90,8 @@ public class Main {
         LOG.info("Options ok. Generating {}...", report.getTitle());
         report.generate(pinery, format, outFile);
         LOG.info("Report generated: {}", outFile.getName());
-        if (guanyinOpt != null) report.writeGuanyinReportRecordParameters(guanyinOpt, outFile);
+        if (guanyinOpt != null)
+          report.writeGuanyinReportRecordParameters(guanyinOpt, outFile);
       }
     } catch (ParseException e) {
       LOG.error(e.getMessage());
@@ -153,6 +155,7 @@ public class Main {
                     + "precise-summary, "
                     + "projects-status, "
                     + "receipt-missing, "
+                    + "requisitions, "
                     + "sequencing, "
                     + "slide, "
                     + "stock, "
@@ -181,54 +184,56 @@ public class Main {
 
   private static Report getReport(String reportName) throws ParseException {
     switch (reportName) {
-    case StockReport.REPORT_NAME:
-      return new StockReport();
-    case GeccoReport.REPORT_NAME:
-      return new GeccoReport();
-    case DonorReport.REPORT_NAME:
-      return new DonorReport();
-    case ProjectSequencingReport.REPORT_NAME:
-      return new ProjectSequencingReport();
-    case OctaneCountsReport.REPORT_NAME:
-      return new OctaneCountsReport();
-    case OctaneItemsInBankReport.REPORT_NAME:
-      return new OctaneItemsInBankReport();
-    case ReceiptMissingReport.REPORT_NAME:
-      return new ReceiptMissingReport();
-    case SlideReport.REPORT_NAME:
-      return new SlideReport();
-    case LibrariesBillingReport.REPORT_NAME:
-      return new LibrariesBillingReport();
-    case LanesBillingReport.REPORT_NAME:
-      return new LanesBillingReport();
-    case TglLibrariesRunReport.REPORT_NAME:
-      return new TglLibrariesRunReport();
-    case DysReport.REPORT_NAME:
-      return new DysReport();
-    case LocationMissingReport.REPORT_NAME:
-      return new LocationMissingReport();
-    case BisqueProjectsStatusReport.REPORT_NAME:
-      return new BisqueProjectsStatusReport();
-    case GazpachoProjectStatusReport.REPORT_NAME:
-      return new GazpachoProjectStatusReport();
-    case PreciseReport.REPORT_NAME:
-      return new PreciseReport();
-    case LibrariesSequencingReport.REPORT_NAME:
-      return new LibrariesSequencingReport();
-    case DonorsForExistingSamplesReport.REPORT_NAME:
-      return new DonorsForExistingSamplesReport();
-    case StocksByConcentrationReport.REPORT_NAME:
-      return new StocksByConcentrationReport();
-    case PreciseCaseList.REPORT_NAME:
-      return new PreciseCaseList();
-    case PreciseInventoryByCaseReport.REPORT_NAME:
-      return new PreciseInventoryByCaseReport();
-    case PreciseInventorySummaryReport.REPORT_NAME:
-      return new PreciseInventorySummaryReport();
-    case TpActivityReport.REPORT_NAME:
-      return new TpActivityReport();
-    default:
-      throw new ParseException("Invalid report requested: " + reportName);
+      case StockReport.REPORT_NAME:
+        return new StockReport();
+      case GeccoReport.REPORT_NAME:
+        return new GeccoReport();
+      case DonorReport.REPORT_NAME:
+        return new DonorReport();
+      case ProjectSequencingReport.REPORT_NAME:
+        return new ProjectSequencingReport();
+      case OctaneCountsReport.REPORT_NAME:
+        return new OctaneCountsReport();
+      case OctaneItemsInBankReport.REPORT_NAME:
+        return new OctaneItemsInBankReport();
+      case ReceiptMissingReport.REPORT_NAME:
+        return new ReceiptMissingReport();
+      case SlideReport.REPORT_NAME:
+        return new SlideReport();
+      case LibrariesBillingReport.REPORT_NAME:
+        return new LibrariesBillingReport();
+      case LanesBillingReport.REPORT_NAME:
+        return new LanesBillingReport();
+      case TglLibrariesRunReport.REPORT_NAME:
+        return new TglLibrariesRunReport();
+      case DysReport.REPORT_NAME:
+        return new DysReport();
+      case LocationMissingReport.REPORT_NAME:
+        return new LocationMissingReport();
+      case BisqueProjectsStatusReport.REPORT_NAME:
+        return new BisqueProjectsStatusReport();
+      case GazpachoProjectStatusReport.REPORT_NAME:
+        return new GazpachoProjectStatusReport();
+      case PreciseReport.REPORT_NAME:
+        return new PreciseReport();
+      case LibrariesSequencingReport.REPORT_NAME:
+        return new LibrariesSequencingReport();
+      case DonorsForExistingSamplesReport.REPORT_NAME:
+        return new DonorsForExistingSamplesReport();
+      case StocksByConcentrationReport.REPORT_NAME:
+        return new StocksByConcentrationReport();
+      case PreciseCaseList.REPORT_NAME:
+        return new PreciseCaseList();
+      case PreciseInventoryByCaseReport.REPORT_NAME:
+        return new PreciseInventoryByCaseReport();
+      case PreciseInventorySummaryReport.REPORT_NAME:
+        return new PreciseInventorySummaryReport();
+      case TpActivityReport.REPORT_NAME:
+        return new TpActivityReport();
+      case RequisitionsReport.REPORT_NAME:
+        return new RequisitionsReport();
+      default:
+        throw new ParseException("Invalid report requested: " + reportName);
     }
   }
 
