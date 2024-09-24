@@ -10,7 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -21,6 +23,7 @@ import ca.on.oicr.pinery.client.HttpResponseException;
 import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
+import ca.on.oicr.ws.dto.AssayDto;
 import ca.on.oicr.ws.dto.RequisitionDto;
 
 public class RequisitionsReport extends TableReport {
@@ -46,12 +49,16 @@ public class RequisitionsReport extends TableReport {
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(
       Arrays.asList(
           new ColumnDefinition("Requisition"),
-          new ColumnDefinition("Created")));
+          new ColumnDefinition("Assay"),
+          new ColumnDefinition("Created"),
+          new ColumnDefinition("Stopped"),
+          new ColumnDefinition("Stop Reason")));
 
   private Set<String> matchPatterns = new HashSet<>();
   private Set<String> excludePatterns = new HashSet<>();
 
   private List<RequisitionDto> requisitions;
+  private Map<Integer, AssayDto> assaysById;
 
   @Override
   public String getReportName() {
@@ -104,6 +111,8 @@ public class RequisitionsReport extends TableReport {
           return true;
         })
         .collect(Collectors.toList());
+    assaysById = pinery.getAssay().all().stream()
+        .collect(Collectors.toMap(AssayDto::getId, Function.identity()));
   }
 
   @Override
@@ -119,7 +128,18 @@ public class RequisitionsReport extends TableReport {
   @Override
   protected String[] getRow(int rowNum) {
     RequisitionDto requisition = requisitions.get(rowNum);
-    return new String[] { requisition.getName(), removeTime(requisition.getCreatedDate()) };
+    String assayNames = requisition.getAssayIds() == null ? null
+        : requisition.getAssayIds().stream()
+            .map(id -> assaysById.get(id).getName())
+            .collect(Collectors.joining("; "));
+
+    return new String[] {
+        requisition.getName(),
+        assayNames,
+        removeTime(requisition.getCreatedDate()),
+        requisition.isStopped() ? "Yes" : "No",
+        requisition.getStopReason()
+    };
   }
 
 }
