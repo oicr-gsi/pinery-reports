@@ -21,7 +21,7 @@ java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r 
 
 ## Example
 
-| Requisition    | Created    |
-| -------------- | ---------- |
-| CHARM2PLAS-001 | 2024-01-02 |
-| CHARM2PLAS-002 | 2024-03-04 |
+| Requisition    | Assay            | Created    | Stopped | Stop Reason           |
+| -------------- | ---------------- | ---------- | ------- | --------------------- |
+| CHARM2PLAS-001 | WGTS - 80XT/30XN | 2024-01-02 | Yes     | Insufficient material |
+| CHARM2PLAS-002 | CHARM - cfDNA+BC | 2024-03-04 | No      |                       |
