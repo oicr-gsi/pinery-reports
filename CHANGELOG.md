@@ -8,6 +8,17 @@ see [changes](changes).
 
 --------------------------------------------------------------------------------
 
+## [1.15.0] - 2024-09-25
+
+### Added
+
+* Assay, Stopped, and Stop Reason columns to the Requisitions Report
+
+### Upgrade Notes
+
+* Updated to Pinery 2.36.0
+
+
 ## [1.14.0] - 2024-06-26
 
 ### Added
