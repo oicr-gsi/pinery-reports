@@ -20,10 +20,10 @@ java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r 
 
 ## Example
 
-| Donor ID | Buffy Coat Aliquots Remaining | Buffy Coat Aliquots Exhausted | # Buffy Coat DNA Samples Distributed | Projects Buffy Coat DNA Distributed To | Buffy Coat DNA Remaining (ng) | Buffy Coat DNA Samples Exhausted | cfDNA Plasma Aliquots Remaining | cfDNA Plasma Aliquots Exhausted | # cfDNA Samples Distributed | Projects cfDNA Samples Distributed To | cfDNA Remaining (ng) | cfDNA Exhausted | Plasma Aliquots Remaining | Plasma Aliquots Exhausted | # Plasma DNA Samples Distributed | Projects Plasma DNA Samples Distributed To | Plasma DNA Remaining (ng) | Plasma DNA Exhausted | Tumour Tissue Remaining (# slides) | Tumour Tissue Exhausted (# slides) | # Tumour DNA Samples Distributed | Projects Tumour DNA Distributed To | Tumour DNA Remaining (ng) | Tumour DNA Exhausted | # Tumour RNA Samples Distributed | Projects Tumour RNA Distributed To | Tumour RNA Remaining (ng) | Tumour RNA Exhausted |
-|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
-| externalname-01 | 4 | 0 | 0 |  | 0 | 0 | 4 | 0 | 0 |  | 0 | 0 | 4 | 0 | 0 |  | 0 | 0 | 0 | 0 | 0 |  | 0 | 0 | 0 |  | 0 | 0 |
-| externalname-02 | 4 | 0 | 0 |  | 5331.34 | 0 | 4 | 0 | 0 |  | 0 | 0 | 4 | 0 | 0 |  | 0 | 0 | 0 | 0 | 0 |  | 0 | 0 | 0 |  | 0 | 0 |
-| externalname-03 | 4 | 0 | 0 |  | 7213.44 | 0 | 4 | 0 | 0 |  | 0 | 0 | 4 | 0 | 0 |  | 0 | 0 | 0 | 0 | 0 |  | 0 | 0 | 0 |  | 0 | 0 |
-| externalname-04 | 4 | 0 | 2 | Unspecified (Internal) | 0 | 1 | 4 | 0 | 0 |  | 0 | 0 | 4 | 0 | 0 |  | 0 | 0 | 14 | 0 | 2 | Unspecified (Internal) | 0 | 1 | 2 | Unspecified (Internal) | 0 | 1 |
-| externalname-05 | 4 | 0 | 0 |  | 0 | 0 | 4 | 0 | 0 |  | 0 | 0 | 4 | 0 | 0 |  | 0 | 0 | 1 | 15 | 1 | Unspecified (Internal) | 0 | 1 | 1 | Unspecified (Internal) | 0 | 1 |
+| Donor ID | Buffy Coat Aliquots Remaining | cfDNA Plasma Aliquots Remaining | Plasma Aliquots Remaining | Tumour Tissue Remaining (# slides) | Tumour DNA Available | Tumour RNA Available | Buffy Coat DNA Available |
+|--|--|--|--|--|--|--|--|
+| externalname-01 | 4 | 0 | 0 | 0 | No | No | No |
+| externalname-02 | 4 | 0 | 0 | 0 | No | No | No |
+| externalname-03 | 4 | 0 | 0 | 0 | No | No | No |
+| externalname-04 | 4 | 0 | 0 | 0 | Yes | Yes | Yes |
+| externalname-05 | 4 | 0 | 0 | 15 | Yes | Yes | No |

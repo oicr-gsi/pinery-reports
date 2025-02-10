@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
@@ -36,46 +35,23 @@ public class OctaneItemsInBankReport extends TableReport {
   private static final Logger LOG = LoggerFactory.getLogger(OctaneItemsInBankReport.class);
   private static final Option OPT_USER_IDS = CommonOptions.users(true);
 
-  private static final List<ColumnDefinition> COLUMNS =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              new ColumnDefinition("Donor ID"),
-              new ColumnDefinition("Buffy Coat Aliquots Remaining"),
-              new ColumnDefinition("Buffy Coat Aliquots Exhausted"),
-              new ColumnDefinition("# Buffy Coat DNA Samples Distributed"),
-              new ColumnDefinition("Projects Buffy Coat DNA Distributed To"),
-              new ColumnDefinition("Buffy Coat DNA Remaining (ng)"),
-              new ColumnDefinition("Buffy Coat DNA Samples Exhausted"),
-              new ColumnDefinition("cfDNA Plasma Aliquots Remaining"),
-              new ColumnDefinition("cfDNA Plasma Aliquots Exhausted"),
-              new ColumnDefinition("# cfDNA Samples Distributed"),
-              new ColumnDefinition("Projects cfDNA Samples Distributed To"),
-              new ColumnDefinition("cfDNA Remaining (ng)"),
-              new ColumnDefinition("cfDNA Exhausted"),
-              new ColumnDefinition("Plasma Aliquots Remaining"),
-              new ColumnDefinition("Plasma Aliquots Exhausted"),
-              new ColumnDefinition("# Plasma DNA Samples Distributed"),
-              new ColumnDefinition("Projects Plasma DNA Samples Distributed To"),
-              new ColumnDefinition("Plasma DNA Remaining (ng)"),
-              new ColumnDefinition("Plasma DNA Exhausted"),
-              new ColumnDefinition("Tumour Tissue Remaining (# slides)"),
-              new ColumnDefinition("Tumour Tissue Exhausted (# slides)"),
-              new ColumnDefinition("# Tumour DNA Samples Distributed"),
-              new ColumnDefinition("Projects Tumour DNA Distributed To"),
-              new ColumnDefinition("Tumour DNA Remaining (ng)"),
-              new ColumnDefinition("Tumour DNA Exhausted"),
-              new ColumnDefinition("# Tumour RNA Samples Distributed"),
-              new ColumnDefinition("Projects Tumour RNA Distributed To"),
-              new ColumnDefinition("Tumour RNA Remaining (ng)"),
-              new ColumnDefinition("Tumour RNA Exhausted")));
+  private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(
+      Arrays.asList(
+          new ColumnDefinition("Donor ID"),
+          new ColumnDefinition("Buffy Coat Aliquots Remaining"),
+          new ColumnDefinition("cfDNA Plasma Aliquots Remaining"),
+          new ColumnDefinition("Plasma Aliquots Remaining"),
+          new ColumnDefinition("Tumour Tissue Remaining (# slides)"),
+          new ColumnDefinition("Tumour DNA Available"),
+          new ColumnDefinition("Tumour RNA Available"),
+          new ColumnDefinition("Buffy Coat DNA Available")));
 
-  private static final Predicate<SampleDto> byTransferred =
-      dto -> {
-        String custody = getAttribute(ATTR_CUSTODY, dto);
-        return custody != null
-            && !"TP".equals(custody)
-            && !"Unspecified (Internal)".equals(custody);
-      };
+  private static final Predicate<SampleDto> byTransferred = dto -> {
+    String custody = getAttribute(ATTR_CUSTODY, dto);
+    return custody != null
+        && !"TP".equals(custody)
+        && !"Unspecified (Internal)".equals(custody);
+  };
 
   private final List<Integer> userIds = new ArrayList<>();
 
@@ -121,11 +97,10 @@ public class OctaneItemsInBankReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
     List<SampleDto> allSamples = pinery.getSample().all();
     allSamplesById = mapSamplesById(allSamples);
-    octaneSamples =
-        allSamples.stream()
-            .filter(
-                sam -> "OCT".equals(sam.getProjectName()) || "OCTCAP".equals(sam.getProjectName()))
-            .collect(Collectors.toList());
+    octaneSamples = allSamples.stream()
+        .filter(
+            sam -> "OCT".equals(sam.getProjectName()) || "OCTCAP".equals(sam.getProjectName()))
+        .collect(Collectors.toList());
 
     List<SampleDto> identities = findIdentities();
     Map<String, List<SampleDto>> childrenByIdentityId = mapChildrenByIdentityId();
@@ -139,10 +114,11 @@ public class OctaneItemsInBankReport extends TableReport {
       int col = -1;
       row[++col] = getAttribute(ATTR_EXTERNAL_NAME, identity);
 
-      col = addDnaCounts(row, col, children, "Ly", "R");
-      col = addDnaCounts(row, col, children, "Ct", "T");
-      col = addDnaCounts(row, col, children, "Pl", "R");
+      col = addDnaCount(row, col, children, "Ly", "R");
+      col = addDnaCount(row, col, children, "Ct", "T");
+      col = addDnaCount(row, col, children, "Pl", "R");
       col = addTumourCounts(row, col, children);
+      col = addAnyRemaining(row, col, children, "Ly", "R");
 
       // Exclude Identities with no other data
       for (int i = 1; i < row.length; i++) {
@@ -190,23 +166,25 @@ public class OctaneItemsInBankReport extends TableReport {
     return rowData.get(rowNum);
   }
 
-  private int addDnaCounts(
+  private int addDnaCount(
       String[] row, int col, List<SampleDto> children, String tissueOrigin, String tissueType) {
-    List<SampleDto> filtered =
-        children.stream()
-            .filter(byTissueOriginAndType(tissueOrigin, tissueType, allSamplesById))
-            .collect(Collectors.toList());
-
+    List<SampleDto> filtered = filterByTissueOriginAndType(children, tissueOrigin, tissueType);
     row[++col] = Long.toString(countTissues(filtered, false));
-    row[++col] = Long.toString(countTissues(filtered, true));
-
-    List<SampleDto> dnaDistributed = getDistributed(filtered, DNA);
-    row[++col] = Integer.toString(dnaDistributed.size());
-    row[++col] = getDistributionRecipients(dnaDistributed);
-
-    row[++col] = Float.toString(getRemaining(filtered, DNA));
-    row[++col] = Long.toString(countExhausted(filtered, DNA));
     return col;
+  }
+
+  private int addAnyRemaining(String[] row, int col, List<SampleDto> children, String tissueOrigin,
+      String tissueType) {
+    List<SampleDto> filtered = filterByTissueOriginAndType(children, tissueOrigin, tissueType);
+    row[++col] = anyRemaining(filtered, DNA);
+    return col;
+  }
+
+  private List<SampleDto> filterByTissueOriginAndType(List<SampleDto> children, String tissueOrigin,
+      String tissueType) {
+    return children.stream()
+        .filter(byTissueOriginAndType(tissueOrigin, tissueType, allSamplesById))
+        .collect(Collectors.toList());
   }
 
   private long countTissues(List<SampleDto> children, boolean empty) {
@@ -217,30 +195,8 @@ public class OctaneItemsInBankReport extends TableReport {
         .count();
   }
 
-  private List<SampleDto> getDistributed(List<SampleDto> children, String dnaOrRna) {
-    return children.stream()
-        .filter(
-            bySampleCategory(SAMPLE_CATEGORY_STOCK).or(bySampleCategory(SAMPLE_CATEGORY_ALIQUOT)))
-        .filter(dto -> dto.getSampleType().contains(dnaOrRna))
-        .filter(byTransferred)
-        .filter(byCreator(userIds))
-        .collect(Collectors.toList());
-  }
-
-  private String getDistributionRecipients(List<SampleDto> children) {
-    return children.stream()
-        .map(
-            dto -> {
-              String custody = getAttribute(ATTR_CUSTODY, dto);
-              if (custody == null) {
-                return null;
-              }
-              String request = getAttribute(ATTR_LATEST_TRANSFER_REQUEST, dto);
-              return request == null ? custody : request;
-            })
-        .filter(Objects::nonNull)
-        .distinct()
-        .collect(Collectors.joining(", "));
+  private String anyRemaining(List<SampleDto> children, String dnaOrRna) {
+    return getRemaining(children, dnaOrRna) > 0F ? "Yes" : "No";
   }
 
   private float getRemaining(List<SampleDto> children, String dnaOrRna) {
@@ -265,36 +221,16 @@ public class OctaneItemsInBankReport extends TableReport {
         .orElse(0F);
   }
 
-  private long countExhausted(List<SampleDto> children, String dnaOrRna) {
-    return children.stream()
-        .filter(bySampleCategory(SAMPLE_CATEGORY_STOCK))
-        .filter(dto -> dto.getSampleType().contains(dnaOrRna))
-        .filter(byEmpty(true).or(byTransferred))
-        .filter(byCreator(userIds))
-        .count();
-  }
-
   private int addTumourCounts(String[] row, int col, List<SampleDto> children) {
     row[++col] = Integer.toString(countSlides(children, false));
-    row[++col] = Integer.toString(countSlides(children, true));
 
     // filter to only include items descended from slides
-    List<SampleDto> filtered =
-        children.stream()
-            .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, allSamplesById) != null)
-            .collect(Collectors.toList());
+    List<SampleDto> filtered = children.stream()
+        .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, allSamplesById) != null)
+        .collect(Collectors.toList());
 
-    List<SampleDto> dnaDistributed = getDistributed(filtered, DNA);
-    row[++col] = Integer.toString(dnaDistributed.size());
-    row[++col] = getDistributionRecipients(dnaDistributed);
-    row[++col] = Float.toString(getRemaining(filtered, DNA));
-    row[++col] = Long.toString(countExhausted(filtered, DNA));
-
-    List<SampleDto> rnaDistributed = getDistributed(filtered, RNA);
-    row[++col] = Integer.toString(rnaDistributed.size());
-    row[++col] = getDistributionRecipients(rnaDistributed);
-    row[++col] = Float.toString(getRemaining(filtered, RNA));
-    row[++col] = Long.toString(countExhausted(filtered, RNA));
+    row[++col] = anyRemaining(filtered, DNA);
+    row[++col] = anyRemaining(filtered, RNA);
     return col;
   }
 
@@ -306,11 +242,10 @@ public class OctaneItemsInBankReport extends TableReport {
         .filter(empty ? s -> true : byEmpty(false))
         .filter(byCreator(userIds))
         .mapToInt(
-            dto ->
-                empty
-                    ? (getIntAttribute(ATTR_INITIAL_SLIDES, dto)
-                        - getIntAttribute(ATTR_SLIDES, dto))
-                    : getIntAttribute(ATTR_SLIDES, dto))
+            dto -> empty
+                ? (getIntAttribute(ATTR_INITIAL_SLIDES, dto)
+                    - getIntAttribute(ATTR_SLIDES, dto))
+                : getIntAttribute(ATTR_SLIDES, dto))
         .sum();
   }
 }
