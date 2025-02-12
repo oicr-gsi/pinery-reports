@@ -8,6 +8,14 @@ see [changes](changes).
 
 --------------------------------------------------------------------------------
 
+## [1.16.0] - 2025-02-12
+
+### Changed
+
+* Items in Bank report updated - now only includes remaining sample counts and availability. See report
+  documentation for more details
+
+
 ## [1.15.0] - 2024-09-25
 
 ### Added
