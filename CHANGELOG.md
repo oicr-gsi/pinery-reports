@@ -8,6 +8,20 @@ see [changes](changes).
 
 --------------------------------------------------------------------------------
 
+## [1.17.0] - 2025-03-25
+
+### Changed
+
+* OCTANE Items in Bank Report now checks remaining volume instead of yield, and no longer requires
+  concentration to be set
+  
+* OCTANE Items in Bank Report slide count now includes only unstained slides
+
+### Fixed
+
+* OCTANE Items in Bank Report should exclude donors with no remaining samples
+
+
 ## [1.16.0] - 2025-02-12
 
 ### Changed
