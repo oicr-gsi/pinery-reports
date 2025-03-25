@@ -61,6 +61,7 @@ public class SampleUtils {
 
   public static final String DNA = "DNA";
   public static final String RNA = "RNA";
+  public static final String STAIN_UNSTAINED = "Unstained";
   public static final String STAIN_HE = "Hematoxylin+Eosin";
   // All DNA library design codes
   public static final String LIBRARY_DESIGN_WG = "WG";
@@ -78,10 +79,9 @@ public class SampleUtils {
   public static final String LIBRARY_DESIGN_SM = "SM";
   public static final String LIBRARY_DESIGN_WT = "WT";
   public static final String LIBRARY_DESIGN_TR = "TR";
-  public static final List<String> RNA_LIBRARY_DESIGN_CODES =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              LIBRARY_DESIGN_MR, LIBRARY_DESIGN_SM, LIBRARY_DESIGN_WT, LIBRARY_DESIGN_TR));
+  public static final List<String> RNA_LIBRARY_DESIGN_CODES = Collections.unmodifiableList(
+      Arrays.asList(
+          LIBRARY_DESIGN_MR, LIBRARY_DESIGN_SM, LIBRARY_DESIGN_WT, LIBRARY_DESIGN_TR));
   // Unknown library design code
   public static final String LIBRARY_DESIGN_NN = "NN";
 
@@ -132,9 +132,8 @@ public class SampleUtils {
 
   public static Predicate<SampleDto> byHierarchyAttribute(
       String attribute, String value, Map<String, SampleDto> potentialParents) {
-    return dto ->
-        value.equals(getAttribute(attribute, dto))
-            || value.equals(getUpstreamAttribute(attribute, dto, potentialParents));
+    return dto -> value.equals(getAttribute(attribute, dto))
+        || value.equals(getUpstreamAttribute(attribute, dto, potentialParents));
   }
 
   public static Predicate<SampleDto> byEmpty(boolean empty) {
@@ -151,7 +150,8 @@ public class SampleUtils {
   }
 
   public static Predicate<SampleDto> byCreator(List<Integer> userIds) {
-    if (userIds.isEmpty()) return dto -> true;
+    if (userIds.isEmpty())
+      return dto -> true;
     return dto -> userIds.contains(dto.getCreatedById());
   }
 
@@ -209,14 +209,13 @@ public class SampleUtils {
     return SampleUtils::isNonIlluminaLibrary;
   }
 
-  public static final Predicate<SampleDto> withSlidesRemaining =
-      slide -> {
-        Integer slides = getIntAttribute(ATTR_SLIDES, slide);
-        if (slides == null) {
-          throw new IllegalArgumentException("Sample does not seem to be a slide");
-        }
-        return slides > 0;
-      };
+  public static final Predicate<SampleDto> withSlidesRemaining = slide -> {
+    Integer slides = getIntAttribute(ATTR_SLIDES, slide);
+    if (slides == null) {
+      throw new IllegalArgumentException("Sample does not seem to be a slide");
+    }
+    return slides > 0;
+  };
 
   public static List<SampleDto> filterNonEmpty(Collection<SampleDto> samples) {
     return samples.stream()
@@ -225,9 +224,10 @@ public class SampleUtils {
   }
 
   /**
-   * Return attribute value that exists for the given attribute name on the given sample.
+   * Return attribute value that exists for the given attribute name on the given
+   * sample.
    *
-   * @param sample Sample to look for attribute
+   * @param sample        Sample to look for attribute
    * @param attributeName Name of the attribute we are retrieving values for
    * @return Attribute the attribute value, or null if the attribute is not found
    */
@@ -243,9 +243,10 @@ public class SampleUtils {
   }
 
   /**
-   * Return attribute value that exists for the given attribute name on the given sample.
+   * Return attribute value that exists for the given attribute name on the given
+   * sample.
    *
-   * @param sample Sample to look for attribute
+   * @param sample        Sample to look for attribute
    * @param attributeName Name of the attribute we are retrieving values for
    * @return Attribute the attribute value, or null if the attribute is not found
    */
@@ -254,12 +255,14 @@ public class SampleUtils {
   }
 
   /**
-   * Return attribute value that exists for the given attribute name on the given sample.
+   * Return attribute value that exists for the given attribute name on the given
+   * sample.
    *
-   * @param sample Sample to look for attribute
+   * @param sample        Sample to look for attribute
    * @param attributeName Name of the attribute we are retrieving values for
-   * @param defaultValue value to return if the attribute is not found
-   * @return Attribute the attribute value, or defaultValue if the attribute is not found
+   * @param defaultValue  value to return if the attribute is not found
+   * @return Attribute the attribute value, or defaultValue if the attribute is
+   *         not found
    */
   public static Integer getIntAttribute(
       String attributeName, SampleDto sample, Integer defaultValue) {
@@ -278,52 +281,56 @@ public class SampleUtils {
   }
 
   /**
-   * Get an attribute from higher up in the hierarchy. Will never return an attribute found directly
+   * Get an attribute from higher up in the hierarchy. Will never return an
+   * attribute found directly
    * on sample
    *
    * @param attributeName
-   * @param sample find the attribute in this sample's hierarchy
-   * @param allSamples complete set of potential ancestors to this sample, mapped by ID
-   * @return the attribute value from the nearest ancestor which has the attribute, or null if not
-   *     found
+   * @param sample        find the attribute in this sample's hierarchy
+   * @param allSamples    complete set of potential ancestors to this sample,
+   *                      mapped by ID
+   * @return the attribute value from the nearest ancestor which has the
+   *         attribute, or null if not
+   *         found
    */
   public static String getUpstreamAttribute(
       String attributeName, SampleDto sample, Map<String, SampleDto> allSamples) {
-    for (SampleDto parent = getParent(sample, allSamples);
-        parent != null;
-        parent = getParent(parent, allSamples)) {
+    for (SampleDto parent = getParent(sample, allSamples); parent != null; parent = getParent(parent, allSamples)) {
       String value = getAttribute(attributeName, parent);
-      if (value != null) return value;
+      if (value != null)
+        return value;
     }
     return null;
   }
 
   public static String getUpstreamField(
       Function<SampleDto, String> getField, SampleDto sample, Map<String, SampleDto> allSamples) {
-    for (SampleDto parent = getParent(sample, allSamples);
-        parent != null;
-        parent = getParent(parent, allSamples)) {
+    for (SampleDto parent = getParent(sample, allSamples); parent != null; parent = getParent(parent, allSamples)) {
       String value = getField.apply(parent);
-      if (value != null) return value;
+      if (value != null)
+        return value;
     }
     return null;
   }
 
   /**
-   * Get an attribute from lower in the hierarchy. Will never return an attribute found directly on
+   * Get an attribute from lower in the hierarchy. Will never return an attribute
+   * found directly on
    * sample.
    *
    * @param attributeName
-   * @param sample find the attribute in this sample's children
+   * @param sample           find the attribute in this sample's children
    * @param possibleChildren set of potential children to this sample
-   * @return the attribute value set from the children which have the attribute, or empty set if not
-   *     found
+   * @return the attribute value set from the children which have the attribute,
+   *         or empty set if not
+   *         found
    */
   public static Set<String> getChildAttributes(
       String attributeName, SampleDto sample, List<SampleDto> possibleChildren) {
     Set<String> foundAttributes = new HashSet<>();
     for (SampleDto child : possibleChildren) {
-      if (getParentId(child) == null || !getParentId(child).equals(sample.getId())) continue;
+      if (getParentId(child) == null || !getParentId(child).equals(sample.getId()))
+        continue;
       String childAttribute = getAttribute(attributeName, child);
       if (childAttribute != null) {
         foundAttributes.add(childAttribute);
@@ -335,8 +342,9 @@ public class SampleUtils {
   /**
    * Get the direct parent of sample
    *
-   * @param sample sample to find the parent of
-   * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
+   * @param sample           sample to find the parent of
+   * @param potentialParents complete set of potential ancestors to this sample,
+   *                         mapped by ID
    * @return the sample's parent, or null if it has no parent
    */
   public static SampleDto getParent(SampleDto sample, Map<String, SampleDto> potentialParents) {
@@ -355,9 +363,10 @@ public class SampleUtils {
   /**
    * Get an ancestor of the sample
    *
-   * @param sample sample to find the parent of
-   * @param sampleCategory category of parent to find
-   * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
+   * @param sample           sample to find the parent of
+   * @param sampleCategory   category of parent to find
+   * @param potentialParents complete set of potential ancestors to this sample,
+   *                         mapped by ID
    * @return the closest ancestor of sample of the provided sample category
    */
   public static SampleDto getParent(
@@ -365,9 +374,7 @@ public class SampleUtils {
     if (sample == null) {
       throw new IllegalArgumentException("Sample cannot be null");
     }
-    for (SampleDto current = sample;
-        current != null;
-        current = getParent(current, potentialParents)) {
+    for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
       if (sampleCategory.equals(getAttribute(ATTR_CATEGORY, current))) {
         return current;
       }
@@ -383,17 +390,17 @@ public class SampleUtils {
   /**
    * Get an ancestor of the sample if it exists
    *
-   * @param sample sample to find the parent of
-   * @param sampleClass class of parent to find
-   * @param potentialParents complete set of potential ancestors to this sample, mapped by ID
-   * @return the closest ancestor of sample of the provided sample class, or null if one is not
-   *     found
+   * @param sample           sample to find the parent of
+   * @param sampleClass      class of parent to find
+   * @param potentialParents complete set of potential ancestors to this sample,
+   *                         mapped by ID
+   * @return the closest ancestor of sample of the provided sample class, or null
+   *         if one is not
+   *         found
    */
   public static SampleDto getOptionalParent(
       SampleDto sample, String sampleClass, Map<String, SampleDto> potentialParents) {
-    for (SampleDto current = sample;
-        current != null;
-        current = getParent(current, potentialParents)) {
+    for (SampleDto current = sample; current != null; current = getParent(current, potentialParents)) {
       if (sampleClass.equals(current.getSampleType())) {
         return current;
       }
@@ -422,7 +429,8 @@ public class SampleUtils {
     return descendants;
   }
 
-  private static void getDescendants(SampleDto sample, Map<String, SampleDto> samplesById, List<SampleDto> descendants) {
+  private static void getDescendants(SampleDto sample, Map<String, SampleDto> samplesById,
+      List<SampleDto> descendants) {
     if (sample.getChildren() != null) {
       for (SampleReferenceDto child : sample.getChildren()) {
         SampleDto descendant = samplesById.get(child.getId());
@@ -435,10 +443,12 @@ public class SampleUtils {
   /**
    * Round to a specified number of decimal places
    *
-   * @param number number to round
+   * @param number        number to round
    * @param decimalPlaces number of decimal places to round to
-   * @return the number as a String to ensure no further mutation occurs. The number will always
-   *     have the specified number of decimal places, even when unneccessary (e.g. "1.20")
+   * @return the number as a String to ensure no further mutation occurs. The
+   *         number will always
+   *         have the specified number of decimal places, even when unneccessary
+   *         (e.g. "1.20")
    */
   public static String round(double number, int decimalPlaces) {
     DecimalFormat df = new DecimalFormat();
@@ -449,10 +459,11 @@ public class SampleUtils {
   }
 
   /**
-   * Determine if a library or dilution is an RNA library/dilution, based on whether the parent
+   * Determine if a library or dilution is an RNA library/dilution, based on
+   * whether the parent
    * sample is RNA or is cDNA (derived from RNA)
    *
-   * @param library library or dilution to test for RNA-ness
+   * @param library          library or dilution to test for RNA-ness
    * @param potentialParents potential parents of the library
    * @return a boolean indicating whether the parent aliquot is RNA or cDNA
    */
@@ -468,9 +479,7 @@ public class SampleUtils {
       throw new IllegalArgumentException(
           "Provided sample " + library.getName() + " is not a library");
     }
-    for (SampleDto current = library;
-        current != null;
-        current = getParent(current, potentialParents)) {
+    for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
       if (current.getSampleType().contains(LIBRARY) && current.getSampleType().contains("Seq")) {
         continue;
       }
@@ -481,7 +490,8 @@ public class SampleUtils {
   }
 
   /**
-   * Determine if a library was created using a 10X kit (assumes all 10X kits have "10X" in the kit
+   * Determine if a library was created using a 10X kit (assumes all 10X kits have
+   * "10X" in the kit
    * name)
    *
    * @param library an actual library (will return false for all dilutions)
@@ -497,9 +507,7 @@ public class SampleUtils {
     }
     if (library.getSampleType().contains(" Seq")) {
       // is a dilution; get parent library
-      for (SampleDto current = library;
-          current != null;
-          current = getParent(current, potentialParents)) {
+      for (SampleDto current = library; current != null; current = getParent(current, potentialParents)) {
         if (current.getSampleType().contains(LIBRARY)) {
           library = current; // reassign so we check the prep kit of the actual library
           break;
@@ -512,18 +520,16 @@ public class SampleUtils {
   }
 
   public static Integer getTimesReceived(String sampleName) {
-    Matcher m =
-        Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_(\\d+)-\\d+.*$")
-            .matcher(sampleName);
+    Matcher m = Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_(\\d+)-\\d+.*$")
+        .matcher(sampleName);
     if (!m.matches() || m.group(1) == null)
       throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
     return Integer.valueOf(m.group(1));
   }
 
   public static Integer getTubeNumber(String sampleName) {
-    Matcher m =
-        Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_\\d+-(\\d+).*$")
-            .matcher(sampleName);
+    Matcher m = Pattern.compile(NAME_SEGMENT_IDENTITY + "_[A-zn][a-z]_[A-Zn]_[0-9n]{1,2}_\\d+-(\\d+).*$")
+        .matcher(sampleName);
     if (!m.matches() || m.group(1) == null)
       throw new IllegalArgumentException("Sample with alias " + sampleName + " is malformed.");
     return Integer.valueOf(m.group(1));
