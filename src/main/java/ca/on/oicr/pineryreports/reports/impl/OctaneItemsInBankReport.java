@@ -110,24 +110,40 @@ public class OctaneItemsInBankReport extends TableReport {
       if (children == null) {
         children = Collections.emptyList();
       }
+
+      long bcRemaining = getTissueCount(children, "Ly", "R");
+      long cfDnaRemaining = getTissueCount(children, "Ct", "T");
+      long plasmaRemaining = getTissueCount(children, "Pl", "R");
+      int tissueRemaining = countUnstainedSlides(children);
+
+      List<SampleDto> childrenWithSlideParents = children.stream()
+          .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, allSamplesById) != null)
+          .collect(Collectors.toList());
+
+      boolean anyDnaRemaining = anyRemaining(childrenWithSlideParents, DNA);
+      boolean anyRnaRemaining = anyRemaining(childrenWithSlideParents, RNA);
+
+      List<SampleDto> bcChildren = filterByTissueOriginAndType(children, "Ly", "R");
+      boolean anyBcDnaRemaining = anyRemaining(bcChildren, DNA);
+
+      // Exclude Identities with no other data
+      if (bcRemaining == 0L && cfDnaRemaining == 0L && plasmaRemaining == 0L && !anyDnaRemaining && !anyRnaRemaining
+          && !anyBcDnaRemaining) {
+        continue;
+      }
+
       String[] row = new String[COLUMNS.size()];
       int col = -1;
       row[++col] = getAttribute(ATTR_EXTERNAL_NAME, identity);
+      row[++col] = Long.toString(bcRemaining);
+      row[++col] = Long.toString(cfDnaRemaining);
+      row[++col] = Long.toString(plasmaRemaining);
+      row[++col] = Integer.toString(tissueRemaining);
+      row[++col] = anyDnaRemaining ? "Yes" : "No";
+      row[++col] = anyRnaRemaining ? "Yes" : "No";
+      row[++col] = anyBcDnaRemaining ? "Yes" : "No";
 
-      col = addDnaCount(row, col, children, "Ly", "R");
-      col = addDnaCount(row, col, children, "Ct", "T");
-      col = addDnaCount(row, col, children, "Pl", "R");
-      col = addTumourCounts(row, col, children);
-      col = addAnyRemaining(row, col, children, "Ly", "R");
-
-      // Exclude Identities with no other data
-      for (int i = 1; i < row.length; i++) {
-        String value = row[i];
-        if (value != null && !value.isEmpty() && !"0".equals(value) && !"0.0".equals(value)) {
-          rowData.add(row);
-          break;
-        }
-      }
+      rowData.add(row);
     }
   }
 
@@ -166,18 +182,9 @@ public class OctaneItemsInBankReport extends TableReport {
     return rowData.get(rowNum);
   }
 
-  private int addDnaCount(
-      String[] row, int col, List<SampleDto> children, String tissueOrigin, String tissueType) {
+  private long getTissueCount(List<SampleDto> children, String tissueOrigin, String tissueType) {
     List<SampleDto> filtered = filterByTissueOriginAndType(children, tissueOrigin, tissueType);
-    row[++col] = Long.toString(countTissues(filtered, false));
-    return col;
-  }
-
-  private int addAnyRemaining(String[] row, int col, List<SampleDto> children, String tissueOrigin,
-      String tissueType) {
-    List<SampleDto> filtered = filterByTissueOriginAndType(children, tissueOrigin, tissueType);
-    row[++col] = anyRemaining(filtered, DNA);
-    return col;
+    return countTissues(filtered, false);
   }
 
   private List<SampleDto> filterByTissueOriginAndType(List<SampleDto> children, String tissueOrigin,
@@ -195,8 +202,8 @@ public class OctaneItemsInBankReport extends TableReport {
         .count();
   }
 
-  private String anyRemaining(List<SampleDto> children, String dnaOrRna) {
-    return getRemaining(children, dnaOrRna) > 0F ? "Yes" : "No";
+  private boolean anyRemaining(List<SampleDto> children, String dnaOrRna) {
+    return getRemaining(children, dnaOrRna) > 0F;
   }
 
   private float getRemaining(List<SampleDto> children, String dnaOrRna) {
@@ -207,45 +214,24 @@ public class OctaneItemsInBankReport extends TableReport {
         .filter(byCreator(userIds))
         .map(
             dto -> {
-              if (dto.getVolume() == null || dto.getConcentration() == null) {
-                LOG.warn(
-                    String.format(
-                        "Stock sample %s (%s) missing volume (%f) or concentration (%f)",
-                        dto.getId(), dto.getName(), dto.getVolume(), dto.getConcentration()));
+              if (dto.getVolume() == null) {
+                LOG.warn(String.format("Stock sample %s (%s) missing volume", dto.getId(), dto.getName()));
                 return 0F;
               } else {
-                return dto.getVolume() * dto.getConcentration();
+                return dto.getVolume();
               }
             })
         .reduce((a, b) -> a + b)
         .orElse(0F);
   }
 
-  private int addTumourCounts(String[] row, int col, List<SampleDto> children) {
-    row[++col] = Integer.toString(countSlides(children, false));
-
-    // filter to only include items descended from slides
-    List<SampleDto> filtered = children.stream()
-        .filter(dto -> getOptionalParent(dto, SAMPLE_CLASS_SLIDE, allSamplesById) != null)
-        .collect(Collectors.toList());
-
-    row[++col] = anyRemaining(filtered, DNA);
-    row[++col] = anyRemaining(filtered, RNA);
-    return col;
-  }
-
-  private int countSlides(List<SampleDto> children, boolean empty) {
+  private int countUnstainedSlides(List<SampleDto> children) {
     return children.stream()
         .filter(dto -> SAMPLE_CLASS_SLIDE.equals(dto.getSampleType()))
-        // for exhausted (empty == true), include partially-used
-        // for remaining (empty == false), only count if not "EMPTY"
-        .filter(empty ? s -> true : byEmpty(false))
+        .filter(dto -> STAIN_UNSTAINED.equals(getAttribute(ATTR_STAIN, dto)))
+        .filter(byEmpty(false))
         .filter(byCreator(userIds))
-        .mapToInt(
-            dto -> empty
-                ? (getIntAttribute(ATTR_INITIAL_SLIDES, dto)
-                    - getIntAttribute(ATTR_SLIDES, dto))
-                : getIntAttribute(ATTR_SLIDES, dto))
+        .mapToInt(dto -> getIntAttribute(ATTR_SLIDES, dto))
         .sum();
   }
 }
