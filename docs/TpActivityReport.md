@@ -27,6 +27,6 @@ java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r 
 
 ## Example
 
-| Project Code | Quantification | Samples Received | Samples Accessioned | Samples Extracted | Samples Aliquoted | Samples Transferred | Samples Distributed | Comments |
-| ------------ | -------------- | ---------------- | ------------------- | ----------------- | ----------------- | ------------------- | ------------------- | -------- |
-| PROJ1        |                | 12               | 8                   | 4                 | 4                 | 4                   | 10                  |          |
+| Project Code | Quantification | Samples Received | Samples Accessioned | LCM | Sectioning | Macrodissection/Coring | Samples Extracted | Samples Aliquoted | Samples Transferred | Samples Distributed |
+| ------------ | -------------- | ---------------- | ------------------- | --- | ---------- | ---------------------- | ----------------- | ----------------- | ------------------- | ------------------- |
+| PROJ1        |                | 12               | 8                   | 0   | 5          | 10                     | 4                 | 4                 | 4                   | 10                  |

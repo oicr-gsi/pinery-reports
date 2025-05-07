@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -41,6 +43,9 @@ public class TpActivityReport extends TableReport {
     private String projectName;
     private int receivedCount = 0;
     private int accessionedCount = 0;
+    private int lcmCount = 0;
+    private int slideCount = 0;
+    private int macrodissectionAndPunchCount;
     private int extractedCount = 0;
     private int aliquotedCount = 0;
     private int transferredCount = 0;
@@ -68,6 +73,30 @@ public class TpActivityReport extends TableReport {
 
     public void incrementAccessionedCount(int amount) {
       accessionedCount += amount;
+    }
+
+    public int getLcmCount() {
+      return lcmCount;
+    }
+
+    public void incrementLcmCount() {
+      lcmCount += 1;
+    }
+
+    public int getSlideCount() {
+      return slideCount;
+    }
+
+    public void incrementSlideCount(int amount) {
+      slideCount += amount;
+    }
+
+    public int getMacrodissectionAndPunchCount() {
+      return macrodissectionAndPunchCount;
+    }
+
+    public void incrementMacrodissectionAndPunchCount() {
+      macrodissectionAndPunchCount += 1;
     }
 
     public int getExtractedCount() {
@@ -143,10 +172,22 @@ public class TpActivityReport extends TableReport {
           new ColumnDefinition("Project Code"),
           new ColumnDefinition("Samples Received"),
           new ColumnDefinition("Samples Accessioned"),
+          new ColumnDefinition("LCM"),
+          new ColumnDefinition("Sectioning"),
+          new ColumnDefinition("Macrodissection/Coring"),
           new ColumnDefinition("Samples Extracted"),
           new ColumnDefinition("Samples Aliquoted"),
           new ColumnDefinition("Samples Transferred"),
           new ColumnDefinition("Samples Distributed")));
+
+  // e.g. PROJ_0001_Pa_P_nn_1-1_XXX01
+  // this will also match hybrid aliases for samples that have been moved from the
+  // old scheme to V2
+  private static final Pattern oldTissuePiecePattern = Pattern
+      .compile("^[A-Z0-9]+_\\d+_[A-Zn][a-z]_[A-Zn]_\\w\\w_\\d+-\\d+_([A-Z]+)\\d+$");
+
+  // e.g. PROJ_0001_01_XX01
+  private static final Pattern v2TissuePiecePattern = Pattern.compile("^[A-Z0-9]+_\\d+_\\d+_([A-Z]+)\\d+$");
 
   private String start;
   private String end;
@@ -231,6 +272,31 @@ public class TpActivityReport extends TableReport {
             } else {
               counts.incrementAccessionedCount(1);
             }
+          } else if (Objects.equals(category, SAMPLE_CATEGORY_TISSUE_PROCESSING)) {
+            switch (sample.getSampleType()) {
+              case SAMPLE_CLASS_SLIDE:
+                counts.incrementSlideCount(getIntAttribute(ATTR_INITIAL_SLIDES, sample, 1));
+                break;
+              case SAMPLE_CLASS_TISSUE_PIECE:
+                Matcher matcher = v2TissuePiecePattern.matcher(sample.getName());
+                if (!matcher.matches()) {
+                  matcher = oldTissuePiecePattern.matcher(sample.getName());
+                }
+                if (!matcher.matches()) {
+                  throw new IllegalArgumentException("Unrecognized tissue piece name pattern: " + sample.getName());
+                }
+                switch (matcher.group(1)) {
+                  case "LCM": // old LCM Tube
+                  case "TL": // v2 LCM Tube
+                    counts.incrementLcmCount();
+                    break;
+                  case "TM": // Macrodissection
+                  case "P": // Punches
+                    counts.incrementMacrodissectionAndPunchCount();
+                    break;
+                }
+                break;
+            }
           } else if (Objects.equals(category, SAMPLE_CATEGORY_STOCK)) {
             counts.incrementExtractedCount();
           } else if (Objects.equals(category, SAMPLE_CATEGORY_ALIQUOT)) {
@@ -308,13 +374,17 @@ public class TpActivityReport extends TableReport {
     ProjectCounts counts = projectCounts.get(rowNum);
     String[] row = new String[COLUMNS.size()];
 
-    row[0] = counts.getProjectName();
-    row[1] = String.valueOf(counts.getReceivedCount());
-    row[2] = String.valueOf(counts.getAccessionedCount());
-    row[3] = String.valueOf(counts.getExtractedCount());
-    row[4] = String.valueOf(counts.getAliquotedCount());
-    row[5] = String.valueOf(counts.getTransferredCount());
-    row[6] = String.valueOf(counts.getDistributedCount());
+    int col = 0;
+    row[col++] = counts.getProjectName();
+    row[col++] = String.valueOf(counts.getReceivedCount());
+    row[col++] = String.valueOf(counts.getAccessionedCount());
+    row[col++] = String.valueOf(counts.getLcmCount());
+    row[col++] = String.valueOf(counts.getSlideCount());
+    row[col++] = String.valueOf(counts.getMacrodissectionAndPunchCount());
+    row[col++] = String.valueOf(counts.getExtractedCount());
+    row[col++] = String.valueOf(counts.getAliquotedCount());
+    row[col++] = String.valueOf(counts.getTransferredCount());
+    row[col++] = String.valueOf(counts.getDistributedCount());
 
     return row;
   }

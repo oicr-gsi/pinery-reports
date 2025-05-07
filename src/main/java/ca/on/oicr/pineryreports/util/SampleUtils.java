@@ -50,6 +50,7 @@ public class SampleUtils {
   public static final String ATTR_LATEST_TRANSFER_REQUEST = "Latest Transfer Request";
 
   public static final String SAMPLE_CLASS_SLIDE = "Slide";
+  public static final String SAMPLE_CLASS_TISSUE_PIECE = "Tissue Piece";
   public static final String SAMPLE_CLASS_WHOLE_RNA = "whole RNA";
 
   public static final String SAMPLE_CATEGORY_IDENTITY = "Identity";
