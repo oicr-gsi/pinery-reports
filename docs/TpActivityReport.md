@@ -5,6 +5,10 @@ Originally written for TP: https://jira.oicr.on.ca/browse/GR-1479
 This report lists the work completed for each project by a group of users. Quantification and
 Comments columns are included to be filled in manually later.
 
+Note that for CHARM2 and CHARM2PLAS extraction samples with tissue origin 'Pl', 3 extractions are
+done and then elutions are pooled and only one sample is entered into MISO. These samples are each
+counted as 3 extractions.
+
 ## Options
 
 | Option      | Required | Description                                                            | Example             |
