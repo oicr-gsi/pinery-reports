@@ -104,7 +104,11 @@ public class TpActivityReport extends TableReport {
     }
 
     public void incrementExtractedCount() {
-      extractedCount += 1;
+      incrementExtractedCount(1);
+    }
+
+    public void incrementExtractedCount(int amount) {
+      extractedCount += amount;
     }
 
     public int getAliquotedCount() {
@@ -247,14 +251,16 @@ public class TpActivityReport extends TableReport {
 
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
-    List<SampleDto> samples = pinery.getSample().all().stream()
+    List<SampleDto> allSamples = pinery.getSample().all();
+    Map<String, SampleDto> allSamplesById = mapSamplesById(allSamples);
+    List<SampleDto> filteredSamples = allSamples.stream()
         .filter(byCreator(userIds))
         .filter(sample -> !"True".equals(getAttribute(ATTR_SYNTHETIC, sample)))
         .filter(bySampleCategory(SAMPLE_CATEGORY_IDENTITY).negate())
         .collect(Collectors.toList());
     Map<String, ProjectCounts> countsByProjectName = new HashMap<>();
 
-    samples.stream()
+    filteredSamples.stream()
         .filter(byCreatedBetween(start, end))
         .forEach(sample -> {
           ProjectCounts counts = getProjectCounts(sample.getProjectName(), countsByProjectName);
@@ -298,13 +304,20 @@ public class TpActivityReport extends TableReport {
                 break;
             }
           } else if (Objects.equals(category, SAMPLE_CATEGORY_STOCK)) {
-            counts.incrementExtractedCount();
+            if (("CHARM2".equals(sample.getProjectName()) || "CHARM2PLAS".equals(sample.getProjectName()))
+                && "Pl".equals(getUpstreamAttribute(ATTR_TISSUE_ORIGIN, sample, allSamplesById))) {
+              // 3 extractions are done and then elutions are pooled and only one sample is
+              // entered into MISO; count as 3
+              counts.incrementExtractedCount(3);
+            } else {
+              counts.incrementExtractedCount();
+            }
           } else if (Objects.equals(category, SAMPLE_CATEGORY_ALIQUOT)) {
             counts.incrementAliquotedCount();
           }
         });
 
-    samples.stream()
+    filteredSamples.stream()
         .filter(byDistributedBetween(start, end))
         .forEach(sample -> {
           ProjectCounts counts = getProjectCounts(sample.getProjectName(), countsByProjectName);
