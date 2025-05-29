@@ -8,6 +8,19 @@ see [changes](changes).
 
 --------------------------------------------------------------------------------
 
+## [1.18.0] - 2025-05-29
+
+### Added
+
+* LCM, Sectioning, and Macrodissection/Coring columns to the TP Activity Report
+
+### Changed
+
+* On the TP Activity Report, CHARM2 and CHARM2PLAS extraction samples with tissue origin 'Pl' will each
+  be counted as 3 extractions. This is because 3 extractions are done and then elutions are pooled and
+  only one sample is entered into MISO
+
+
 ## [1.17.0] - 2025-03-25
 
 ### Changed
