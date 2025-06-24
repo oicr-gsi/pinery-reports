@@ -35,7 +35,7 @@ public class RequisitionsReport extends TableReport {
       .hasArg()
       .argName("text")
       .required(false)
-      .desc("Only requisitions with aliases containing this string will be included")
+      .desc("Comma-separated list; Only requisitions with aliases containing one of these strings will be included")
       .build();
 
   public static Option OPT_EXCLUDE = Option.builder()
@@ -43,7 +43,7 @@ public class RequisitionsReport extends TableReport {
       .hasArg()
       .argName("text")
       .required(false)
-      .desc("Requisitions with aliases containing this string will be excluded")
+      .desc("Comma-separated list; Requisitions with aliases containing any of these strings will be excluded")
       .build();
 
   private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(
@@ -73,13 +73,15 @@ public class RequisitionsReport extends TableReport {
   @Override
   public void processOptions(CommandLine cmd) throws ParseException {
     if (cmd.hasOption(OPT_MATCH.getLongOpt())) {
-      for (String value : cmd.getOptionValues(OPT_MATCH.getLongOpt())) {
-        matchPatterns.add(value);
+      String[] matches = cmd.getOptionValue(OPT_MATCH.getLongOpt()).split(",");
+      for (String match : matches) {
+        matchPatterns.add(match);
       }
     }
     if (cmd.hasOption(OPT_EXCLUDE.getLongOpt())) {
-      for (String value : cmd.getOptionValues(OPT_EXCLUDE.getLongOpt())) {
-        excludePatterns.add(value);
+      String[] excludes = cmd.getOptionValue(OPT_MATCH.getLongOpt()).split(",");
+      for (String exclude : excludes) {
+        excludePatterns.add(exclude);
       }
     }
   }
@@ -98,10 +100,8 @@ public class RequisitionsReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
     requisitions = pinery.getRequisition().all().stream()
         .filter(requisition -> {
-          for (String text : matchPatterns) {
-            if (!requisition.getName().contains(text)) {
-              return false;
-            }
+          if (matchPatterns.stream().noneMatch(requisition.getName()::contains)) {
+            return false;
           }
           for (String text : excludePatterns) {
             if (requisition.getName().contains(text)) {
