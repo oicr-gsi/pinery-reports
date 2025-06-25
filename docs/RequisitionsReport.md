@@ -6,22 +6,23 @@ This report lists all of the requisitions matching the specified criteria.
 
 ## Options
 
-| Option  | Required | Description                                                        | Example              |
-| ------- | -------- | ------------------------------------------------------------------ | -------------------- |
-| match   | no       | A requisition will only be included if its name contains this text | --match "CHARM2PLAS" |
-| exclude | no       | A requisition will be excluded if its name contains this text      | --exclude "Mock"     |
+| Option  | Required | Description                                                                                             | Example                     |
+| ------- | -------- |---------------------------------------------------------------------------------------------------------|-----------------------------|
+| match   | no       | A requisition will only be included if its name contains one of the comma separated options in the text | --match "CHARM2PLAS","CHM2" |
+| exclude | no       | A requisition will be excluded if its name contains one of the comma separated options in the text      | --exclude "Mock"            |
 
 ## Generate
 
-Example: List requisitions with names containing "CHARM2PLAS" and excluding "Mock". Generate in csv format.
+Example: List requisitions with names containing "CHARM2PLAS" or "CHM2" and excluding "Mock". Generate in csv format.
 
 ```
-java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r requisitions -f csv -o report.csv -match "CHARM2PLAS" -exclude "Mock"
+java -jar pinery-reports-<version>-jar-with-dependencies.jar -s <pinery-url> -r requisitions -f csv -o report.csv -match "CHARM2PLAS","CHM2" -exclude "Mock"
 ```
 
 ## Example
 
 | Requisition    | Assay            | Created    | Stopped | Stop Reason           |
-| -------------- | ---------------- | ---------- | ------- | --------------------- |
+|----------------| ---------------- |------------| ------- | --------------------- |
 | CHARM2PLAS-001 | WGTS - 80XT/30XN | 2024-01-02 | Yes     | Insufficient material |
 | CHARM2PLAS-002 | CHARM - cfDNA+BC | 2024-03-04 | No      |                       |
+| CHM2PLAS-001   | CHARM - cfDNA+BC | 2024-03-24 | No      |                       |
