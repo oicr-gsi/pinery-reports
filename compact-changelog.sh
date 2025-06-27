@@ -42,11 +42,14 @@ add_section() {
 
   FILES=$(find "${CHANGE_DIR}" -mindepth 1 -maxdepth 1 -name "$2_*")
   if [[ ! -z "${FILES}" ]]; then
+	  echo "FILES for title ${1}: ${FILES}"
     printf "\n\n### ${1}\n" >> "${TEMP_FILE}"
 
     for FILE in ${FILES}; do
+	    echo "FILE: ${FILE}"
       PREFIX="* "
       while read LINE; do
+	      echo "LINE: ${LINE}"
         printf "\n${PREFIX}${LINE}" >> "${TEMP_FILE}"
         PREFIX="  "
       done <"${FILE}"
@@ -61,6 +64,8 @@ add_section "Fixed" "fix"
 add_section "Upgrade Notes" "note"
 
 printf "\n\n" >> "${TEMP_FILE}"
+
+cat "${TEMP_FILE}"
 
 sed -i.bak -e "/^\(-\{10,\}\)/ r ${TEMP_FILE}" "${CHANGELOG}"
 rm -f -- "${CHANGE_DIR}"/add_* "${CHANGE_DIR}"/change_* "${CHANGE_DIR}"/remove_* \
