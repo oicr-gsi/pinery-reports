@@ -79,7 +79,7 @@ public class RequisitionsReport extends TableReport {
       }
     }
     if (cmd.hasOption(OPT_EXCLUDE.getLongOpt())) {
-      String[] excludes = cmd.getOptionValue(OPT_MATCH.getLongOpt()).split(",");
+      String[] excludes = cmd.getOptionValue(OPT_EXCLUDE.getLongOpt()).split(",");
       for (String exclude : excludes) {
         excludePatterns.add(exclude);
       }
