@@ -25,6 +25,7 @@ import ca.on.oicr.pineryreports.reports.impl.ReceiptMissingReport;
 import ca.on.oicr.pineryreports.reports.impl.RequisitionsReport;
 import ca.on.oicr.pineryreports.reports.impl.SlideReport;
 import ca.on.oicr.pineryreports.reports.impl.StockReport;
+import ca.on.oicr.pineryreports.reports.impl.EmptyStockReport;
 import ca.on.oicr.pineryreports.reports.impl.StocksByConcentrationReport;
 import ca.on.oicr.pineryreports.reports.impl.TglLibrariesRunReport;
 import ca.on.oicr.pineryreports.reports.impl.TpActivityReport;
@@ -186,6 +187,8 @@ public class Main {
     switch (reportName) {
       case StockReport.REPORT_NAME:
         return new StockReport();
+      case EmptyStockReport.REPORT_NAME:
+        return new EmptyStockReport();
       case GeccoReport.REPORT_NAME:
         return new GeccoReport();
       case DonorReport.REPORT_NAME:

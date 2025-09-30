@@ -173,6 +173,10 @@ public class SampleUtils {
     return dto -> getAttribute(ATTR_RECEIVE_DATE, dto) == null;
   }
 
+    public static Predicate<SampleDto> hasDescendants(Map<String, SampleDto> samplesById) {
+        return dto -> !getDescendants(dto, samplesById).isEmpty();
+    }
+
   public static Predicate<SampleDto> byDistributed() {
     return byDistributedBetween(null, null);
   }
