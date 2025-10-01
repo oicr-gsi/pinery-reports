@@ -9,6 +9,7 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.SampleDto;
+import ca.on.oicr.ws.dto.UserDto;
 import com.google.common.collect.Sets;
 
 import java.util.*;
@@ -45,6 +46,7 @@ public class EmptyStockReport extends TableReport {
 
     private List<SampleDto> stocks;
     private Map<String, SampleDto> allSamplesById;
+    private Map<Integer, UserDto> allUsersById;
     private List<Integer> userIds = new ArrayList<>();
 
     @Override
@@ -100,6 +102,8 @@ public class EmptyStockReport extends TableReport {
     @Override
     protected void collectData(PineryClient pinery) throws HttpResponseException {
         List<SampleDto> allSamples = pinery.getSample().all();
+        List<UserDto> allUsers = pinery.getUser().all();
+        allUsersById = mapUsersById(allUsers);
         allSamplesById = mapSamplesById(allSamples);
         stocks = filterReportableStocks(allSamples);
         stocks.sort(byReceiveDateAndName);
@@ -121,6 +125,7 @@ public class EmptyStockReport extends TableReport {
                 String dto1Created = removeTime(dto1.getCreatedDate());
                 String dto2Created = removeTime(dto2.getCreatedDate());
                 int byDate = 0;
+                // Should never be null
                 if (dto1Created == null) {
                     if (dto2Created != null) {
                         byDate = 1;
@@ -152,11 +157,12 @@ public class EmptyStockReport extends TableReport {
         row[1] = stock.getName();
         row[2] = removeTime(stock.getCreatedDate());
         row[3] = removeTime(stock.getModifiedDate());
-        row[4] = toStringOrNull(stock.getModifiedById());
+        UserDto user = allUsersById.get(stock.getModifiedById());
+        row[4] = String.format("%s %s", user.getFirstname(), user.getLastname());
         row[5] = getUpstreamAttribute(ATTR_EXTERNAL_NAME, stock, allSamplesById);
         Float concentration = stock.getConcentration();
         row[6] = concentration == null ? null : round(concentration, 2);
-        Float initVolume = getFloatAttribute(ATTR_INITIAL_VOLUME, stock, 0F);
+        Float initVolume = getFloatAttribute(ATTR_INITIAL_VOLUME, stock);
         row[7] = initVolume == null ? null : round(initVolume, 2);
         row[8] = round(stock.getVolume(), 2);
         row[9] = stock.getStorageLocation();
