@@ -6,7 +6,7 @@
 
   <groupId>ca.on.oicr</groupId>
   <artifactId>pinery-reports</artifactId>
-  <version>1.19.2-SNAPSHOT</version>
+  <version>1.20.0</version>
   <name>Pinery Reports</name>
 
   <properties>
