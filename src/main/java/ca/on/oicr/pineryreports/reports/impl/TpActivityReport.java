@@ -296,7 +296,8 @@ public class TpActivityReport extends TableReport {
                   case "TL": // v2 LCM Tube
                     counts.incrementLcmCount();
                     break;
-                  case "TM": // Macrodissection
+                  case "MC": // old Macrodissection
+                  case "TM": // v2 Macrodissection
                   case "P": // Punches
                     counts.incrementMacrodissectionAndPunchCount();
                     break;
