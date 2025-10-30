@@ -8,6 +8,13 @@ see [changes](changes).
 
 --------------------------------------------------------------------------------
 
+## [1.20.1] - 2025-10-30
+
+### Fixed
+
+* Macrodissections using the old naming scheme were not being counted in the TP Activity Report
+
+
 ## [1.20.0] - 2025-10-02
 
 ### Added
