@@ -9,6 +9,7 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.RunDtoContainer;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
@@ -70,12 +71,16 @@ public class BisqueProjectsStatusReport extends TableReport {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (obj == null) return false;
-      if (getClass() != obj.getClass()) return false;
+      if (this == obj)
+        return true;
+      if (obj == null)
+        return false;
+      if (getClass() != obj.getClass())
+        return false;
       Count other = (Count) obj;
       if (key == null) {
-        if (other.key != null) return false;
+        if (other.key != null)
+          return false;
       } else if (!key.equals(other.key)) {
         return false;
       }
@@ -273,14 +278,13 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   private Set<String> projects = Sets.newHashSet();
 
-  List<String> ldO =
-      Arrays.asList(
-          LIBRARY_DESIGN_CH,
-          LIBRARY_DESIGN_BS,
-          LIBRARY_DESIGN_AS,
-          LIBRARY_DESIGN_SC,
-          LIBRARY_DESIGN_CT,
-          LIBRARY_DESIGN_CM);
+  List<String> ldO = Arrays.asList(
+      LIBRARY_DESIGN_CH,
+      LIBRARY_DESIGN_BS,
+      LIBRARY_DESIGN_AS,
+      LIBRARY_DESIGN_SC,
+      LIBRARY_DESIGN_CT,
+      LIBRARY_DESIGN_CM);
 
   protected int columnCount = 0;
 
@@ -288,8 +292,8 @@ public class BisqueProjectsStatusReport extends TableReport {
   public static final String REPORT_NAME = "projects-status";
   public static final String CATEGORY = REPORT_CATEGORY_COUNTS;
 
-  private List<Map.Entry<String, Map<String, List<Count>>>>
-      countsByProjectAsList; // String project, List<Count> all counts
+  private List<Map.Entry<String, Map<String, List<Count>>>> countsByProjectAsList; // String project, List<Count> all
+                                                                                   // counts
 
   @Override
   public String getReportName() {
@@ -325,12 +329,11 @@ public class BisqueProjectsStatusReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException, IOException {
     if (projects.isEmpty()) {
       List<SampleProjectDto> projectDtos = pinery.getSampleProject().all();
-      projects =
-          projectDtos
-              .stream()
-              .filter(project -> project.isActive())
-              .map(project -> project.getName())
-              .collect(Collectors.toSet());
+      projects = projectDtos
+          .stream()
+          .filter(project -> project.isActive())
+          .map(project -> project.getName())
+          .collect(Collectors.toSet());
       if (projects.isEmpty()) {
         throw new IllegalArgumentException(
             "Could not get list of projects: couldn't get from Pinery, and no list of projects was provided");
@@ -353,27 +356,23 @@ public class BisqueProjectsStatusReport extends TableReport {
       String category = getAttribute(ATTR_CATEGORY, sam);
       if (category == null) {
         // don't need dilutions
-        if (sam.getSampleType() != null && sam.getSampleType().contains(" Seq")) continue;
+        if (sam.getSampleType() != null && sam.getSampleType().contains(" Seq"))
+          continue;
         libraries.add(sam);
         continue;
       }
       // don't care about identities, as they aren't received or prepped
-      if (SAMPLE_CATEGORY_IDENTITY.equals(category)) continue;
+      if (SAMPLE_CATEGORY_IDENTITY.equals(category))
+        continue;
       realSamples.add(sam);
     }
 
-    Map<String, List<SampleDto>> primaries =
-        filterAllTheThings(realSamples, libraries, allSamplesById, P);
-    Map<String, List<SampleDto>> references =
-        filterAllTheThings(realSamples, libraries, allSamplesById, R);
-    Map<String, List<SampleDto>> organoids =
-        filterAllTheThings(realSamples, libraries, allSamplesById, O);
-    Map<String, List<SampleDto>> xenografts =
-        filterAllTheThings(realSamples, libraries, allSamplesById, X);
-    Map<String, List<SampleDto>> metastases =
-        filterAllTheThings(realSamples, libraries, allSamplesById, M);
-    Map<String, List<SampleDto>> leftovers =
-        filterAllTheThings(realSamples, libraries, allSamplesById, L);
+    Map<String, List<SampleDto>> primaries = filterAllTheThings(realSamples, libraries, allSamplesById, P);
+    Map<String, List<SampleDto>> references = filterAllTheThings(realSamples, libraries, allSamplesById, R);
+    Map<String, List<SampleDto>> organoids = filterAllTheThings(realSamples, libraries, allSamplesById, O);
+    Map<String, List<SampleDto>> xenografts = filterAllTheThings(realSamples, libraries, allSamplesById, X);
+    Map<String, List<SampleDto>> metastases = filterAllTheThings(realSamples, libraries, allSamplesById, M);
+    Map<String, List<SampleDto>> leftovers = filterAllTheThings(realSamples, libraries, allSamplesById, L);
 
     nonIlluminaLibraries = filter(libraries, Arrays.asList(byNonIlluminaLibrary()));
 
@@ -402,60 +401,76 @@ public class BisqueProjectsStatusReport extends TableReport {
     // track which libraries were sequenced
     for (RunDto run : allRuns) {
       // ignore Running, Unknown, Stopped runs
-      if (!RUN_FAILED.equals(run.getState()) && !RUN_COMPLETED.equals(run.getState())) continue;
-      if (run.getPositions() == null) continue;
-      for (RunDtoPosition lane : run.getPositions()) {
-        if (lane.getSamples() == null) continue;
-        for (RunDtoSample sam : lane.getSamples()) {
-          // want only completed libraries for now
-          if (RUN_FAILED.equals(run.getState())) continue;
-          SampleDto dilution = allSamplesById.get(sam.getId());
-          SampleDto library = getParent(dilution, allSamplesById);
-          if (isNonIlluminaLibrary(dilution)) {
-            seqdLibsByCategory.get(COUNT_CATEGORY_NON_ILL_SEQD).get("All").add(dilution);
+      if (!RUN_FAILED.equals(run.getState()) && !RUN_COMPLETED.equals(run.getState())) {
+        continue;
+      }
+      if (run.getContainers() == null) {
+        continue;
+      }
+      if (run.getContainers().size() > 1) {
+        throw new RuntimeException(String.format("Unexpected data - run has multiple containers: %s", run.getName()));
+      }
+      for (RunDtoContainer container : run.getContainers()) {
+        if (container.getPositions() == null) {
+          continue;
+        }
+        for (RunDtoPosition lane : container.getPositions()) {
+          if (lane.getSamples() == null) {
             continue;
           }
-          String code = getUpstreamAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dilution, allSamplesById);
-          if (code == null)
-            throw new IllegalArgumentException(
-                "Dilution " + dilution.getName() + " has no library design code in hierarchy");
-          if (isRnaLibrary(dilution, allSamplesById)) {
-            if (is10XLibrary(library, allSamplesById)) {
-              // RNA, 10X
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_RNA_10X_SEQD));
-            } else {
-              // RNA, no 10X
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_RNA_SEQD));
+          for (RunDtoSample sam : lane.getSamples()) {
+            // want only completed libraries for now
+            if (RUN_FAILED.equals(run.getState())) {
+              continue;
             }
-          } else {
-            if (is10XLibrary(library, allSamplesById)) {
-              // DNA, 10X
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_DNA_10X_SEQD));
-            } else if (LIBRARY_DESIGN_WG.equals(code)) {
-              // DNA, no 10X, WG
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_WG_SEQD));
-            } else if (LIBRARY_DESIGN_EX.equals(code)) {
-              // DNA, no 10X, EX
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_EX_SEQD));
-            } else if (LIBRARY_DESIGN_TS.equals(code)) {
-              // DNA, no 10X, TS
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_TS_SEQD));
-            } else if (LIBRARY_DESIGN_NN.equals(code)) {
-              // DNA, no 10X, NN
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_NN_SEQD));
-            } else if (ldO.contains(code)) {
-              // DNA, no 10X, AS/CH/BS
-              assignLibraryByTissueType(
-                  dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_DNA_SEQD));
+            SampleDto dilution = allSamplesById.get(sam.getId());
+            SampleDto library = getParent(dilution, allSamplesById);
+            if (isNonIlluminaLibrary(dilution)) {
+              seqdLibsByCategory.get(COUNT_CATEGORY_NON_ILL_SEQD).get("All").add(dilution);
+              continue;
+            }
+            String code = getUpstreamAttribute(ATTR_SOURCE_TEMPLATE_TYPE, dilution, allSamplesById);
+            if (code == null)
+              throw new IllegalArgumentException(
+                  "Dilution " + dilution.getName() + " has no library design code in hierarchy");
+            if (isRnaLibrary(dilution, allSamplesById)) {
+              if (is10XLibrary(library, allSamplesById)) {
+                // RNA, 10X
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_RNA_10X_SEQD));
+              } else {
+                // RNA, no 10X
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_RNA_SEQD));
+              }
             } else {
-              throw new IOException("Unable to categorize dilution " + dilution.getId());
+              if (is10XLibrary(library, allSamplesById)) {
+                // DNA, 10X
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_DNA_10X_SEQD));
+              } else if (LIBRARY_DESIGN_WG.equals(code)) {
+                // DNA, no 10X, WG
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_WG_SEQD));
+              } else if (LIBRARY_DESIGN_EX.equals(code)) {
+                // DNA, no 10X, EX
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_EX_SEQD));
+              } else if (LIBRARY_DESIGN_TS.equals(code)) {
+                // DNA, no 10X, TS
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_TS_SEQD));
+              } else if (LIBRARY_DESIGN_NN.equals(code)) {
+                // DNA, no 10X, NN
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_NN_SEQD));
+              } else if (ldO.contains(code)) {
+                // DNA, no 10X, AS/CH/BS
+                assignLibraryByTissueType(
+                    dilution, allSamplesById, seqdLibsByCategory.get(COUNT_CATEGORY_DNA_SEQD));
+              } else {
+                throw new IOException("Unable to categorize dilution " + dilution.getId());
+              }
             }
           }
         }
@@ -1014,14 +1029,16 @@ public class BisqueProjectsStatusReport extends TableReport {
   }
 
   /**
-   * The number of columns for this report depends on what is in the report. We need to count the
+   * The number of columns for this report depends on what is in the report. We
+   * need to count the
    * number of columns required for each project, and select the largest of these.
    *
    * @param categoriesAndCounts Map of categories and counts for one project
    */
   private void maybeUpdateColumnCount(Map<String, List<Count>> categoriesAndCounts) {
     int columnsForProject = countColumns(categoriesAndCounts);
-    if (columnsForProject > columnCount) columnCount = columnsForProject;
+    if (columnsForProject > columnCount)
+      columnCount = columnsForProject;
   }
 
   private void assignLibraryByTissueType(
@@ -1078,8 +1095,7 @@ public class BisqueProjectsStatusReport extends TableReport {
       String sampleCategory = getAttribute(ATTR_CATEGORY, dto);
       if (sampleCategory == null)
         throw new IllegalArgumentException("Sample is missing sample category");
-      List<String> tissueLike =
-          Arrays.asList(SAMPLE_CATEGORY_TISSUE, SAMPLE_CATEGORY_TISSUE_PROCESSING);
+      List<String> tissueLike = Arrays.asList(SAMPLE_CATEGORY_TISSUE, SAMPLE_CATEGORY_TISSUE_PROCESSING);
       return tissueLike.contains(sampleCategory);
     };
   }
@@ -1087,7 +1103,8 @@ public class BisqueProjectsStatusReport extends TableReport {
   private boolean tissueTypeMatches(
       SampleDto sample, List<String> tissueTypes, Map<String, SampleDto> allSamples) {
     String type = getAttribute(ATTR_TISSUE_TYPE, sample);
-    if (type == null) type = getUpstreamAttribute(ATTR_TISSUE_TYPE, sample, allSamples);
+    if (type == null)
+      type = getUpstreamAttribute(ATTR_TISSUE_TYPE, sample, allSamples);
     if (type == null)
       throw new IllegalArgumentException("sample " + sample.getId() + " is missing tissue type");
     return tissueTypes.contains(type);
@@ -1155,7 +1172,8 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   static final List<Map.Entry<String, Map<String, List<Count>>>> listifyCountsByProject(
       Map<String, Map<String, List<Count>>> countsByProject) {
-    // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet
+    // need to convert it to a list, because getRow() takes an index and the treemap
+    // doesn't yet
     // have one of those
     return new ArrayList<>(countsByProject.entrySet());
   }
@@ -1178,8 +1196,7 @@ public class BisqueProjectsStatusReport extends TableReport {
 
   @Override
   protected String[] getRow(int rowNum) {
-    Map.Entry<String, Map<String, List<Count>>> projectCounts =
-        countsByProjectAsList.get(listIndex);
+    Map.Entry<String, Map<String, List<Count>>> projectCounts = countsByProjectAsList.get(listIndex);
     if (rowNum % 4 == 0) {
       listIndex++;
       return makeBlankRow();
@@ -1198,10 +1215,9 @@ public class BisqueProjectsStatusReport extends TableReport {
     row[++i] = projectCounts.getKey();
     for (Map.Entry<String, List<Count>> categoryAndCounts : projectCounts.getValue().entrySet()) {
       row[++i] = categoryAndCounts.getKey(); // category label
-      i +=
-          categoryAndCounts
-              .getValue()
-              .size(); // increment by number distinct counts in each category. This will result in
+      i += categoryAndCounts
+          .getValue()
+          .size(); // increment by number distinct counts in each category. This will result in
       // one blank
       // column at the end of each category.
     }
