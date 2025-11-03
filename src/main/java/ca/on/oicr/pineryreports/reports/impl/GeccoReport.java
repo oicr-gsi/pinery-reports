@@ -8,6 +8,7 @@ import ca.on.oicr.pinery.client.PineryClient;
 import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.RunDtoContainer;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
@@ -32,18 +33,17 @@ public class GeccoReport extends TableReport {
   public static final String REPORT_NAME = "gecco";
   public static final String CATEGORY = REPORT_CATEGORY_INVENTORY;
 
-  private final List<ColumnDefinition> columns =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              new ColumnDefinition("Oicr Name", 150f, TextAlignment.LEFT),
-              new ColumnDefinition("Person ID"),
-              new ColumnDefinition("Sample ID"),
-              new ColumnDefinition("Gender"),
-              new ColumnDefinition("Tissue of Origin", 50f, TextAlignment.LEFT),
-              new ColumnDefinition("Tissue Type"),
-              new ColumnDefinition("Libraries Created"),
-              new ColumnDefinition("Times Sequenced"),
-              new ColumnDefinition("Runs")));
+  private final List<ColumnDefinition> columns = Collections.unmodifiableList(
+      Arrays.asList(
+          new ColumnDefinition("Oicr Name", 150f, TextAlignment.LEFT),
+          new ColumnDefinition("Person ID"),
+          new ColumnDefinition("Sample ID"),
+          new ColumnDefinition("Gender"),
+          new ColumnDefinition("Tissue of Origin", 50f, TextAlignment.LEFT),
+          new ColumnDefinition("Tissue Type"),
+          new ColumnDefinition("Libraries Created"),
+          new ColumnDefinition("Times Sequenced"),
+          new ColumnDefinition("Runs")));
 
   private Map<String, SampleDto> allSamplesById;
   private List<SampleDto> geccoTissues;
@@ -80,13 +80,13 @@ public class GeccoReport extends TableReport {
     allSamplesById = mapSamplesById(allSamples);
     List<RunDto> sequencerRuns = pinery.getSequencerRun().all();
     sequencerRunMap = sequencerRunHash(sequencerRuns);
-    geccoTissues =
-        filter(filter(allSamples, byProject("GECCO")), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
+    geccoTissues = filter(filter(allSamples, byProject("GECCO")), bySampleCategory(SAMPLE_CATEGORY_TISSUE));
     geccoTissues.sort((dto1, dto2) -> dto1.getName().compareTo(dto2.getName()));
   }
 
   /**
-   * Map IDs of samples that have been run to the set of sequencer runs that they were included in
+   * Map IDs of samples that have been run to the set of sequencer runs that they
+   * were included in
    *
    * @param runs all runs
    * @return the map
@@ -109,11 +109,16 @@ public class GeccoReport extends TableReport {
 
   private static Set<String> getSampleIdsInRun(RunDto run) {
     Set<String> ids = Sets.newHashSet();
-    if (run.getPositions() == null) {
+    if (run.getContainers() == null) {
       return ids;
     }
-    for (RunDtoPosition position : run.getPositions()) {
-      addSamplesFromPosition(position, ids);
+    for (RunDtoContainer container : run.getContainers()) {
+      if (container.getPositions() == null) {
+        continue;
+      }
+      for (RunDtoPosition position : container.getPositions()) {
+        addSamplesFromPosition(position, ids);
+      }
     }
     return ids;
   }
@@ -161,7 +166,7 @@ public class GeccoReport extends TableReport {
    * Return set of run names associated with the given set of library seq ids.
    *
    * @param sequencerRunMap Hash of sample id to Run, used to lookup runs.
-   * @param libSeqIds Library seq ids.
+   * @param libSeqIds       Library seq ids.
    * @return A set of run names
    */
   private static Set<String> getRuns(
@@ -180,8 +185,9 @@ public class GeccoReport extends TableReport {
   /**
    * Return the list of Library Seq sample ids that exist below the given sample.
    *
-   * @param sampleMap Hash of sample id to Sample, used to navigate sample hierarchy.
-   * @param sample Starting sample
+   * @param sampleMap Hash of sample id to Sample, used to navigate sample
+   *                  hierarchy.
+   * @param sample    Starting sample
    * @return List of Library Seq ids.
    */
   private static Set<String> getLibSeqIds(Map<String, SampleDto> sampleMap, SampleDto sample) {

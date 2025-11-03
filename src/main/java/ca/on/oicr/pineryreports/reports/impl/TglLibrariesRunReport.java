@@ -10,6 +10,7 @@ import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.InstrumentDto;
 import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.RunDtoContainer;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
@@ -64,16 +65,15 @@ public class TglLibrariesRunReport extends TableReport {
   private String start;
   private String end;
 
-  private static final List<ColumnDefinition> COLUMNS =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              new ColumnDefinition("Library creation date"),
-              new ColumnDefinition("Run completion date"),
-              new ColumnDefinition("Instrument"),
-              new ColumnDefinition("Run name"),
-              new ColumnDefinition("Project"),
-              new ColumnDefinition("Library"),
-              new ColumnDefinition("Seq strategy")));
+  private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(
+      Arrays.asList(
+          new ColumnDefinition("Library creation date"),
+          new ColumnDefinition("Run completion date"),
+          new ColumnDefinition("Instrument"),
+          new ColumnDefinition("Run name"),
+          new ColumnDefinition("Project"),
+          new ColumnDefinition("Library"),
+          new ColumnDefinition("Seq strategy")));
 
   Map<String, SampleDto> allSamplesById;
   List<ReportObject> reportData;
@@ -123,31 +123,43 @@ public class TglLibrariesRunReport extends TableReport {
   @Override
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     allSamplesById = mapSamplesById(pinery.getSample().all());
-    Map<Integer, InstrumentDto> instrumentsById =
-        pinery
-            .getInstrument()
-            .all()
-            .stream()
-            .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
+    Map<Integer, InstrumentDto> instrumentsById = pinery
+        .getInstrument()
+        .all()
+        .stream()
+        .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
     // filter runs within the date range
-    Set<RunDto> newRuns =
-        pinery
-            .getSequencerRun()
-            .all()
-            .stream()
-            .filter(byEndedBetween(start, end))
-            .collect(Collectors.toSet());
+    Set<RunDto> newRuns = pinery
+        .getSequencerRun()
+        .all()
+        .stream()
+        .filter(byEndedBetween(start, end))
+        .collect(Collectors.toSet());
     List<ReportObject> rows = new ArrayList<>();
 
     for (RunDto run : newRuns) {
       String instrumentName = getInstrumentName(run.getInstrumentId(), instrumentsById);
-      if (run.getPositions() == null) continue;
-      for (RunDtoPosition lane : run.getPositions()) {
-        if (lane.getSamples() == null) continue;
-        for (RunDtoSample sam : lane.getSamples()) {
-          SampleDto library = getParent(allSamplesById.get(sam.getId()), allSamplesById);
-          if (!isTglLibrary(library)) continue;
-          rows.add(new ReportObject(library, run, instrumentName));
+      if (run.getContainers() == null) {
+        continue;
+      }
+      if (run.getContainers().size() > 1) {
+        throw new RuntimeException(String.format("Unexpected data - run has multiple containers: %s", run.getName()));
+      }
+      for (RunDtoContainer container : run.getContainers()) {
+        if (container.getPositions() == null) {
+          continue;
+        }
+        for (RunDtoPosition lane : container.getPositions()) {
+          if (lane.getSamples() == null) {
+            continue;
+          }
+          for (RunDtoSample sam : lane.getSamples()) {
+            SampleDto library = getParent(allSamplesById.get(sam.getId()), allSamplesById);
+            if (!isTglLibrary(library)) {
+              continue;
+            }
+            rows.add(new ReportObject(library, run, instrumentName));
+          }
         }
       }
     }
@@ -160,12 +172,11 @@ public class TglLibrariesRunReport extends TableReport {
   }
 
   /** Sort descending by library creation date */
-  private final Comparator<ReportObject> byLibraryCreationDate =
-      (o1, o2) -> {
-        String o1Created = o1.getLibrary().getCreatedDate();
-        String o2Created = o2.getLibrary().getCreatedDate();
-        return o1Created.compareTo(o2Created) * -1;
-      };
+  private final Comparator<ReportObject> byLibraryCreationDate = (o1, o2) -> {
+    String o1Created = o1.getLibrary().getCreatedDate();
+    String o2Created = o2.getLibrary().getCreatedDate();
+    return o1Created.compareTo(o2Created) * -1;
+  };
 
   @Override
   protected List<ColumnDefinition> getColumns() {

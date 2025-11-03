@@ -12,6 +12,7 @@ import ca.on.oicr.pineryreports.util.SampleUtils;
 import ca.on.oicr.ws.dto.InstrumentDto;
 import ca.on.oicr.ws.dto.InstrumentModelDto;
 import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.RunDtoContainer;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
@@ -40,14 +41,16 @@ public class LanesBillingReport extends TableReport {
     private final String laneContents;
     private final String laneNumber;
     private final String project;
-    private final BigDecimal
-        projLibsPercent; // percentage of libs in lane which belong to given project
+    private final BigDecimal projLibsPercent; // percentage of libs in lane which belong to given project
     private final String runEndDate;
     private final String runName;
     private final String runStatus;
     private final String sequencingParameters;
 
-    /** novaSeqLanesCount should be 0 for non-NovaSeq runs, since there are no NovaSeq lanes */
+    /**
+     * novaSeqLanesCount should be 0 for non-NovaSeq runs, since there are no
+     * NovaSeq lanes
+     */
     public DetailedObject(
         RunDto run,
         String instrumentName,
@@ -114,19 +117,19 @@ public class LanesBillingReport extends TableReport {
     }
 
     private static String extractSequencingParameters(RunDto run, int novaSeqLanesCount) {
-      String maybeNovaSeqFlowcell =
-          (novaSeqLanesCount > 0 ? String.format("S%d ", novaSeqLanesCount) : "");
+      String maybeNovaSeqFlowcell = (novaSeqLanesCount > 0 ? String.format("S%d ", novaSeqLanesCount) : "");
       if (run.getSequencingParameters() == null
           || run.getSequencingParameters().startsWith("Custom")) {
         // use runBasesMask
         // format: y#,I#?,y#
-        // We only care about the y# pars; the I# parts are optional and indicate indices
-        if (run.getRunBasesMask() == null || "".equals(run.getRunBasesMask())) return "";
-        List<String> reads =
-            Arrays.stream(run.getRunBasesMask().split(","))
-                .filter(read -> read.startsWith("y")) // get only reads
-                .map(read -> read.substring(1)) // strip the "y"
-                .collect(Collectors.toList());
+        // We only care about the y# pars; the I# parts are optional and indicate
+        // indices
+        if (run.getRunBasesMask() == null || "".equals(run.getRunBasesMask()))
+          return "";
+        List<String> reads = Arrays.stream(run.getRunBasesMask().split(","))
+            .filter(read -> read.startsWith("y")) // get only reads
+            .map(read -> read.substring(1)) // strip the "y"
+            .collect(Collectors.toList());
         if (reads.size() == 1 || reads.size() == 2 && reads.get(0).equals(reads.get(1))) {
           return String.format("%s%dx%s", maybeNovaSeqFlowcell, reads.size(), reads.get(0));
         } else if (reads.size() == 2) {
@@ -139,15 +142,14 @@ public class LanesBillingReport extends TableReport {
       }
     }
 
-    private static final Comparator<DetailedObject> detailedComparator =
-        (DetailedObject o1, DetailedObject o2) -> {
-          if (o1.getProject().equals(o2.getProject())) {
-            return o2.getRunEndDate().compareTo(o2.getRunEndDate());
-          } else {
-            // sort on this primarily
-            return o1.getProject().compareTo(o2.getProject());
-          }
-        };
+    private static final Comparator<DetailedObject> detailedComparator = (DetailedObject o1, DetailedObject o2) -> {
+      if (o1.getProject().equals(o2.getProject())) {
+        return o2.getRunEndDate().compareTo(o2.getRunEndDate());
+      } else {
+        // sort on this primarily
+        return o1.getProject().compareTo(o2.getProject());
+      }
+    };
   }
 
   public static final String REPORT_NAME = "lanes-billing";
@@ -230,37 +232,31 @@ public class LanesBillingReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     // samples and instruments and instrument models will come in handy
     Map<String, SampleDto> samplesById = mapSamplesById(pinery.getSample().all());
-    Map<Integer, InstrumentDto> instrumentsById =
-        pinery
-            .getInstrument()
-            .all()
-            .stream()
-            .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
-    Map<Integer, InstrumentModelDto> instrumentModelsById =
-        pinery
-            .getInstrumentModel()
-            .all()
-            .stream()
-            .collect(Collectors.toMap(InstrumentModelDto::getId, dto -> dto));
+    Map<Integer, InstrumentDto> instrumentsById = pinery
+        .getInstrument()
+        .all()
+        .stream()
+        .collect(Collectors.toMap(InstrumentDto::getId, dto -> dto));
+    Map<Integer, InstrumentModelDto> instrumentModelsById = pinery
+        .getInstrumentModel()
+        .all()
+        .stream()
+        .collect(Collectors.toMap(InstrumentModelDto::getId, dto -> dto));
     // filter runs within the date range
-    Set<RunDto> newRuns =
-        pinery
-            .getSequencerRun()
-            .all()
-            .stream()
-            .filter(byEndedBetween(start, end))
-            .collect(Collectors.toSet());
-    Set<RunDto> failedRuns =
-        newRuns
-            .stream()
-            .filter(run -> RUN_FAILED.equals(run.getState()))
-            .collect(Collectors.toSet());
+    Set<RunDto> newRuns = pinery
+        .getSequencerRun()
+        .all()
+        .stream()
+        .filter(byEndedBetween(start, end))
+        .collect(Collectors.toSet());
+    Set<RunDto> failedRuns = newRuns
+        .stream()
+        .filter(run -> RUN_FAILED.equals(run.getState()))
+        .collect(Collectors.toSet());
     newRuns.removeAll(failedRuns);
 
-    completed =
-        getReportAndSummaryData(newRuns, samplesById, instrumentsById, instrumentModelsById);
-    failed =
-        getReportAndSummaryData(failedRuns, samplesById, instrumentsById, instrumentModelsById);
+    completed = getReportAndSummaryData(newRuns, samplesById, instrumentsById, instrumentModelsById);
+    failed = getReportAndSummaryData(failedRuns, samplesById, instrumentsById, instrumentModelsById);
   }
 
   private ReportObject getReportAndSummaryData(
@@ -272,80 +268,45 @@ public class LanesBillingReport extends TableReport {
     Map<String, Map<String, BigDecimal>> summaryData = new TreeMap<>();
     for (RunDto run : runs) {
       String instrumentName = getInstrumentName(run.getInstrumentId(), instrumentsById);
-      String instrumentModel =
-          getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById);
-      if (run.getPositions() == null) continue;
-      int novaSeqLanesCount = 0;
-      if (NOVASEQ.equals(instrumentModel)) novaSeqLanesCount = run.getPositions().size();
-      for (RunDtoPosition lane : run.getPositions()) {
-        int laneNumber = lane.getPosition();
-        int samplesInLane = 0;
-        boolean dnaInLane = false;
-        boolean rnaInLane = false;
-        Map<String, Integer> projectsInLane = new HashMap<>();
-        if (lane.getSamples() != null) {
-          // Set the samples in lane count, then continue to the `for RunSampleDto :
-          // lane.getSamples()` clause.
-          samplesInLane = lane.getSamples().size();
-        } else if (NOVASEQ.equals(instrumentModel)) {
-          // Some NovaSeq lanes are joined so the pool is only added to the first lane in LIMS, but
-          // is present in all the other lanes.
-          // Report the same data as for the first lane.
-          lane =
-              run.getPositions()
-                  .stream()
-                  .filter(l -> l.getPosition() == 1)
-                  .findFirst()
-                  .orElse(null);
-
-          if (lane == null || lane.getSamples() == null) {
-            // couldn't find a lane 1, so report this as NoProject
-            DetailedObject noProject =
-                new DetailedObject(
-                    run,
-                    instrumentName,
-                    instrumentModel,
-                    novaSeqLanesCount,
-                    Integer.toString(laneNumber),
-                    "NoProject",
-                    BigDecimal.ONE,
-                    DNA_LANE);
-            detailedData.add(noProject);
-            addSummaryData(summaryData, noProject);
-            // skip further processing because there are no samples in the lane
-            continue;
-          } else {
+      String instrumentModel = getInstrumentModel(run.getInstrumentId(), instrumentsById, instrumentModelsById);
+      if (run.getContainers() == null) {
+        continue;
+      }
+      if (run.getContainers().size() > 1) {
+        throw new RuntimeException(String.format("Unexpected data - run has multiple containers: %s", run.getName()));
+      }
+      for (RunDtoContainer container : run.getContainers()) {
+        if (container.getPositions() == null) {
+          continue;
+        }
+        int novaSeqLanesCount = 0;
+        if (NOVASEQ.equals(instrumentModel)) {
+          novaSeqLanesCount = container.getPositions().size();
+        }
+        for (RunDtoPosition lane : container.getPositions()) {
+          int laneNumber = lane.getPosition();
+          int samplesInLane = 0;
+          boolean dnaInLane = false;
+          boolean rnaInLane = false;
+          Map<String, Integer> projectsInLane = new HashMap<>();
+          if (lane.getSamples() != null) {
+            // Set the samples in lane count, then continue to the `for RunSampleDto :
+            // lane.getSamples()` clause.
             samplesInLane = lane.getSamples().size();
-          }
-        } else {
-          // NextSeq flowcells are 4 lanes but they can't be split. We report these as single-lane
-          // runs and ignore lanes 2-4.
-          if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1) continue;
+          } else if (NOVASEQ.equals(instrumentModel)) {
+            // Some NovaSeq lanes are joined so the pool is only added to the first lane in
+            // LIMS, but
+            // is present in all the other lanes.
+            // Report the same data as for the first lane.
+            lane = container.getPositions()
+                .stream()
+                .filter(l -> l.getPosition() == 1)
+                .findFirst()
+                .orElse(null);
 
-          // Sequencing done at UHN is rsynced into a folder called "UHN_HiSeqs". These lanes are
-          // "UHN" instead of "NoProject".
-          if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
-            DetailedObject uhn =
-                new DetailedObject(
-                    run,
-                    instrumentName,
-                    instrumentModel,
-                    novaSeqLanesCount,
-                    Integer.toString(laneNumber),
-                    "UHN",
-                    BigDecimal.ONE,
-                    DNA_LANE);
-            detailedData.add(uhn);
-            addSummaryData(summaryData, uhn);
-            // skip further processing because there are no samples in the lane
-            continue;
-          }
-          // All other empty lanes should still be reported for billing purposes (may be run as
-          // Sequencing as a service).
-          // They are reported as DNA by default, though Pinery has no knowledge of the actual
-          // contents.
-          DetailedObject noProject =
-              new DetailedObject(
+            if (lane == null || lane.getSamples() == null) {
+              // couldn't find a lane 1, so report this as NoProject
+              DetailedObject noProject = new DetailedObject(
                   run,
                   instrumentName,
                   instrumentModel,
@@ -354,48 +315,95 @@ public class LanesBillingReport extends TableReport {
                   "NoProject",
                   BigDecimal.ONE,
                   DNA_LANE);
-          detailedData.add(noProject);
-          addSummaryData(summaryData, noProject);
-          // skip further processing because there are no samples in the lane
-          continue;
-        }
-
-        for (RunDtoSample sam : lane.getSamples()) {
-          SampleDto dilution = samplesById.get(sam.getId());
-          // Reject if it's a TGL dilution on a NextSeq ("TGL for TGL").
-          if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL))
-            continue;
-
-          if (isRnaLibrary(dilution, samplesById)) {
-            rnaInLane = true;
+              detailedData.add(noProject);
+              addSummaryData(summaryData, noProject);
+              // skip further processing because there are no samples in the lane
+              continue;
+            } else {
+              samplesInLane = lane.getSamples().size();
+            }
           } else {
-            dnaInLane = true;
-          }
-          String project = getProjectWithSubproject(dilution, samplesById);
-          if (projectsInLane.containsKey(project)) {
-            // increment project libraries
-            projectsInLane.merge(project, 1, Integer::sum);
-          } else {
-            // add project with library to map
-            projectsInLane.put(project, 1);
-          }
-        }
-        String laneContents = dnaInLane ? (rnaInLane ? MIXED_LANE : DNA_LANE) : RNA_LANE;
+            // NextSeq flowcells are 4 lanes but they can't be split. We report these as
+            // single-lane
+            // runs and ignore lanes 2-4.
+            if (NEXTSEQ.equals(instrumentModel) && laneNumber != 1)
+              continue;
 
-        for (Map.Entry<String, Integer> entry : projectsInLane.entrySet()) {
-          BigDecimal projectPercent = getPercentProjectInLane(entry.getValue(), samplesInLane);
-          DetailedObject newReport =
-              new DetailedObject(
+            // Sequencing done at UHN is rsynced into a folder called "UHN_HiSeqs". These
+            // lanes are
+            // "UHN" instead of "NoProject".
+            if (run.getRunDirectory() != null && run.getRunDirectory().contains("UHN_HiSeqs")) {
+              DetailedObject uhn = new DetailedObject(
                   run,
                   instrumentName,
                   instrumentModel,
                   novaSeqLanesCount,
                   Integer.toString(laneNumber),
-                  entry.getKey(),
-                  projectPercent,
-                  laneContents);
-          detailedData.add(newReport);
-          addSummaryData(summaryData, newReport);
+                  "UHN",
+                  BigDecimal.ONE,
+                  DNA_LANE);
+              detailedData.add(uhn);
+              addSummaryData(summaryData, uhn);
+              // skip further processing because there are no samples in the lane
+              continue;
+            }
+            // All other empty lanes should still be reported for billing purposes (may be
+            // run as
+            // Sequencing as a service).
+            // They are reported as DNA by default, though Pinery has no knowledge of the
+            // actual
+            // contents.
+            DetailedObject noProject = new DetailedObject(
+                run,
+                instrumentName,
+                instrumentModel,
+                novaSeqLanesCount,
+                Integer.toString(laneNumber),
+                "NoProject",
+                BigDecimal.ONE,
+                DNA_LANE);
+            detailedData.add(noProject);
+            addSummaryData(summaryData, noProject);
+            // skip further processing because there are no samples in the lane
+            continue;
+          }
+
+          for (RunDtoSample sam : lane.getSamples()) {
+            SampleDto dilution = samplesById.get(sam.getId());
+            // Reject if it's a TGL dilution on a NextSeq ("TGL for TGL").
+            if (NEXTSEQ.equals(instrumentModel) && dilution.getProjectName().startsWith(TGL))
+              continue;
+
+            if (isRnaLibrary(dilution, samplesById)) {
+              rnaInLane = true;
+            } else {
+              dnaInLane = true;
+            }
+            String project = getProjectWithSubproject(dilution, samplesById);
+            if (projectsInLane.containsKey(project)) {
+              // increment project libraries
+              projectsInLane.merge(project, 1, Integer::sum);
+            } else {
+              // add project with library to map
+              projectsInLane.put(project, 1);
+            }
+          }
+          String laneContents = dnaInLane ? (rnaInLane ? MIXED_LANE : DNA_LANE) : RNA_LANE;
+
+          for (Map.Entry<String, Integer> entry : projectsInLane.entrySet()) {
+            BigDecimal projectPercent = getPercentProjectInLane(entry.getValue(), samplesInLane);
+            DetailedObject newReport = new DetailedObject(
+                run,
+                instrumentName,
+                instrumentModel,
+                novaSeqLanesCount,
+                Integer.toString(laneNumber),
+                entry.getKey(),
+                projectPercent,
+                laneContents);
+            detailedData.add(newReport);
+            addSummaryData(summaryData, newReport);
+          }
         }
       }
     }
@@ -414,11 +422,13 @@ public class LanesBillingReport extends TableReport {
   private static final String TGL = "TGL";
 
   /**
-   * Some project names need to be processed (like the TGL projects, which should all be reported as
+   * Some project names need to be processed (like the TGL projects, which should
+   * all be reported as
    * one project)
    */
   private String processProjectName(String projectName) {
-    if (projectName.startsWith(TGL)) return TGL;
+    if (projectName.startsWith(TGL))
+      return TGL;
     return projectName;
   }
 
@@ -431,8 +441,8 @@ public class LanesBillingReport extends TableReport {
           summary.get(summaryKey), newReport.getLaneContents(), newReport.getProjLibsPercent());
     } else {
       // add new project+instrument and lane number+type
-      Map<String, BigDecimal> newLanes =
-          makeNewSummaryLanes(newReport.getLaneContents(), newReport.getProjLibsPercent());
+      Map<String, BigDecimal> newLanes = makeNewSummaryLanes(newReport.getLaneContents(),
+          newReport.getProjLibsPercent());
       summary.put(summaryKey, newLanes);
     }
   }
@@ -467,7 +477,8 @@ public class LanesBillingReport extends TableReport {
 
   static final List<Map.Entry<String, Map<String, BigDecimal>>> listifySummary(
       Map<String, Map<String, BigDecimal>> summary) {
-    // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet
+    // need to convert it to a list, because getRow() takes an index and the treemap
+    // doesn't yet
     // have one of those
     return new ArrayList<>(summary.entrySet());
   }
@@ -517,8 +528,7 @@ public class LanesBillingReport extends TableReport {
   @Override
   protected String[] getRow(int rowNum) {
     if (rowNum < completed.getSummaryAsList().size()) {
-      Map.Entry<String, Map<String, BigDecimal>> completedSummary =
-          completed.getSummaryAsList().get(rowNum);
+      Map.Entry<String, Map<String, BigDecimal>> completedSummary = completed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(completedSummary);
     }
     rowNum -= completed.getSummaryAsList().size();
@@ -553,8 +563,7 @@ public class LanesBillingReport extends TableReport {
     }
     rowNum -= 1;
     if (rowNum < failed.getSummaryAsList().size()) {
-      Map.Entry<String, Map<String, BigDecimal>> failedSummary =
-          failed.getSummaryAsList().get(rowNum);
+      Map.Entry<String, Map<String, BigDecimal>> failedSummary = failed.getSummaryAsList().get(rowNum);
       return makeSummaryRow(failedSummary);
     }
     rowNum -= failed.getSummaryAsList().size();

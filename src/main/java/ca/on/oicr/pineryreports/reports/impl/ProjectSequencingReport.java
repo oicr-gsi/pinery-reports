@@ -9,6 +9,7 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.RunDtoContainer;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
@@ -65,18 +66,17 @@ public class ProjectSequencingReport extends TableReport {
 
   public static final String GSLE_USER = "Geospiza";
 
-  private static final List<ColumnDefinition> COLUMNS =
-      Collections.unmodifiableList(
-          Arrays.asList(
-              new ColumnDefinition("Stock"),
-              new ColumnDefinition("Pool"),
-              new ColumnDefinition("Pool Creator"),
-              new ColumnDefinition("Pool Created"),
-              new ColumnDefinition("Dilutions"),
-              new ColumnDefinition("Library"),
-              new ColumnDefinition("Run"),
-              new ColumnDefinition("Lane"),
-              new ColumnDefinition("Index")));
+  private static final List<ColumnDefinition> COLUMNS = Collections.unmodifiableList(
+      Arrays.asList(
+          new ColumnDefinition("Stock"),
+          new ColumnDefinition("Pool"),
+          new ColumnDefinition("Pool Creator"),
+          new ColumnDefinition("Pool Created"),
+          new ColumnDefinition("Dilutions"),
+          new ColumnDefinition("Library"),
+          new ColumnDefinition("Run"),
+          new ColumnDefinition("Lane"),
+          new ColumnDefinition("Index")));
 
   private String project;
   Map<String, SampleDto> allSamplesById;
@@ -111,27 +111,31 @@ public class ProjectSequencingReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     List<SampleDto> samples = pinery.getSample().all();
     allSamplesById = mapSamplesById(samples);
-    Map<Integer, UserDto> allUsersById =
-        pinery
-            .getUser()
-            .all()
-            .stream()
-            .collect(Collectors.toMap(UserDto::getId, Functions.identity()));
+    Map<Integer, UserDto> allUsersById = pinery
+        .getUser()
+        .all()
+        .stream()
+        .collect(Collectors.toMap(UserDto::getId, Functions.identity()));
 
     List<ReportObject> rows = new ArrayList<>();
     List<RunDto> allRuns = pinery.getSequencerRun().all();
     for (RunDto run : allRuns) {
-      if ("Completed".equals(run.getState()) && run.getPositions() != null) {
-        for (RunDtoPosition pos : run.getPositions()) {
-          if (pos.getSamples() != null) {
-            for (RunDtoSample sam : pos.getSamples()) {
-              SampleDto dilution = allSamplesById.get(sam.getId());
-              if (project.equals(dilution.getProjectName())) {
-                UserDto poolCreator =
-                    pos.getPoolCreatedById() == null
-                        ? null
-                        : allUsersById.get(pos.getPoolCreatedById());
-                rows.add(new ReportObject(dilution, run, pos, poolCreator));
+      if ("Completed".equals(run.getState()) && run.getContainers() != null) {
+        if (run.getContainers().size() > 1) {
+          throw new RuntimeException(
+              String.format("Unexpected data - run has multiple containers: %s", run.getName()));
+        }
+        for (RunDtoContainer container : run.getContainers()) {
+          for (RunDtoPosition pos : container.getPositions()) {
+            if (pos.getSamples() != null) {
+              for (RunDtoSample sam : pos.getSamples()) {
+                SampleDto dilution = allSamplesById.get(sam.getId());
+                if (project.equals(dilution.getProjectName())) {
+                  UserDto poolCreator = pos.getPoolCreatedById() == null
+                      ? null
+                      : allUsersById.get(pos.getPoolCreatedById());
+                  rows.add(new ReportObject(dilution, run, pos, poolCreator));
+                }
               }
             }
           }
@@ -143,23 +147,22 @@ public class ProjectSequencingReport extends TableReport {
   }
 
   /** Sort descending by pool date */
-  private final Comparator<ReportObject> byPoolDate =
-      (o1, o2) -> {
-        String o1Created = removeTime(o1.getLane().getPoolCreated());
-        String o2Created = removeTime(o2.getLane().getPoolCreated());
-        if (o1Created == null) {
-          if (o2Created != null) {
-            return -1;
-          }
-        } else if (o2Created == null) {
-          if (o1Created != null) {
-            return 1;
-          }
-        } else {
-          return o1Created.compareTo(o2Created) * -1;
-        }
-        return 0;
-      };
+  private final Comparator<ReportObject> byPoolDate = (o1, o2) -> {
+    String o1Created = removeTime(o1.getLane().getPoolCreated());
+    String o2Created = removeTime(o2.getLane().getPoolCreated());
+    if (o1Created == null) {
+      if (o2Created != null) {
+        return -1;
+      }
+    } else if (o2Created == null) {
+      if (o1Created != null) {
+        return 1;
+      }
+    } else {
+      return o1Created.compareTo(o2Created) * -1;
+    }
+    return 0;
+  };
 
   @Override
   protected List<ColumnDefinition> getColumns() {
@@ -189,8 +192,7 @@ public class ProjectSequencingReport extends TableReport {
     // Pool Creator
     row[++i] = getUserName(obj.getPoolCreator());
     // Pool Created
-    row[++i] =
-        obj.getLane().getPoolCreated() == null ? null : removeTime(obj.getLane().getPoolCreated());
+    row[++i] = obj.getLane().getPoolCreated() == null ? null : removeTime(obj.getLane().getPoolCreated());
     // Dilutions
     row[++i] = Integer.toString(obj.getLane().getSamples().size());
     // Library
@@ -216,7 +218,8 @@ public class ProjectSequencingReport extends TableReport {
   }
 
   private String getUserName(UserDto user) {
-    if (user == null) return null;
+    if (user == null)
+      return null;
     if (GSLE_USER.equals(user.getFirstname()) && GSLE_USER.equals(user.getLastname()))
       return GSLE_USER;
     return user.getFirstname() + " " + user.getLastname();

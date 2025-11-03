@@ -9,6 +9,7 @@ import ca.on.oicr.pineryreports.data.ColumnDefinition;
 import ca.on.oicr.pineryreports.reports.TableReport;
 import ca.on.oicr.pineryreports.util.CommonOptions;
 import ca.on.oicr.ws.dto.RunDto;
+import ca.on.oicr.ws.dto.RunDtoContainer;
 import ca.on.oicr.ws.dto.RunDtoPosition;
 import ca.on.oicr.ws.dto.RunDtoSample;
 import ca.on.oicr.ws.dto.SampleDto;
@@ -39,10 +40,9 @@ public class LibrariesSequencingReport extends TableReport {
     public ReportObject(SampleDto library, SampleDto identity) {
       this.libraryName = library.getName();
       this.libraryType = getAttribute(ATTR_SOURCE_TEMPLATE_TYPE, library);
-      this.receivedDate =
-          getAttribute(ATTR_RECEIVE_DATE, library) == null
-              ? getAttribute(ATTR_CREATION_DATE, library)
-              : getAttribute(ATTR_RECEIVE_DATE, library);
+      this.receivedDate = getAttribute(ATTR_RECEIVE_DATE, library) == null
+          ? getAttribute(ATTR_CREATION_DATE, library)
+          : getAttribute(ATTR_RECEIVE_DATE, library);
       this.identityName = identity.getName();
       this.externalName = getAttribute(ATTR_EXTERNAL_NAME, identity);
     }
@@ -113,11 +113,10 @@ public class LibrariesSequencingReport extends TableReport {
   protected void collectData(PineryClient pinery) throws HttpResponseException {
     Map<String, SampleDto> samplesById = mapSamplesById(pinery.getSample().all());
     Set<RunDto> newRuns = pinery.getSequencerRun().all().stream().collect(Collectors.toSet());
-    Set<RunDto> failedRuns =
-        newRuns
-            .stream()
-            .filter(run -> RUN_FAILED.equals(run.getState()))
-            .collect(Collectors.toSet());
+    Set<RunDto> failedRuns = newRuns
+        .stream()
+        .filter(run -> RUN_FAILED.equals(run.getState()))
+        .collect(Collectors.toSet());
     newRuns.removeAll(failedRuns);
 
     getReportAndSummaryData(newRuns, samplesById);
@@ -127,33 +126,43 @@ public class LibrariesSequencingReport extends TableReport {
   private void getReportAndSummaryData(
       Collection<RunDto> runs, Map<String, SampleDto> samplesById) {
     for (RunDto run : runs) {
-      if (run.getPositions() == null) continue;
-      for (RunDtoPosition lane : run.getPositions()) {
-        if (lane.getSamples() == null) {
+      if (run.getContainers() == null || run.getContainers().isEmpty()) {
+        continue;
+      }
+      if (run.getContainers().size() > 1) {
+        throw new RuntimeException(String.format("Unexpected data - run has multiple containers: %s", run.getName()));
+      }
+      for (RunDtoContainer container : run.getContainers()) {
+        if (container.getPositions() == null)
           continue;
-        }
-        for (RunDtoSample sam : lane.getSamples()) {
-          SampleDto dilution = samplesById.get(sam.getId());
-          SampleDto library = getParent(dilution, samplesById);
-          if (!library.getProjectName().equals(project)) {
+        for (RunDtoPosition lane : container.getPositions()) {
+          if (lane.getSamples() == null) {
             continue;
           }
-          SampleDto identity = getParent(library, SAMPLE_CATEGORY_IDENTITY, samplesById);
-          ReportObject lib;
-          if (detailedData.get(library.getName()) == null) {
-            lib = new ReportObject(library, identity);
-          } else {
-            lib = detailedData.get(library.getName());
+          for (RunDtoSample sam : lane.getSamples()) {
+            SampleDto dilution = samplesById.get(sam.getId());
+            SampleDto library = getParent(dilution, samplesById);
+            if (!library.getProjectName().equals(project)) {
+              continue;
+            }
+            SampleDto identity = getParent(library, SAMPLE_CATEGORY_IDENTITY, samplesById);
+            ReportObject lib;
+            if (detailedData.get(library.getName()) == null) {
+              lib = new ReportObject(library, identity);
+            } else {
+              lib = detailedData.get(library.getName());
+            }
+            lib.addRun(run);
+            detailedData.put(library.getName(), lib);
           }
-          lib.addRun(run);
-          detailedData.put(library.getName(), lib);
         }
       }
     }
   }
 
   static final List<Map.Entry<String, ReportObject>> listify(Map<String, ReportObject> detailed) {
-    // need to convert it to a list, because getRow() takes an index and the treemap doesn't yet
+    // need to convert it to a list, because getRow() takes an index and the treemap
+    // doesn't yet
     // have one of those
     return new ArrayList<>(detailed.entrySet());
   }
